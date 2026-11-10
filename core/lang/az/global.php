@@ -408,6 +408,7 @@ $_lang["user_changeddata"] = 'Məlumatlarınız dəyişdirildi. Zəhmət olmasa,
 $_lang["user_country"] = 'Ölkə';
 $_lang["user_dob"] = 'Doğum tarixi';
 $_lang["user_doesnt_exist"] = 'İstifadəçi mövcud deyil';
+$_lang["user_role_invalid"] = 'Seçilmiş rol mövcud deyil. Başqa rol seçin və yenidən yadda saxlayın.';
 $_lang["user_edit_self_msg"] = '<b>Məlumatlarınızı tam yeniləmək üçün yadda saxladıqdan sonra çıxıb yenidən daxil olmalı ola bilərsiniz.</b> Yeni şifrələr e-poçt ünvanınıza göndəriləcək və ya ekranda göstəriləcək.';
 $_lang["user_email"] = 'E-poçt ünvanı';
 $_lang["user_failedlogincount"] = 'Uğursuz giriş cəhdləri';

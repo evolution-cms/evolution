@@ -1193,6 +1193,7 @@ $_lang["user_changeddata"] = 'I vostri dati sono stati modificati. Vi preghiamo 
 $_lang["user_country"] = 'Nazione';
 $_lang["user_dob"] = 'Data di nascita';
 $_lang["user_doesnt_exist"] = 'L\'utente non esiste';
+$_lang["user_role_invalid"] = 'Il ruolo selezionato non esiste. Scegli un altro ruolo e salva di nuovo.';
 $_lang["user_edit_self_msg"] = 'Se cambiate lo vostre informazioni utente dopo il salvataggio potreste aver bisogno di scollegarvi e di ricollegarvi nuovamente.</b><br>Se avete scelto di generare automaticamente una nuova password vi verrà inviata per e-mail, verificate l\'indirizzo e-mail che avete inserito.';
 $_lang["user_email"] = 'Indirizzo e-mail';
 $_lang["user_failedlogincount"] = 'Login falliti';

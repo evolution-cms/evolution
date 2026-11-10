@@ -82,7 +82,7 @@ it('caps role save at the actor reach and checks role deletion rights', function
 it('assigns a user role only within the actor reach, not just below admin', function () {
     $source = controllerSource('Users/EditOrNewUser');
 
-    expect($source)->toContain('RoleGuard::mayManageRole($actorRole, $actorPermissions, $newRole, $newRolePermissions)')
+    expect($source)->toContain('RoleGuard::mayAssignRole($actorRole, static fn ($key) => EvolutionCMS()->hasPermission($key), $newRole)')
         ->and($source)->not->toContain('AdminAccountGuard::mayAssignRole(');
 });
 

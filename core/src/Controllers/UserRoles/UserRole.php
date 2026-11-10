@@ -248,7 +248,7 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
     {
         $actorRole = $actorRole ?? (int) ($_SESSION['mgrRole'] ?? 0);
         $actorPermissions = $actorPermissions ?? $this->actorPermissions();
-        $targetPermissions = Models\RolePermissions::query()->where('role_id', $id)->pluck('permission')->all();
+        $targetPermissions = RoleGuard::reachOf($id);
 
         if (!RoleGuard::mayManageRole($actorRole, $actorPermissions, $id, $targetPermissions)) {
             $this->managerTheme->alertAndQuit('error_no_privileges');
@@ -264,10 +264,7 @@ class UserRole extends AbstractController implements ManagerTheme\PageController
     {
         $core = $this->managerTheme->getCore();
 
-        return array_values(array_filter(
-            Models\Permissions::query()->pluck('key')->all(),
-            static fn ($key) => (bool) $core->hasPermission($key)
-        ));
+        return RoleGuard::heldBy(static fn ($key) => $core->hasPermission($key));
     }
 
     public static function normalizePermissionsPayload(array $permissions, array $requiredPermissions = []): array

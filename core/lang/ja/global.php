@@ -1216,6 +1216,7 @@ $_lang["user_changeddata"] = 'ユーザー情報が変更されました。も�
 $_lang["user_country"] = '国';
 $_lang["user_dob"] = '誕生日';
 $_lang["user_doesnt_exist"] = 'ユーザー登録がありません';
+$_lang["user_role_invalid"] = '選択したロールは存在しません。別のロールを選択して、もう一度保存してください。';
 $_lang["user_edit_self_msg"] = '<b>自分自身のユーザー情報を変更した場合は、変更を管理画面に反映させるためにいったんログアウトしてください。</b>';
 $_lang["user_email"] = 'メールアドレス';
 $_lang["user_failedlogincount"] = 'ログイン失敗';

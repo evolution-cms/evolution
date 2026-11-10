@@ -1229,6 +1229,7 @@ $_lang["user_changeddata"] = 'Maglumatlaryňyz üýtgedildi. Täzeden giriň.';
 $_lang["user_country"] = 'Ýurt';
 $_lang["user_dob"] = 'Doglan senesi';
 $_lang["user_doesnt_exist"] = 'Ulanyjy ýok';
+$_lang["user_role_invalid"] = 'Saýlanan rol ýok. Başga rol saýlaň we täzeden ýatda saklaň.';
 $_lang["user_edit_self_msg"] = '<b>Maglumatyňyzy doly täzelemek üçin ýatda saklandan soň ulgamdan çykyp, täzeden girmegiňiz gerek bolup biler.</b> Täze parollar e-poçta salgyňyza iberiler ýa-da ekranda görkeziler.';
 $_lang["user_email"] = 'E-poçta salgysy';
 $_lang["user_failedlogincount"] = 'Şowsuz girişler';

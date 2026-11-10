@@ -1096,6 +1096,7 @@ $_lang["user_changeddata"] = 'Tietojasi on muutettu. Kirjaudu uudestaan sisään
 $_lang["user_country"] = 'Maa';
 $_lang["user_dob"] = 'Syntymäaika';
 $_lang["user_doesnt_exist"] = 'Käyttäjää ei ole olemassa';
+$_lang["user_role_invalid"] = 'Valittua roolia ei ole olemassa. Valitse toinen rooli ja tallenna uudelleen.';
 $_lang["user_edit_self_msg"] = 'Omien tietojen muuttamisen jälkeen saatat joutua kirjautumaan uudestaan ylläpitoon.</b>';
 $_lang["user_email"] = 'Sähköpostiosoite';
 $_lang["user_failedlogincount"] = 'Epäonnistuneet kirjautumiset';

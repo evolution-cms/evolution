@@ -1,5 +1,9 @@
 <?php namespace EvolutionCMS\Support;
 
+use EvolutionCMS\Models\Permissions;
+use EvolutionCMS\Models\RolePermissions;
+use EvolutionCMS\Models\UserRole;
+
 /**
  * Keeps a manager from granting, through a role, more than it holds itself.
  *
@@ -37,8 +41,90 @@ class RoleGuard
     }
 
     /**
-     * The permission keys a manager may actually store on a role: the requested keys it also holds,
-     * plus the always-on baseline keys. An administrator keeps everything requested.
+     * Grants that nothing authorizes any more: role_actionok, the lang key the earlier default
+     * seeders granted every role in place of action_ok, and action_ok itself, which nothing checks.
+     * Sites installed with those seeders still carry them; they count on neither side.
+     */
+    public const OBSOLETE = ['role_actionok', 'action_ok'];
+
+    /**
+     * What a role authorizes at runtime: the session of its managers holds every stored grant
+     * (StoreContextService::buildManagerPermissions()), whether or not a permissions row defines
+     * it, so a plugin's own key counts as much as a core one.
+     *
+     * @return string[]
+     */
+    public static function grantsOf(int $roleId): array
+    {
+        $grants = RolePermissions::query()->where('role_id', $roleId)->pluck('permission')->all();
+
+        return array_values(array_unique(array_filter($grants, static fn ($key) => is_string($key) && $key !== '')));
+    }
+
+    /**
+     * The grants of a role that set its reach, for mayManageRole(): every grant that authorizes at
+     * runtime, always-on permissions included, less only the obsolete keys.
+     *
+     * @return string[]
+     */
+    public static function reachOf(int $roleId): array
+    {
+        return array_values(array_diff(self::grantsOf($roleId), self::OBSOLETE));
+    }
+
+    /**
+     * The role id a user form posted, exactly as the form writes one: "0" (no role) or the decimal
+     * id of an existing role. Anything else ("3abc", "3.9", " 3", "03", "1e1", an array, a role
+     * that does not exist) is null rather than cast, because a cast value is checked while the
+     * database may coerce the posted one into another role.
+     */
+    public static function postedRoleId(mixed $value): ?int
+    {
+        if (is_int($value)) {
+            $value = (string) $value;
+        }
+        if (!is_string($value) || preg_match('/^(0|[1-9][0-9]{0,9})$/D', $value) !== 1) {
+            return null;
+        }
+        $roleId = (int) $value;
+
+        return $roleId === 0 || UserRole::query()->whereKey($roleId)->exists() ? $roleId : null;
+    }
+
+    /**
+     * May the acting manager give a user $roleId? Assigning needs save_role and a role within the
+     * actor's reach, as EditOrNewUser asks before it changes a user's role.
+     *
+     * @param callable(string): mixed $hasPermission the actor's Core::hasPermission()
+     */
+    public static function mayAssignRole(int $actorRole, callable $hasPermission, int $roleId): bool
+    {
+        return (bool) $hasPermission('save_role')
+            && self::mayManageRole($actorRole, self::heldBy($hasPermission), $roleId, self::reachOf($roleId));
+    }
+
+    /**
+     * The keys the acting manager holds, asked of its runtime check for every key a role can carry:
+     * each defined permission and each key any role is granted, custom ones included.
+     *
+     * @param callable(string): mixed $hasPermission the actor's Core::hasPermission()
+     * @return string[]
+     */
+    public static function heldBy(callable $hasPermission): array
+    {
+        $keys = array_merge(
+            Permissions::query()->pluck('key')->all(),
+            RolePermissions::query()->distinct()->pluck('permission')->all()
+        );
+        $keys = array_unique(array_filter($keys, static fn ($key) => is_string($key) && $key !== ''));
+
+        return array_values(array_filter($keys, static fn ($key) => (bool) $hasPermission($key)));
+    }
+
+    /**
+     * The permission keys a manager may actually store on a role: the requested and the always-on
+     * keys, each only if the manager holds it. A non-administrator never stores a grant it lacks,
+     * a baseline one included; an administrator keeps everything requested plus the baseline.
      *
      * @param int      $actorRole
      * @param string[] $actorPermissions
@@ -48,10 +134,9 @@ class RoleGuard
      */
     public static function grantablePermissions(int $actorRole, array $actorPermissions, array $requestedKeys, array $requiredKeys): array
     {
-        $allowed = $actorRole === self::ADMIN_ROLE
-            ? $requestedKeys
-            : array_intersect($requestedKeys, $actorPermissions);
+        $keys = array_merge($requestedKeys, $requiredKeys);
+        $allowed = $actorRole === self::ADMIN_ROLE ? $keys : array_intersect($keys, $actorPermissions);
 
-        return array_values(array_unique(array_merge($allowed, $requiredKeys)));
+        return array_values(array_unique($allowed));
     }
 }
