@@ -1190,6 +1190,7 @@ $_lang["user_changeddata"] = 'Ihre Daten wurden geändert. Bitte melden Sie sich
 $_lang["user_country"] = 'Land';
 $_lang["user_dob"] = 'Geburtsdatum';
 $_lang["user_doesnt_exist"] = 'Benutzer existiert nicht.';
+$_lang["user_role_invalid"] = 'Die ausgewählte Rolle existiert nicht. Wählen Sie eine andere Rolle und speichern Sie erneut.';
 $_lang["user_edit_self_msg"] = 'Eventuell müssen Sie sich ab- und wieder anmelden, nachdem Sie Ihre Daten geädert haben.';
 $_lang["user_email"] = 'E-Mail-Adresse';
 $_lang["user_failedlogincount"] = 'Fehlgeschlagene Anmeldungen';

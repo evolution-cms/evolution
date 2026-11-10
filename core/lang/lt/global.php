@@ -1244,6 +1244,7 @@ $_lang["user_changeddata"] = 'Jūsų duomenys pakeisti. Prisijunkite iš naujo.'
 $_lang["user_country"] = 'Šalis';
 $_lang["user_dob"] = 'Gimimo data';
 $_lang["user_doesnt_exist"] = 'Naudotojo nėra';
+$_lang["user_role_invalid"] = 'Pasirinkto vaidmens nėra. Pasirinkite kitą vaidmenį ir išsaugokite dar kartą.';
 $_lang["user_edit_self_msg"] = '<b>Išsaugojus gali reikėti atsijungti ir vėl prisijungti, kad jūsų informacija būtų visiškai atnaujinta.</b> Nauji slaptažodžiai bus išsiųsti jūsų el. pašto adresu arba parodyti ekrane.';
 $_lang["user_email"] = 'El. pašto adresas';
 $_lang["user_failedlogincount"] = 'Nesėkmingi prisijungimai';

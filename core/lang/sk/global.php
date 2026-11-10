@@ -1225,6 +1225,7 @@ $_lang["user_changeddata"] = 'Vaše registračné údaje boli zmenené. Prihlás
 $_lang["user_country"] = 'Krajina';
 $_lang["user_dob"] = 'Dátum narodenia';
 $_lang["user_doesnt_exist"] = 'Používateľ neexistuje';
+$_lang["user_role_invalid"] = 'Vybraná rola neexistuje. Zvoľte inú rolu a uložte znova.';
 $_lang["user_edit_self_msg"] = '<b>Odporúča sa odhlásiť a znova prihlásiť, aby sa všetky zmeny prejavili.</b><br />Tiež ak ste sa rozhodli vygenerovať si nové heslo, bude vám odoslané e-mailom.';
 $_lang["user_email"] = 'E-mailová adresa';
 $_lang["user_failedlogincount"] = 'Neúspešné prihlásenia';

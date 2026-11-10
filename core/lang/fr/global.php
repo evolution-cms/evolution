@@ -1075,6 +1075,7 @@ $_lang["user_changeddata"] = 'Vos données ont été actualisées. Merci de vous
 $_lang["user_country"] = 'Pays';
 $_lang["user_dob"] = 'Date de naissance';
 $_lang["user_doesnt_exist"] = 'L\'Utilisateur n\'existe pas';
+$_lang["user_role_invalid"] = 'Le rôle sélectionné n\'existe pas. Choisissez un autre rôle et enregistrez à nouveau.';
 $_lang["user_edit_self_msg"] = '<b>Pour que les informations soient effectivement mises à jour, vous devrez vous déconnecter puis vous reconnecter.</b> Les nouveaux mots de passe seront envoyés par email ou affichés sur l\'écran.';
 $_lang["user_email"] = 'Adresse email ';
 $_lang["user_failedlogincount"] = 'Connexions échouées';

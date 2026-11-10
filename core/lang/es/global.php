@@ -1192,6 +1192,7 @@ $_lang["user_changeddata"] = 'Tus datos han sido cambiados. Por favor ingresa nu
 $_lang["user_country"] = 'País';
 $_lang["user_dob"] = 'Fecha de nacimiento';
 $_lang["user_doesnt_exist"] = 'El usuario no existe';
+$_lang["user_role_invalid"] = 'El rol seleccionado no existe. Elija otro rol y guarde de nuevo.';
 $_lang["user_edit_self_msg"] = '<b>Necesitas cerrar la sesión e iniciarla nuevamente después de actualizar completamente tu información.</b><br>También, si eliges generar una contraseña nueva para tí, te será enviada en un email.';
 $_lang["user_email"] = 'Dirección de correo electrónico';
 $_lang["user_failedlogincount"] = 'Ingresos fallidos';

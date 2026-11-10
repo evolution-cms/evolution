@@ -1105,6 +1105,7 @@ $_lang["user_changeddata"] = 'Os seus dados foram alterados. Por favor volte a e
 $_lang["user_country"] = 'País';
 $_lang["user_dob"] = 'Data de nascimento';
 $_lang["user_doesnt_exist"] = 'O utilizador não existe';
+$_lang["user_role_invalid"] = 'O perfil selecionado não existe. Escolha outro perfil e guarde novamente.';
 $_lang["user_edit_self_msg"] = '<b>Deve sair do sistema e aceder novamente para implementar todas as alterações.</b><br />Caso decida gerar uma nova senha para si, esta ser-lhe-à enviada por e-mail.';
 $_lang["user_email"] = 'Endereço de E-mail';
 $_lang["user_failedlogincount"] = 'Tentativas de acesso falhadas';

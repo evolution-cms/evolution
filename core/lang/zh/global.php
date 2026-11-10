@@ -1106,6 +1106,7 @@ $_lang["user_changeddata"] = 'Your data has been changed. Please log in again.';
 $_lang["user_country"] = '国家';
 $_lang["user_dob"] = '生日';
 $_lang["user_doesnt_exist"] = 'User does not exist';
+$_lang["user_role_invalid"] = '所选角色不存在。请选择其他角色后重新保存。';
 $_lang["user_edit_self_msg"] = '<b>当你保存你的新信息后，你该退出然后再登陆，</b><br />同样，你该选择生成新的密码，新密码会通过EMAIL告诉你';
 $_lang["user_email"] = 'E-mail地址';
 $_lang["user_failedlogincount"] = '失败的登陆';

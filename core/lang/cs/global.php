@@ -1109,6 +1109,7 @@ $_lang["user_changeddata"] = 'Vaše data byla změněna. Prosím přihlašte se 
 $_lang["user_country"] = 'Země';
 $_lang["user_dob"] = 'Datum narození';
 $_lang["user_doesnt_exist"] = 'Uživatel neexistuje';
+$_lang["user_role_invalid"] = 'Vybraná role neexistuje. Zvolte jinou roli a uložte znovu.';
 $_lang["user_edit_self_msg"] = '<b>Pravděpodobně se budete muset odhlásit a přihlásit znovu kvůli kompletní aktualizaci vaších informací.</b><br />Také byste si měli nechat vygenerovat nové heslo a nechat si ho poslat e-mailem.';
 $_lang["user_email"] = 'Emailová adresa';
 $_lang["user_failedlogincount"] = 'Chybná přihlášení';
