@@ -188,18 +188,13 @@ class uploader
             die(sprintf(__('global.files_management_no_permission'), __('global.image_base_upload_dir_title')));
         }
 
-        // IMAGE DRIVER INIT
-        if (isset($this->config['imageDriversPriority'])) {
-            $this->config['imageDriversPriority'] =
-                text::clearWhitespaces($this->config['imageDriversPriority']);
-            $driver = image::getDriver(explode(' ', $this->config['imageDriversPriority']));
-            if ($driver !== false)
-                $this->imageDriver = $driver;
-        }
-        if ((!isset($driver) || ($driver === false)) &&
-            (image::getDriver([$this->imageDriver]) === false)
-        )
+        // IMAGE DRIVER INIT: the configured priority first, then any supported extension
+        $driver = image::resolveDriver($this->config['imageDriversPriority'] ?? null);
+        if ($driver === false)
             die("Cannot find any of the supported PHP image extensions!");
+        $this->imageDriver = $driver;
+        // type_img::checkFile() validates uploads with the same driver
+        $this->config['imageDriversPriority'] = $driver;
 
         // WATERMARK INIT
         if (isset($this->config['watermark']) && is_string($this->config['watermark']))
