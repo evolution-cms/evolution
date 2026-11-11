@@ -99,6 +99,23 @@ abstract class image {
         return false;
     }
 
+/** Drivers tried in this order when the configured priority names none that is available */
+    const DEFAULT_DRIVERS = ['gd', 'imagick', 'gmagick'];
+
+/** Returns the first available driver of the space separated priority list, else of $fallback.
+  * GD without JPEG support counts as unavailable, so a site with Imagick or Gmagick still works.
+  * @param string|null $priority
+  * @param array $fallback
+  * @return string|false */
+
+    final static function resolveDriver($priority, array $fallback = self::DEFAULT_DRIVERS) {
+        $drivers = is_string($priority)
+            ? preg_split('/\s+/', trim($priority), -1, PREG_SPLIT_NO_EMPTY)
+            : [];
+        $driver = static::getDriver($drivers);
+        return ($driver !== false) ? $driver : static::getDriver($fallback);
+    }
+
 
 /** Returns an array. Element 0 - image resource. Element 1 - width. Element 2 - height.
   * Returns FALSE on failure.

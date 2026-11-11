@@ -16,8 +16,9 @@ class type_img {
 
     public function checkFile($file, array $config) {
 
-        $driver = isset($config['imageDriversPriority'])
-            ? image::getDriver(explode(" ", $config['imageDriversPriority'])) : "gd";
+        $driver = image::resolveDriver($config['imageDriversPriority'] ?? null);
+        if ($driver === false)
+            return "Unknown image format/encoding.";
 
         $img = image::factory($driver, $file);
 
