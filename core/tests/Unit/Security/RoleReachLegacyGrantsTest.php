@@ -89,7 +89,6 @@ function roleReachController(RoleReachCoreStub $actor): UserRoleController
 {
     $controller = (new ReflectionClass(UserRoleController::class))->newInstanceWithoutConstructor();
     $property = new ReflectionProperty(UserRoleController::class, 'managerTheme');
-    $property->setAccessible(true);
     $property->setValue($controller, new RoleReachThemeStub($actor));
 
     return $controller;
