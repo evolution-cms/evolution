@@ -516,6 +516,25 @@ The Backup manager (`manager/actions/bkmanager.static.php`, action 93) needs `bk
 There is no queued restore. Do not add one, nor another way to start a snapshot, without these checks.
 Tests: `core/tests/Unit/Security/BackgroundBackupPermissionTest.php`, `BackendCodePermissionsTest.php`, `BackupManagerShellTest.php`.
 
+### Password recovery rules
+
+The "Forgot your password?" form of the login screen (`ManagerTheme::repairPassword()`,
+`PasswordRecoveryService::requestByEmail()`) must not tell an outsider which addresses are accounts:
+a manager's e-mail address is a phishing target.
+
+- One answer for an unknown address, a blocked account, a mail that failed and a mail that was sent.
+  A failure goes to the event log (source `Auth`), by user id, never with the address asked for.
+- The address arrives by POST (`repair_email`), never in a URL.
+- Limits of `cms.auth.recovery`: requests per client address (`REMOTE_ADDR`, not a forwarded header),
+  counted whatever they ask for and the only refusal shown; mails per account, enforced silently.
+
+- The token and the mail are issued after the reply, through `Core::deferAfterResponse()`: PHP-FPM, FrankenPHP
+  (classic and worker mode) and LiteSpeed release the client first. Where nothing can (Apache mod_php), every
+  answered request keeps its connection open for `hold` seconds instead, so its length says nothing either.
+
+Do not add a reply, a log line, a wait or a second entry point that differs by whether the account exists.
+Test: `core/tests/Unit/Security/PasswordRecoveryRequestTest.php`.
+
 ---
 
 ## Dependencies of Note

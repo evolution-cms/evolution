@@ -1,6 +1,8 @@
 <?php namespace EvolutionCMS\Services;
 
 use EvolutionCMS\Models\User;
+use EvolutionCMS\Models\UserAttribute;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -22,6 +24,18 @@ class PasswordRecoveryService
 {
     /** Fallback lifetime in minutes when `pwd_repair_minutes` is unset or unreadable. */
     public const DEFAULT_TTL_MINUTES = 60;
+
+    public const REQUEST_ACCEPTED = 'accepted';
+    public const REQUEST_THROTTLED = 'throttled';
+
+    /** Used where `cms.auth.recovery` is missing or holds a value that is not a positive number. */
+    public const DEFAULT_REQUEST_LIMITS = [
+        'attempts' => 5,
+        'decay' => 900,
+        'mails' => 3,
+        'mail_decay' => 3600,
+        'hold' => 3,
+    ];
 
     /**
      * Cached result of the column probe. Installations update at different times and
@@ -144,6 +158,217 @@ class PasswordRecoveryService
             $user->cachepwd_valid_to = null;
         }
         $user->save();
+    }
+
+    /**
+     * Handle a "forgot password" request from the login screen.
+     *
+     * The result says nothing about the address: an unknown one, a blocked account, a mail
+     * that could not be sent and a mail that went out are all REQUEST_ACCEPTED. Only the
+     * per-address limit is reported, and it counts every request, whatever was asked for.
+     *
+     * @param mixed $email as posted
+     * @param string $address the client address (REMOTE_ADDR, not a forwarded header)
+     * @return string REQUEST_ACCEPTED or REQUEST_THROTTLED
+     */
+    public function requestByEmail($email, string $address): string
+    {
+        $email = is_string($email) ? trim($email) : '';
+        $limiter = $this->limiter();
+        $limits = $this->requestLimits();
+
+        if (!is_null($limiter)) {
+            $key = 'evo-recovery|address|' . $address;
+
+            if ($limiter->tooManyAttempts($key, $limits['attempts'])) {
+                // One line per window, however long the client keeps trying.
+                $limiter->attempt($key . '|logged', 1, function () use ($address) {
+                    $this->log(2, 'Too many password recovery requests from ' . e($address) . '; further ones are refused.');
+                }, $limits['decay']);
+
+                return self::REQUEST_THROTTLED;
+            }
+
+            $limiter->hit($key, $limits['decay']);
+        }
+
+        $user = $email === '' || strlen($email) > 254 ? null : $this->findRecoverableUser($email);
+        $detaches = $this->detaches();
+
+        if (is_null($user) && $detaches) {
+            return self::REQUEST_ACCEPTED;
+        }
+
+        // Everything that happens only for an account waits until the reply is on its way, so
+        // the time the reply takes says as little about the address as its text does. Where the
+        // server cannot let go of the client first (Apache mod_php), the client still sees how
+        // long the connection stays open, so there every answered request holds it equally long.
+        $release = $detaches ? null : $this->now() + $limits['hold'];
+
+        $this->defer(function () use ($user, $release) {
+            if (!is_null($user)) {
+                $this->deliver($user);
+            }
+            if (!is_null($release)) {
+                $this->holdUntil($release);
+            }
+        });
+
+        return self::REQUEST_ACCEPTED;
+    }
+
+    /**
+     * Issue the token and mail the link, unless the account was mailed too often already.
+     *
+     * @param User $user
+     * @return void
+     */
+    protected function deliver(User $user): void
+    {
+        $limiter = $this->limiter();
+
+        if (!is_null($limiter)) {
+            // Requests from many addresses must not flood one mailbox either. Silent: saying
+            // "already sent" would confirm the account.
+            $limits = $this->requestLimits();
+            $key = 'evo-recovery|user|' . $user->getKey();
+
+            if ($limiter->tooManyAttempts($key, $limits['mails'])) {
+                return;
+            }
+
+            $limiter->hit($key, $limits['mail_decay']);
+        }
+
+        try {
+            $failure = $this->sendRecoveryMail($user, $this->issueToken($user)) ? null : 'the mailer refused it';
+        } catch (\Throwable $exception) {
+            $failure = $exception->getMessage();
+        }
+
+        if (!is_null($failure)) {
+            // The requester is not told, so the administrator has to be.
+            $this->log(3, 'Password recovery mail for user ' . (int) $user->getKey() . ' was not sent: ' . e($failure));
+        }
+    }
+
+    /**
+     * Run a callback once the response has been sent (Core::deferAfterResponse()).
+     *
+     * @param callable $callback
+     * @return void
+     */
+    protected function defer(callable $callback): void
+    {
+        evolutionCMS()->deferAfterResponse($callback);
+    }
+
+    /**
+     * Whether deferred work runs with the client already released: Core::finishRequest() can
+     * do that under PHP-FPM, FrankenPHP (worker mode included) and LiteSpeed only.
+     *
+     * @return bool
+     */
+    protected function detaches(): bool
+    {
+        return function_exists('fastcgi_finish_request') || function_exists('litespeed_finish_request');
+    }
+
+    /**
+     * @return float
+     */
+    protected function now(): float
+    {
+        return microtime(true);
+    }
+
+    /**
+     * Keep the connection until a moment that does not depend on what was done for it.
+     *
+     * @param float $release
+     * @return void
+     */
+    protected function holdUntil(float $release): void
+    {
+        $left = $release - $this->now();
+
+        if ($left > 0 && PHP_SAPI !== 'cli') {
+            // the page itself must not wait for this
+            flush();
+            usleep((int) ($left * 1000000));
+        }
+    }
+
+    /**
+     * @param string $email
+     * @return User|null null when there is no such account or it is blocked
+     */
+    protected function findRecoverableUser(string $email): ?User
+    {
+        $attributes = UserAttribute::query()->where('email', $email)->first();
+
+        if (is_null($attributes) || (int) $attributes->blocked === 1) {
+            return null;
+        }
+
+        return User::query()->find($attributes->internalKey);
+    }
+
+    /**
+     * Limits of `cms.auth.recovery`.
+     *
+     * @return array{attempts: int, decay: int, mails: int, mail_decay: int, hold: int}
+     */
+    protected function requestLimits(): array
+    {
+        $configured = $this->configuredLimits();
+
+        $limits = [];
+        foreach (self::DEFAULT_REQUEST_LIMITS as $name => $default) {
+            $value = (int) ($configured[$name] ?? $default);
+            $limits[$name] = $value > 0 ? $value : $default;
+        }
+
+        return $limits;
+    }
+
+    /**
+     * @return array the raw `cms.auth.recovery` config, empty when unreadable
+     */
+    protected function configuredLimits(): array
+    {
+        try {
+            return (array) config('cms.auth.recovery', []);
+        } catch (\Throwable $exception) {
+            return [];
+        }
+    }
+
+    /**
+     * @return RateLimiter|null null when no cache is available: the limits are a safety net,
+     *                          and a missing one must not lock the owner out of recovery
+     */
+    protected function limiter(): ?RateLimiter
+    {
+        try {
+            return evolutionCMS()->make(RateLimiter::class);
+        } catch (\Throwable $exception) {
+            return null;
+        }
+    }
+
+    /**
+     * @param int $type 2 warning, 3 error
+     * @param string $message
+     * @return void
+     */
+    protected function log(int $type, string $message): void
+    {
+        try {
+            evolutionCMS()->logEvent(0, $type, $message, 'Auth');
+        } catch (\Throwable $exception) {
+            // nothing to report to
+        }
     }
 
     /**

@@ -1064,6 +1064,8 @@ $_lang["parse_docblock_msg"] = 'Diqqət (!): <b>Mövcud ad, konfiqurasiya, təsv
 
 $_lang["password"] = 'Şifrə';
 $_lang["password_change_request"] = 'Şifrə dəyişmə sorğusu';
+$_lang["password_recovery_requested"] = 'Bu e-poçt ünvanı ilə hesab mövcuddursa, ona şifrənin bərpası üçün keçid olan məktub göndərildi.';
+$_lang["password_recovery_throttled"] = 'Həddindən artıq şifrə bərpası sorğusu. Bir qədər sonra yenidən cəhd edin.';
 $_lang["password_confirmed"] = 'Şifrələr uyğun gəlmir';
 $_lang["password_gen_gen"] = 'Evolution CMS-in şifrə yaratmasına icazə verin.';
 $_lang["password_gen_length"] = 'Daxil etdiyiniz şifrə ən azı 6 simvol uzunluğunda olmalıdır.';
