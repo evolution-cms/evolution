@@ -32,4 +32,29 @@
         'attempts' => 5,
         'decay' => 300,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password recovery rate limiting
+    |--------------------------------------------------------------------------
+    |
+    | The "Forgot your password?" form of the manager login screen. 'attempts'
+    | requests per client address are answered within 'decay' seconds, whatever
+    | address they ask for; at most 'mails' recovery mails go to one account
+    | within 'mail_decay' seconds, wherever the requests come from.
+    |
+    | The mail is sent after the reply. A server that cannot release the client
+    | before that (Apache mod_php; PHP-FPM, FrankenPHP and LiteSpeed can) keeps
+    | the connection of every answered request open for 'hold' seconds, so its
+    | length does not show whether a mail was sent. Raise it if your mail server
+    | takes longer to accept a message.
+    |
+    */
+    'recovery' => [
+        'attempts' => 5,
+        'decay' => 900,
+        'mails' => 3,
+        'mail_decay' => 3600,
+        'hold' => 3,
+    ],
 ];
