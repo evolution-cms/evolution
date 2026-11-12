@@ -226,6 +226,19 @@
         .loginbox.loginbox-light form a {
             color: #666;
         }
+        .loginbox .FMP-message {
+            margin: 0 0 1rem;
+            color: #dfe3e6;
+        }
+        .loginbox.loginbox-light .FMP-message {
+            color: #444;
+        }
+        .loginbox .FMP-message.error {
+            color: #ff8a80;
+        }
+        .loginbox.loginbox-light .FMP-message.error {
+            color: #b71c1c;
+        }
         .loginbox.loginbox-light label.text-muted {
             color: #444 !important;
         }

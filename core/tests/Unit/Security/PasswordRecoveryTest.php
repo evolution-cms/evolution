@@ -186,11 +186,13 @@ test('the forgot-password form survives an unknown e-mail address', function () 
     $start = strpos($theme, 'public function repairPassword');
     expect($start)->not->toBeFalse();
 
-    $body = substr($theme, $start, 1600);
+    $service = (string) file_get_contents($root . '/src/Services/PasswordRecoveryService.php');
+    $lookup = strpos($service, 'protected function findRecoverableUser');
+    expect($lookup)->not->toBeFalse();
 
     // The previous version dereferenced $user right after finding it was null.
-    expect($body)->toContain('if (is_null($attributes) || is_null($user)) {')
-        ->and($body)->toContain("\\Lang::get('global.could_not_find_user')");
+    expect(substr($theme, $start, 1600))->toContain('->requestByEmail(')
+        ->and(substr($service, $lookup, 400))->toContain('if (is_null($attributes) || (int) $attributes->blocked === 1) {');
 });
 
 test('the recovery messages are translated in every shipped language', function () use ($root) {
@@ -212,6 +214,9 @@ test('the recovery messages are translated in every shipped language', function 
             // What the recovery mail tells its recipient about the link's validity.
             'forgot_password_email_valid_until',
             'forgot_password_email_valid_unlimited',
+            // The two answers of the "Forgot your password?" form.
+            'password_recovery_requested',
+            'password_recovery_throttled',
         ];
 
         foreach ($keys as $key) {
