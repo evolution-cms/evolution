@@ -1009,27 +1009,19 @@ class ManagerTheme implements ManagerThemeInterface
         if (isset($_GET['repair_password'])) {
             return $this->makeTemplate('repair_form', 'manager_login_tpl', $plh, false);
         }
-        if (isset($_GET['email'])) {
-            $attributes = UserAttribute::where('email', $_GET['email'])->first();
-            $user = is_null($attributes)
-                ? null
-                : \EvolutionCMS\Models\User::query()->find($attributes->internalKey);
+        // POST only: a link or an image on another site must not be able to send the mail,
+        // and the address must not be written to access logs and browser history.
+        if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['repair_email'])) {
+            $status = (new \EvolutionCMS\Services\PasswordRecoveryService())->requestByEmail(
+                $_POST['repair_email'],
+                (string) ($_SERVER['REMOTE_ADDR'] ?? '')
+            );
 
-            if (is_null($attributes) || is_null($user)) {
-                $output .= '<span class="error">' . \Lang::get('global.could_not_find_user') . '</span>';
-            } elseif ($attributes->blocked == 1) {
-                $output .= '<span class="error">' . \Lang::get('global.user_is_blocked') . '</span>';
-            } else {
-                try {
-                    $recovery = new \EvolutionCMS\Services\PasswordRecoveryService();
-                    $hash = $recovery->issueToken($user);
-                    $output .= $recovery->sendRecoveryMail($user, $hash, 'hash')
-                        ? '<p><b>' . \Lang::get('global.email_sent') . '</b></p>'
-                        : '<span class="error">' . \Lang::get('global.error_sending_email') . '</span>';
-                } catch (\Throwable $exception) {
-                    $output .= '<span class="error">' . \Lang::get('global.error_sending_email') . '</span>';
-                }
-            }
+            // The reply never depends on the address: unknown, blocked, mail failure and
+            // success all read the same, so the form cannot be used to find manager accounts.
+            $output .= $status === \EvolutionCMS\Services\PasswordRecoveryService::REQUEST_THROTTLED
+                ? '<p class="FMP-message error" role="alert">' . e(\Lang::get('global.password_recovery_throttled')) . '</p>'
+                : '<p class="FMP-message" role="status">' . e(\Lang::get('global.password_recovery_requested')) . '</p>';
         }
         return $output . $this->makeTemplate('repair_button', 'manager_login_tpl', $plh, false);
     }

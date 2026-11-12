@@ -1042,6 +1042,8 @@ $_lang["parse_docblock_msg"] = 'Увага (!): <b>Скідае</b> сапраў
 
 $_lang["password"] = 'Пароль';
 $_lang["password_change_request"] = 'Запыт на змену пароля';
+$_lang["password_recovery_requested"] = 'Калі ўліковы запіс з такім адрасам электроннай пошты існуе, на яго адпраўлены ліст са спасылкай для аднаўлення пароля.';
+$_lang["password_recovery_throttled"] = 'Занадта шмат запытаў на аднаўленне пароля. Паўтарыце спробу пазней.';
 $_lang["password_confirmed"] = 'Паролі не супадаюць';
 $_lang["password_gen_gen"] = 'Дазвольце Evolution CMS стварыць пароль.';
 $_lang["password_gen_length"] = 'Пароль, які вы ўказваеце, павінен быць не менш за 6 сімвалаў.';
