@@ -118,15 +118,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'dmitry-suffi/redis-session-handler' => array(
-            'pretty_version' => '1.0.4',
-            'version' => '1.0.4.0',
-            'reference' => '7057430a726dd8df530e1e3071e32cc6b1b5b170',
-            'type' => 'project',
-            'install_path' => __DIR__ . '/../dmitry-suffi/redis-session-handler',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'doctrine/dbal' => array(
             'pretty_version' => '4.5.0',
             'version' => '4.5.0.0',
