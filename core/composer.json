@@ -31,7 +31,6 @@
         "composer/composer": "*",
         "dg/rss-php": "^1.7",
         "dmi3yy/ddocs": "^1.1.1",
-        "dmitry-suffi/redis-session-handler": "*",
         "dragonmantank/cron-expression": "^3.6",
         "evolution-cms/evo-ui": "^1.3",
         "evolutioncms-services/document-manager": "1.*",
