@@ -84,6 +84,14 @@ jobs:
       fail-fast: false
       matrix:
         php: ${{ fromJSON(needs.php.outputs.versions) }}
+    # The Redis session integration tests (RedisSessionStorageTest) skip without a Redis server; they
+    # add about 20 s per PHP version. To run them, uncomment this service, add ", redis" to the
+    # setup-php extensions below and uncomment EVO_TEST_REDIS on the "Run Pest" step.
+    # services:
+    #   redis:
+    #     image: redis:7.4-alpine
+    #     ports:
+    #       - 6379:6379
     steps:
       - uses: actions/checkout@v7
 
@@ -112,6 +120,8 @@ jobs:
 
       - name: Run Pest
         working-directory: core
+        # env:
+        #   EVO_TEST_REDIS: 127.0.0.1:6379
         run: composer test -- --compact --fail-on-warning --fail-on-risky --fail-on-deprecation
 
   php86-rc:
