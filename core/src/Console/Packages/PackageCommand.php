@@ -3,6 +3,7 @@
 use Illuminate\Console\Command;
 use \EvolutionCMS;
 use EvolutionCMS\Bootstrap\EnvCacheLoader;
+use EvolutionCMS\Support\EvoUIProviders;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -259,13 +260,21 @@ class PackageCommand extends Command
     }
 
     /**
-     * Generate provider config file with optional priority prefix
+     * Generate a provider config file with an optional priority prefix.
+     *
+     * EvoUI registers its own Livewire dependency, including the HTTP kernel
+     * bridge, so discovery does not declare either bundled provider a second time.
      *
      * @param string $value Provider class name
      * @param int $priority Priority (1-999), used for load order. Lower numbers load first.
      */
     protected function process(string $value, int $priority = 0)
     {
+        $config = $this->getLaravel()['config'] ?? null;
+        if (EvoUIProviders::handles($value, (array) $config?->get('app.providers', []))) {
+            return;
+        }
+
         $arrNamespace = explode('\\', $value);
         $className = end($arrNamespace);
 
