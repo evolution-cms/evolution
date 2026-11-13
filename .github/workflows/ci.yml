@@ -82,6 +82,12 @@ jobs:
       fail-fast: false
       matrix:
         php: ${{ fromJSON(needs.php.outputs.versions) }}
+    # the legacy session in Redis is checked against a real server (RedisSessionStorageTest)
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
     steps:
       - uses: actions/checkout@v7
 
@@ -89,7 +95,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: ${{ env.PHP_EXTENSIONS }}
+          extensions: ${{ env.PHP_EXTENSIONS }}, redis
           coverage: none
           tools: composer:v2
 
@@ -110,6 +116,8 @@ jobs:
 
       - name: Run Pest
         working-directory: core
+        env:
+          EVO_TEST_REDIS: 127.0.0.1:6379
         run: composer test -- --compact
 
   php86-rc:
