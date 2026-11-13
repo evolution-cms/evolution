@@ -95,19 +95,13 @@ test('site updater removes update placeholder files before composer repair', fun
     expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
     expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->synchronizeComposerVersion();'));
     expect(strpos($source, '$this->synchronizeComposerVersion();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
-    expect($normalizedPairs)->toHaveCount(6);
+    expect($normalizedPairs)->toHaveCount(3);
     expect($normalizedPairs[0][0])->toEndWith('/ht.access');
     expect($normalizedPairs[0][1])->toEndWith('/.htaccess');
     expect($normalizedPairs[1][0])->toEndWith('/sample-robots.txt');
     expect($normalizedPairs[1][1])->toEndWith('/robots.txt');
-    expect($normalizedPairs[2][0])->toEndWith('/core/custom/.env.docker.example');
-    expect($normalizedPairs[2][1])->toEndWith('/core/custom/.env.docker');
-    expect($normalizedPairs[3][0])->toEndWith('/core/custom/composer.json.example');
-    expect($normalizedPairs[3][1])->toEndWith('/core/custom/composer.json');
-    expect($normalizedPairs[4][0])->toEndWith('/core/custom/routes.php.example');
-    expect($normalizedPairs[4][1])->toEndWith('/core/custom/routes.php');
-    expect($normalizedPairs[5][0])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php.example');
-    expect($normalizedPairs[5][1])->toEndWith('/core/custom/config/cms/settings/ControllerNamespace.php');
+    expect($normalizedPairs[2][0])->toEndWith('/core/custom/composer.json.example');
+    expect($normalizedPairs[2][1])->toEndWith('/core/custom/composer.json');
 });
 
 test('site updater repairs composer vendor state before artisan commands', function () {
@@ -627,18 +621,18 @@ test('the command help lists every version format with an example', function () 
 
     expect($help)->toContain('Version formats:')
         ->and($help)->toContain('(none)')
-        ->and($help)->toContain('3.5.8')
-        ->and($help)->toContain('3.5.x')
-        ->and($help)->toContain('nightly-3.5.x')
+        ->and($help)->toContain('php artisan make:site update 3.6.0')
+        ->and($help)->toContain('php artisan make:site update 3.6.x')
+        ->and($help)->toContain('php artisan make:site update nightly-3.6.x')
         ->and($help)->toContain('922ece660')
         ->and($help)->toContain('https://github.com/<owner>/<repo>/tree/<branch or tag>')
         ->and($help)->toContain('https://github.com/<owner>/<repo>/releases/tag/<tag>')
         ->and($help)->toContain('https://github.com/<owner>/<repo>/commit/<hash>')
         ->and($help)->toContain('--repository=<owner>/<repo>')
         ->and($help)->toContain('php artisan make:site update https://github.com/middleDuckAi/evolution/tree/add-folder-copying')
-        ->and($argument)->toContain('3.5.8')
-        ->and($argument)->toContain('3.5.x')
-        ->and($argument)->toContain('nightly-3.5.x')
+        ->and($argument)->toContain('(3.6.0)')
+        ->and($argument)->toContain('(3.6.x)')
+        ->and($argument)->toContain('(nightly-3.6.x)')
         ->and($argument)->toContain('https://github.com/owner/evolution/tree/branch');
 });
 

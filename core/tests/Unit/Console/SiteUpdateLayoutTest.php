@@ -152,6 +152,53 @@ test('update skips root GitHub workflows and keeps the site configuration intact
     'site without GitHub configuration' => [false],
 ]);
 
+test('update skips development files and config examples from older archives and preserves site copies', function () {
+    $excluded = [
+        '.dockerignore', 'AGENTS.md', 'SECURITY.md', 'docs/notes.md', 'phpstan.neon', 'publiccode.yml',
+        'tools/build-manager-icons.php', 'core/phpunit.xml', 'core/tests/LocalTest.php',
+        'core/custom/.env.docker.example', 'core/custom/.env.example',
+        'core/custom/define.php.example', 'core/custom/routes.php.example',
+        'core/custom/config/cms/settings/ControllerNamespace.php.example',
+        'core/custom/config/cms/settings.php.example',
+    ];
+    $included = ['assets/docs/license.txt', 'assets/AGENTS.md', 'tools/site-helper.php'];
+    foreach ([$this->archive, $this->site] as $root) {
+        foreach ($excluded as $path) {
+            $file = $root . '/' . $path;
+            if (!is_dir(dirname($file))) {
+                mkdir(dirname($file), 0777, true);
+            }
+            file_put_contents($file, $root === $this->archive ? 'CMS file' : 'site file');
+        }
+    }
+    foreach (array_merge($included, ['docs/cms-only.md', 'core/tests/CmsTest.php']) as $path) {
+        $file = $this->archive . '/' . $path;
+        if (!is_dir(dirname($file))) {
+            mkdir(dirname($file), 0777, true);
+        }
+        file_put_contents($file, 'CMS file');
+    }
+
+    $fresh = $this->workspace . '/fresh';
+    mkdir($fresh);
+    SiteUpdateCommand::moveFiles($this->archive, $this->site);
+
+    foreach ($excluded as $path) {
+        expect(file_get_contents($this->site . '/' . $path))->toBe('site file')
+            ->and(is_file($this->archive . '/' . $path))->toBeTrue();
+    }
+    foreach ($included as $path) {
+        expect(file_get_contents($this->site . '/' . $path))->toBe('CMS file');
+    }
+    expect(is_file($this->site . '/docs/cms-only.md'))->toBeFalse()
+        ->and(is_file($this->site . '/core/tests/CmsTest.php'))->toBeFalse();
+
+    SiteUpdateCommand::moveFiles($this->archive, $fresh);
+    foreach (array_merge($excluded, ['docs', 'core/tests']) as $path) {
+        expect(file_exists($fresh . '/' . $path))->toBeFalse();
+    }
+});
+
 test('updater passes the configured Manager path into the archive overlay', function () {
     $source = file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 

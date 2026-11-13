@@ -43,7 +43,7 @@ class SiteUpdateCommand extends Command
      */
     protected $signature = 'make:site
                             {command_site=update : Update action to run. Keep "update" for normal core updates}
-                            {version=null : Optional Release (3.5.8), branch (3.5.x), tag (nightly-3.5.x), commit hash (922ece660) or GitHub URL (https://github.com/owner/evolution/tree/branch). Omit it to stay on the current line}
+                            {version=null : Optional Release (3.6.0), branch (3.6.x), tag (nightly-3.6.x), commit hash (922ece660) or GitHub URL (https://github.com/owner/evolution/tree/branch). Omit it to stay on the current line}
                             {--repository= : Optional GitHub repository slug for a plain version. Example: middleDuckAi/evolution}
                             {--update-custom-packages : Let Composer move packages of core/custom/composer.json (and what they need) to other versions when the ones the site runs do not fit}';
 
@@ -629,7 +629,7 @@ EXAMPLES;
     }
 
     /**
-     * Remove placeholder files and root distribution artifacts from the update archive.
+     * Remove redundant placeholders and root distribution artifacts after copying the update.
      *
      * @since 3.5.7
      * @return void
@@ -683,13 +683,7 @@ EXAMPLES;
         return [
             [EVO_BASE_PATH . 'ht.access', EVO_BASE_PATH . '.htaccess'],
             [EVO_BASE_PATH . 'sample-robots.txt', EVO_BASE_PATH . 'robots.txt'],
-            [EVO_CORE_PATH . 'custom/.env.docker.example', EVO_CORE_PATH . 'custom/.env.docker'],
             [EVO_CORE_PATH . 'custom/composer.json.example', EVO_CORE_PATH . 'custom/composer.json'],
-            [EVO_CORE_PATH . 'custom/routes.php.example', EVO_CORE_PATH . 'custom/routes.php'],
-            [
-                EVO_CORE_PATH . 'custom/config/cms/settings/ControllerNamespace.php.example',
-                EVO_CORE_PATH . 'custom/config/cms/settings/ControllerNamespace.php',
-            ],
         ];
     }
 
@@ -1549,7 +1543,7 @@ EXAMPLES;
      * The optional Manager path preserves the two-argument file-copy contract. Site
      * updates pass EVO_MANAGER_PATH so renamed or externally located Managers receive
      * the new forms and assets without creating a second default login directory.
-     * Skip the archive's root .github directory so a site's own workflows are preserved.
+     * Skip development files and sample configuration so matching site files are preserved.
      * Existing Manager configuration, .htaccess and .user.ini stay operator-owned;
      * unrelated destination files are never deleted. Invalid roots fail before writes.
      *
@@ -1570,8 +1564,20 @@ EXAMPLES;
 
         $entries = new \RecursiveCallbackFilterIterator(
             new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
-            static fn ($entry, $key, $directory) => $directory->getSubPath() !== ''
-                || strcasecmp($entry->getFilename(), '.github') !== 0
+            static fn ($entry, $key, $directory) => !in_array(
+                strtolower(str_replace('\\', '/', $directory->getSubPathname())),
+                [
+                    '.dockerignore', '.github', 'agents.md', 'security.md', 'docs', 'phpstan.neon', 'publiccode.yml',
+                    'tools/build-manager-icons.php', 'core/phpunit.xml', 'core/tests',
+                    'core/custom/.env.docker.example',
+                    'core/custom/.env.example',
+                    'core/custom/define.php.example',
+                    'core/custom/routes.php.example',
+                    'core/custom/config/cms/settings/controllernamespace.php.example',
+                    'core/custom/config/cms/settings.php.example',
+                ],
+                true
+            )
         );
         $objects = new \RecursiveIteratorIterator($entries, \RecursiveIteratorIterator::SELF_FIRST);
         foreach ($objects as $name => $object) {
