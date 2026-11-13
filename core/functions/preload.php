@@ -181,8 +181,8 @@ if (!function_exists('startCMSSession')) {
                 $started = false;
             }
             if (!$started) {
-                // Redis is unreachable: keep the site up on the storage configured before, as the old handler did
-                error_log('Evolution CMS: Redis session storage is unavailable, sessions use "'
+                // Redis is unreachable or the lock wait ran out: keep the site up on the storage configured before
+                error_log('Evolution CMS: Redis session storage is unavailable or the session stayed locked, sessions use "'
                     . $previousStorage['session.save_handler'] . '" for this request');
                 foreach ($previousStorage as $option => $value) {
                     ini_set($option, $value);
@@ -248,13 +248,60 @@ if (!function_exists('useRedisSessionStorage')) {
             return null;
         }
 
+        // An operator who enabled locking configured it; otherwise lock as the replaced handler did, but bounded
         if (ini_get('redis.session.locking_enabled') !== '1') {
-            // a concurrent request waits for the lock until it expires (max_execution_time), never reads unlocked
-            ini_set('redis.session.locking_enabled', '1');
-            ini_set('redis.session.lock_retries', '-1');
+            $lockSettings = redisSessionLockSettings((int)ini_get('max_execution_time'), [
+                'redis.session.lock_expire' => ini_get('redis.session.lock_expire'),
+                'redis.session.lock_retries' => ini_get('redis.session.lock_retries'),
+                'redis.session.lock_wait_time' => ini_get('redis.session.lock_wait_time'),
+            ]);
+            foreach ($lockSettings + ['redis.session.locking_enabled' => '1'] as $option => $value) {
+                ini_set($option, $value);
+            }
         }
 
         return $previous;
+    }
+}
+
+if (!function_exists('redisSessionLockSettings')) {
+    /**
+     * The ext-redis lock settings to apply when Evolution enables session locking itself.
+     * Values an operator changed from the phpredis defaults (expire 0, retries 100, wait 20000 us) are kept.
+     *
+     * - Expiry: max_execution_time, or 30 s without one. phpredis otherwise takes max_execution_time,
+     *   and with 0 the lock never expires: one killed request would lock its session for good.
+     * - Acquisition: retries for 0.7 x max_execution_time, or 20 s without one (the replaced handler's
+     *   budget), never longer than the expiry. Then session_start() fails and the caller falls back.
+     *
+     * @param int $maxExecutionTime
+     * @param array<string, string|false> $current the current ini values, keyed by option
+     * @return array<string, string> the options to set
+     */
+    function redisSessionLockSettings(int $maxExecutionTime, array $current): array
+    {
+        $limit = max(0, $maxExecutionTime);
+        $settings = [];
+
+        $expire = (int)($current['redis.session.lock_expire'] ?? 0);
+        if ($expire <= 0) {
+            $expire = $limit > 0 ? $limit : 30;
+            $settings['redis.session.lock_expire'] = (string)$expire;
+        }
+
+        $wait = (int)($current['redis.session.lock_wait_time'] ?? 0);
+        if ($wait <= 0) {
+            $wait = 20000;
+            $settings['redis.session.lock_wait_time'] = (string)$wait;
+        }
+
+        $retries = $current['redis.session.lock_retries'] ?? false;
+        if ($retries === false || $retries === '' || (int)$retries === 100) {
+            $budget = min($limit > 0 ? 0.7 * $limit : 20, $expire);
+            $settings['redis.session.lock_retries'] = (string)max(1, (int)ceil($budget * 1000000 / $wait));
+        }
+
+        return $settings;
     }
 }
 
