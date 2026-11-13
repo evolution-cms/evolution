@@ -11,6 +11,10 @@
             <exclude>./tests/standalone</exclude>
         </testsuite>
     </testsuites>
+    <php>
+        <!-- One process holds the whole suite (about 120M at its peak), above PHP's 128M default once it grows a little. -->
+        <ini name="memory_limit" value="512M"/>
+    </php>
     <source>
         <include>
             <directory>factory</directory>

@@ -57,7 +57,6 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         ),
         's' =>
         array (
-            'suffi\\RedisSessionHandler\\' => 26,
             'secondnetwork\\TablerIcons\\' => 26,
         ),
         'W' =>
@@ -220,10 +219,6 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'voku\\' =>
         array (
             0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
-        ),
-        'suffi\\RedisSessionHandler\\' =>
-        array (
-            0 => __DIR__ . '/..' . '/dmitry-suffi/redis-session-handler/src',
         ),
         'secondnetwork\\TablerIcons\\' =>
         array (
@@ -5747,7 +5742,6 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'Wikimedia\\Composer\\Merge\\V2\\PluginState' => __DIR__ . '/..' . '/wikimedia/composer-merge-plugin/src/PluginState.php',
         'Wikimedia\\Composer\\Merge\\V2\\StabilityFlags' => __DIR__ . '/..' . '/wikimedia/composer-merge-plugin/src/StabilityFlags.php',
         'secondnetwork\\TablerIcons\\BladeTablerIconsServiceProvider' => __DIR__ . '/..' . '/secondnetwork/blade-tabler-icons/src/BladeTablerIconsServiceProvider.php',
-        'suffi\\RedisSessionHandler\\RedisSessionHandler' => __DIR__ . '/..' . '/dmitry-suffi/redis-session-handler/src/RedisSessionHandler.php',
         'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
     );
 

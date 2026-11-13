@@ -135,36 +135,31 @@ if (!function_exists('startCMSSession')) {
             , true
         );
 
-        if (SESSION_STORAGE == 'redis' && class_exists('Redis')) {
-            $redis = new Redis();
-            if ($redis->connect(env('REDIS_HOST', '127.0.0.1'),
-                    env('REDIS_PORT', 6379),
-                    env('REDIS_TIMEOUT', 60),
-                    NULL,
-                    0,
-                    0,
-                    ['auth' => [env('REDIS_USER', null), env('REDIS_PASS', null)]])
-                && $redis->select(env('REDIS_SESSION_DATABASE', 0))) {
-                try {
-                    $handler = new \suffi\RedisSessionHandler\RedisSessionHandler($redis);
-                    session_set_save_handler($handler);
-                } catch (RedisException $exception) {
-
-                } catch (\Exception $exception) {
-
-                }
-            }
-        }
+        $previousStorage = SESSION_STORAGE == 'redis' ? useRedisSessionStorage() : null;
 
         $sessionname = session_name();
         // safe session - see https://stackoverflow.com/a/33024310/1066234
-        if (isset($_COOKIE[$sessionname]) && preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[$sessionname])) {
-            session_start();
-        } elseif (isset($_COOKIE[$sessionname])) {
+        if (isset($_COOKIE[$sessionname]) && !preg_match('/^[-,a-zA-Z0-9]{1,128}$/', $_COOKIE[$sessionname])) {
             unset($_COOKIE[$sessionname]);
+        }
+
+        if ($previousStorage === null) {
             session_start();
         } else {
-            session_start();
+            try {
+                $started = @session_start();
+            } catch (\Throwable $exception) {
+                $started = false;
+            }
+            if (!$started) {
+                // Redis is unreachable or the lock wait ran out: keep the site up on the storage configured before
+                error_log('Evolution CMS: Redis session storage is unavailable or the session stayed locked, sessions use "'
+                    . $previousStorage['session.save_handler'] . '" for this request');
+                foreach ($previousStorage as $option => $value) {
+                    ini_set($option, $value);
+                }
+                session_start();
+            }
         }
 
         // no session started, exit
@@ -188,6 +183,134 @@ if (!function_exists('startCMSSession')) {
         if (!isset($_SESSION[$createdKey])) {
             $_SESSION[$createdKey] = $_SERVER['REQUEST_TIME'] ?? time();
         }
+    }
+}
+
+if (!function_exists('useRedisSessionStorage')) {
+    /**
+     * Points the legacy PHP session (EVO_SESSION off, SESSION_STORAGE=redis) at the ext-redis session handler.
+     * It keeps the `PHPREDIS_SESSION:<id>` keys and the locking of the userland handler it replaces.
+     *
+     * @return array|null the previous handler settings to fall back to, null when Redis is not used
+     */
+    function useRedisSessionStorage(): ?array
+    {
+        if (!extension_loaded('redis')) {
+            return null;
+        }
+
+        $previous = [
+            'session.save_handler' => (string)ini_get('session.save_handler'),
+            'session.save_path' => (string)ini_get('session.save_path'),
+        ];
+        $savePath = redisSessionSavePath([
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'port' => env('REDIS_PORT', 6379),
+            'timeout' => env('REDIS_TIMEOUT', 60),
+            'database' => env('REDIS_SESSION_DATABASE', 0),
+            'user' => env('REDIS_USER', null),
+            'password' => env('REDIS_PASS', null),
+        ]);
+        if (ini_set('session.save_handler', 'redis') === false || ini_set('session.save_path', $savePath) === false) {
+            foreach ($previous as $option => $value) {
+                ini_set($option, $value);
+            }
+
+            return null;
+        }
+
+        // An operator who enabled locking configured it; otherwise lock as the replaced handler did, but bounded
+        if (ini_get('redis.session.locking_enabled') !== '1') {
+            $lockSettings = redisSessionLockSettings((int)ini_get('max_execution_time'), [
+                'redis.session.lock_expire' => ini_get('redis.session.lock_expire'),
+                'redis.session.lock_retries' => ini_get('redis.session.lock_retries'),
+                'redis.session.lock_wait_time' => ini_get('redis.session.lock_wait_time'),
+            ]);
+            foreach ($lockSettings + ['redis.session.locking_enabled' => '1'] as $option => $value) {
+                ini_set($option, $value);
+            }
+        }
+
+        return $previous;
+    }
+}
+
+if (!function_exists('redisSessionLockSettings')) {
+    /**
+     * The ext-redis lock settings to apply when Evolution enables session locking itself.
+     * Values an operator changed from the phpredis defaults (expire 0, retries 100, wait 20000 us) are kept.
+     *
+     * - Expiry: max_execution_time, or 30 s without one. phpredis otherwise takes max_execution_time,
+     *   and with 0 the lock never expires: one killed request would lock its session for good.
+     * - Acquisition: retries for 0.7 x max_execution_time, or 20 s without one (the replaced handler's
+     *   budget), never longer than the expiry. Then session_start() fails and the caller falls back.
+     *
+     * @param int $maxExecutionTime
+     * @param array<string, string|false> $current the current ini values, keyed by option
+     * @return array<string, string> the options to set
+     */
+    function redisSessionLockSettings(int $maxExecutionTime, array $current): array
+    {
+        $limit = max(0, $maxExecutionTime);
+        $settings = [];
+
+        $expire = (int)($current['redis.session.lock_expire'] ?? 0);
+        if ($expire <= 0) {
+            $expire = $limit > 0 ? $limit : 30;
+            $settings['redis.session.lock_expire'] = (string)$expire;
+        }
+
+        $wait = (int)($current['redis.session.lock_wait_time'] ?? 0);
+        if ($wait <= 0) {
+            $wait = 20000;
+            $settings['redis.session.lock_wait_time'] = (string)$wait;
+        }
+
+        $retries = $current['redis.session.lock_retries'] ?? false;
+        if ($retries === false || $retries === '' || (int)$retries === 100) {
+            $budget = min($limit > 0 ? 0.7 * $limit : 20, $expire);
+            $settings['redis.session.lock_retries'] = (string)max(1, (int)ceil($budget * 1000000 / $wait));
+        }
+
+        return $settings;
+    }
+}
+
+if (!function_exists('redisSessionSavePath')) {
+    /**
+     * Builds the ext-redis `session.save_path` from REDIS_* settings.
+     *
+     * @param array{host?: mixed, port?: mixed, timeout?: mixed, database?: mixed, user?: mixed, password?: mixed} $settings
+     * @return string
+     */
+    function redisSessionSavePath(array $settings): string
+    {
+        $host = trim((string)($settings['host'] ?? ''));
+        if ($host === '') {
+            $host = '127.0.0.1';
+        }
+
+        if (str_starts_with($host, '/') || str_starts_with($host, 'unix://')) {
+            $target = str_starts_with($host, '/') ? 'unix://' . $host : $host;
+        } else {
+            if (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false) {
+                $host = '[' . $host . ']';
+            }
+            $port = (int)($settings['port'] ?? 0) ?: 6379;
+            $target = (str_contains($host, '://') ? $host : 'tcp://' . $host) . ':' . $port;
+        }
+
+        $query = [
+            'timeout' => (float)($settings['timeout'] ?? 0) ?: 60,
+            'database' => (int)($settings['database'] ?? 0),
+        ];
+        $user = (string)($settings['user'] ?? '');
+        $password = (string)($settings['password'] ?? '');
+        if ($password !== '') {
+            $query['auth'] = $user !== '' ? [$user, $password] : $password;
+        }
+
+        return $target . '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
     }
 }
 
