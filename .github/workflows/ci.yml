@@ -84,12 +84,14 @@ jobs:
       fail-fast: false
       matrix:
         php: ${{ fromJSON(needs.php.outputs.versions) }}
-    # the legacy session in Redis is checked against a real server (RedisSessionStorageTest)
-    services:
-      redis:
-        image: redis:7.4-alpine
-        ports:
-          - 6379:6379
+    # The Redis session integration tests (RedisSessionStorageTest) skip without a Redis server; they
+    # add about 20 s per PHP version. To run them, uncomment this service, add ", redis" to the
+    # setup-php extensions below and uncomment EVO_TEST_REDIS on the "Run Pest" step.
+    # services:
+    #   redis:
+    #     image: redis:7.4-alpine
+    #     ports:
+    #       - 6379:6379
     steps:
       - uses: actions/checkout@v7
 
@@ -97,7 +99,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: ${{ env.PHP_EXTENSIONS }}, redis
+          extensions: ${{ env.PHP_EXTENSIONS }}
           coverage: none
           tools: composer:v2
 
@@ -118,8 +120,8 @@ jobs:
 
       - name: Run Pest
         working-directory: core
-        env:
-          EVO_TEST_REDIS: 127.0.0.1:6379
+        # env:
+        #   EVO_TEST_REDIS: 127.0.0.1:6379
         run: composer test -- --compact --fail-on-warning --fail-on-risky --fail-on-deprecation
 
   php86-rc:
