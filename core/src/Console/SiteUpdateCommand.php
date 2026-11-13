@@ -58,10 +58,10 @@ Version formats:
   (none)                  Stay on the current line: the noted branch or fork, else the
                           newest release, else the major.minor.x branch of a dev build.
                           Never moves a site back to an older release.
-  3.5.8                   A release tag, also an older one (the way back from 3.5.x).
-  3.5.x                   A branch, updated to its latest commit.
+  3.5.10                  A release tag, also an older one (the way back from 3.5.x).
+  3.6.x                   A branch, updated to its latest commit.
   feature/some-branch     A branch with slashes.
-  nightly-3.5.x           Any other tag, such as the nightly build.
+  nightly-3.6.x           Any other tag, such as the nightly build.
   922ece660               A commit hash, 7 to 40 characters.
   https://github.com/<owner>/<repo>/tree/<branch or tag>
   https://github.com/<owner>/<repo>/releases/tag/<tag>
@@ -89,7 +89,7 @@ FORMATS;
     protected $help = <<<'HELP'
 Downloads and applies an Evolution CMS core update package from GitHub.
 
-A site switches between a release, the 3.5.x branch (nightly) and a fork in
+A site switches between a release, the 3.6.x branch (nightly) and a fork in
 either direction by passing the version to go to. The branch, tag or fork it
 came from is noted in core/factory/version.php, so a later update without a
 version stays on it; installing a release removes the note again.
@@ -119,15 +119,15 @@ HELP;
 Examples:
 
   php artisan make:site
-    Update along the current line, e.g. take the latest 3.5.x every night.
+    Update along the current line, e.g. take the latest 3.6.x every night.
 
-  php artisan make:site update 3.5.x
-    From a release (3.5.8) to the development branch.
+  php artisan make:site update 3.6.x
+    From a release (3.6.0) to the development branch.
 
-  php artisan make:site update 3.5.8
-    Back from 3.5.x, or from a fork, to the release.
+  php artisan make:site update 3.6.0
+    Back from 3.6.x, or from a fork, to the release.
 
-  php artisan make:site update nightly-3.5.x
+  php artisan make:site update nightly-3.6.x
     The nightly build tag.
 
   php artisan make:site update https://github.com/middleDuckAi/evolution/tree/add-folder-copying
@@ -190,7 +190,6 @@ EXAMPLES;
      * https://github.com/vendor/evolution/tree/branch-or-tag. An explicit plain version
      * always comes from the configured repository, which is how a site switches back.
      *
-     * @since 3.5.5 Added support for branch and commit refs in manual update requests.
      * @since 3.5.9 Accepts GitHub URLs and answers false when an error stopped the update.
      * @return bool False when the update failed before the site was changed.
      */
@@ -241,7 +240,7 @@ EXAMPLES;
         $targetRef = $this->resolveTargetRef($requestedVersion, $currentVersion, $tags);
 
         if ($requestedVersion === 'null' && $targetRef !== '' && !$this->isSemanticVersionTag($targetRef)) {
-            $this->line('<fg=green>No version given: updating from ' . $this->describeSource($updateRepository, $targetRef) . ', the line this site runs. Pass a release such as 3.5.8 to leave it.</>');
+            $this->line('<fg=green>No version given: updating from ' . $this->describeSource($updateRepository, $targetRef) . ', the line this site runs. Pass a release such as 3.5.9 to leave it.</>');
         }
 
         if ($targetRef !== '') {
@@ -1550,6 +1549,7 @@ EXAMPLES;
      * The optional Manager path preserves the two-argument file-copy contract. Site
      * updates pass EVO_MANAGER_PATH so renamed or externally located Managers receive
      * the new forms and assets without creating a second default login directory.
+     * Skip the archive's root .github directory so a site's own workflows are preserved.
      * Existing Manager configuration, .htaccess and .user.ini stay operator-owned;
      * unrelated destination files are never deleted. Invalid roots fail before writes.
      *
@@ -1568,10 +1568,12 @@ EXAMPLES;
             throw new \RuntimeException('The update source, site root and configured Manager must be existing directories.');
         }
 
-        $objects = new \RecursiveIteratorIterator(
+        $entries = new \RecursiveCallbackFilterIterator(
             new \RecursiveDirectoryIterator($path, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
+            static fn ($entry, $key, $directory) => $directory->getSubPath() !== ''
+                || strcasecmp($entry->getFilename(), '.github') !== 0
         );
+        $objects = new \RecursiveIteratorIterator($entries, \RecursiveIteratorIterator::SELF_FIRST);
         foreach ($objects as $name => $object) {
             $relative = str_replace('\\', '/', substr($name, strlen($path) + 1));
             $target = $dest . '/' . $relative;

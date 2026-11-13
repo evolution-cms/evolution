@@ -1384,11 +1384,26 @@ function removeFolder($path)
     rmdir($dir);
 }
 
-function copyFolder($src, $dest)
+/**
+ * Copy the staged update, omitting the archive root .github for the site overlay.
+ *
+ * @param string $src Staged source directory.
+ * @param string $dest Destination directory.
+ * @param bool $skipGithub True when copying the archive root into the site.
+ */
+function copyFolder($src, $dest, bool $skipGithub = false)
 {
     $path = realpath($src);
     $dest = realpath($dest);
-    $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+    $entries = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+    if ($skipGithub) {
+        $entries = new RecursiveCallbackFilterIterator(
+            $entries,
+            static fn ($entry, $key, $directory) => $directory->getSubPath() !== ""
+                || strcasecmp($entry->getFilename(), ".github") !== 0
+        );
+    }
+    $objects = new RecursiveIteratorIterator($entries, RecursiveIteratorIterator::SELF_FIRST);
     foreach ($objects as $name => $object) {
         set_time_limit(30);
         $startsAt = substr(dirname($name), strlen($path));
@@ -1447,7 +1462,7 @@ if (is_file(__DIR__ . "/assets/cache/siteManager.php")) {
         removeFolder(__DIR__ . "/temp/" . $dir . "/manager");
     }
 }
-copyFolder(__DIR__ . "/temp/" . $dir, __DIR__ . "/");
+copyFolder(__DIR__ . "/temp/" . $dir, __DIR__ . "/", true);
 removeFolder(__DIR__ . "/temp");
 unlink(__DIR__ . "/evo.zip");
 $ch = curl_init();

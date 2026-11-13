@@ -1,6 +1,8 @@
 .gitattributes export-ignore
 .gitignore export-ignore
+.github export-ignore
 .tx export-ignore
+config.php.example export-ignore
 ng.inx export-ignore
 README.md export-ignore
 LICENSE export-ignore

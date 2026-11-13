@@ -126,6 +126,32 @@ test('two-argument moveFiles keeps the ordinary archive layout', function () {
     expect(file_get_contents($this->site . '/manager/index.php'))->toBe('new manager controller');
 });
 
+test('update skips root GitHub workflows and keeps the site configuration intact', function (bool $siteHasGithub) {
+    mkdir($this->archive . '/.github/workflows', 0777, true);
+    file_put_contents($this->archive . '/.github/workflows/ci.yml', 'CMS workflow');
+    file_put_contents($this->archive . '/.github/workflows/build.yml', 'another CMS workflow');
+    mkdir($this->archive . '/assets/.github', 0777, true);
+    file_put_contents($this->archive . '/assets/.github/example.txt', 'nested archive file');
+    if ($siteHasGithub) {
+        mkdir($this->site . '/.github/workflows', 0777, true);
+        file_put_contents($this->site . '/.github/workflows/ci.yml', 'site workflow');
+        file_put_contents($this->site . '/.github/workflows/deploy.yml', 'site deployment');
+    }
+
+    SiteUpdateCommand::moveFiles($this->archive, $this->site);
+
+    expect(is_dir($this->site . '/.github'))->toBe($siteHasGithub)
+        ->and(file_exists($this->site . '/.github/workflows/build.yml'))->toBeFalse()
+        ->and(file_get_contents($this->site . '/assets/.github/example.txt'))->toBe('nested archive file');
+    if ($siteHasGithub) {
+        expect(file_get_contents($this->site . '/.github/workflows/ci.yml'))->toBe('site workflow')
+            ->and(file_get_contents($this->site . '/.github/workflows/deploy.yml'))->toBe('site deployment');
+    }
+})->with([
+    'site with its own workflows' => [true],
+    'site without GitHub configuration' => [false],
+]);
+
 test('updater passes the configured Manager path into the archive overlay', function () {
     $source = file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
