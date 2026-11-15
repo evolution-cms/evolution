@@ -97,6 +97,10 @@ locked dependencies with standalone Composer. No platform requirements are
 ignored: a failed build, runtime check or test fails the compatibility job.
 PHP 8.6 remains a prerelease platform until its general release.
 
+Running the CMS on more than one server - two nodes behind a balancer, one
+database, sessions in Redis, shared upload and cache folders - is checked by
+`.github/workflows/cluster.yml`, on demand only; see `../cluster/README.md`.
+
 The upgrade checks live in their own workflow, `.github/workflows/upgrade.yml`,
 off `push` and `pull_request` on purpose: an upgrade regression comes from a
 change to the migrations or the seeders, not from every commit, and each leg
