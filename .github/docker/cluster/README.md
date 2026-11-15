@@ -81,13 +81,17 @@ default), and leaves the sessions in files on each node.
 2. Every shared path is mounted on both nodes and writable by `www-data`;
    `core/storage/blade` and `/tmp` are not shared.
 3. A manager login on one node is a valid session on the other; the session is
-   in Redis and neither node keeps it in a file.
+   in Redis and neither node keeps a session in a file, not even one the
+   release brought along from being built with `artisan`.
 4. The file manager's single-use token, issued on one node, is accepted by an
    upload on the other, and both nodes serve the uploaded file.
 5. With the document changed in the database, both nodes still serve the
    cached page; a site refresh on one node purges it for both.
 6. A logout on one node ends the session on the other.
-7. Only `php1` runs the scheduler.
+7. Console commands store no session: `artisan list` and `artisan
+   schedule:run` on both nodes and a tick of the scheduler leave Redis, the
+   Laravel file store and `session.save_path` of both nodes as they were.
+8. Only `php1` runs the scheduler.
 
 Taking `storage-bootstrap` off the nodes fails step 5, and
 `SESSION_DRIVER=file` fails step 3.
