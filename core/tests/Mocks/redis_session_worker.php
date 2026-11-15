@@ -4,10 +4,11 @@
 | One request on the legacy PHP session in Redis (EVO_SESSION off, SESSION_STORAGE=redis), without an
 | execution limit, as a web request run without one would be.
 |
-|   php redis_session_worker.php <host:port> <session id> <work dir> [hold seconds] [lock expire] [value]
+|   php redis_session_worker.php <host:port> <session id> <work dir> [hold seconds] [lock expire] [value] [compression]
 |
 | With a hold it prints "locked" once the session is open, sets holder=<value> (default "first") and keeps
-| the session open that long. A lock expire is set as an operator would set redis.session.lock_expire.
+| the session open that long. A lock expire and a compression are set as an operator would set
+| redis.session.lock_expire and redis.session.compression.
 | It ends by printing how long opening the session took, the handler it ended on and the session data.
 */
 
@@ -15,6 +16,7 @@
 $hold = (float)($argv[4] ?? 0);
 $expire = (string)($argv[5] ?? '');
 $value = (string)($argv[6] ?? 'first');
+$compression = (string)($argv[7] ?? '');
 [$host, $port] = explode(':', $server) + [1 => '6379'];
 
 // startCMSSession() returns at once on CLI
@@ -38,6 +40,9 @@ putenv('REDIS_TIMEOUT=2');
 ini_set('max_execution_time', '0');
 if ($expire !== '') {
     ini_set('redis.session.lock_expire', $expire);
+}
+if ($compression !== '') {
+    ini_set('redis.session.compression', $compression);
 }
 ini_set('session.save_handler', 'files');
 ini_set('session.save_path', $dir);

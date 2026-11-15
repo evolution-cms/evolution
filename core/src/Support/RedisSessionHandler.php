@@ -15,6 +15,10 @@ use Throwable;
  * handler extends the lock, or re-takes it under phpredis' own secret when it has expired, no other
  * request holds it and the stored session is still the one this request read. A session that another
  * request locked or changed in the meantime is left to phpredis, which refuses the write.
+ *
+ * With redis.session.compression phpredis stores the session compressed and reads it decompressed, so
+ * "still the one this request read" is decided on the decompressed data, and the lock is then re-taken
+ * only while the stored bytes are the ones that were decompressed.
  */
 class RedisSessionHandler extends SessionHandler
 {
@@ -22,7 +26,8 @@ class RedisSessionHandler extends SessionHandler
     public const PREFIX = 'PHPREDIS_SESSION:';
 
     /**
-     * KEYS: lock, session. ARGV: lock secret, SHA-1 of the session as read, lock TTL in ms.
+     * KEYS: lock, session. ARGV: lock secret, SHA-1 of the stored session expected (empty: extend
+     * only), lock TTL in ms.
      * Returns 1 when the lock is ours (again), 2 when it was taken anew, 0 when it is not.
      */
     private const KEEP_LOCK = <<<'LUA'
@@ -54,6 +59,7 @@ LUA;
 
     private ?float $readAt = null;
     private string $readHash = '';
+    private int $compression = 0;
 
     /** @var callable(): ?Redis */
     private $connect;
@@ -73,6 +79,7 @@ LUA;
         if ($data !== false) {
             $this->readAt = microtime(true);
             $this->readHash = sha1($data);
+            $this->compression = self::compression();
         }
 
         return $data;
@@ -87,7 +94,11 @@ LUA;
         $written = parent::write($id, $data);
         if (!$written && $retaken) {
             // phpredis did not recognise the secret: do not leave a lock nobody releases
-            $this->script(self::RELEASE_LOCK, [self::PREFIX . $id . '_LOCK'], [self::lockSecret()]);
+            $this->redis(static fn(Redis $redis) => $redis->eval(
+                self::RELEASE_LOCK,
+                [self::PREFIX . $id . '_LOCK', self::lockSecret()],
+                1
+            ));
         }
 
         return $written;
@@ -108,30 +119,81 @@ LUA;
         return gethostname() . '|' . getmypid();
     }
 
-    private function keepLock(string $id): int
+    /**
+     * The compression phpredis applies to sessions: its reading of redis.session.compression
+     * (redis_session.c, session_compression_type()), none for a method this ext-redis was built without.
+     */
+    public static function compression(): int
     {
-        return (int)$this->script(self::KEEP_LOCK, [self::PREFIX . $id . '_LOCK', self::PREFIX . $id], [
-            self::lockSecret(),
-            $this->readHash,
-            (string)($this->lockExpire * 1000),
-        ]);
+        $setting = strtolower((string)ini_get('redis.session.compression'));
+        foreach (['lzf' => 'LZF', 'zstd' => 'ZSTD', 'lz4' => 'LZ4'] as $prefix => $name) {
+            if (str_starts_with($setting, $prefix) && defined(Redis::class . '::COMPRESSION_' . $name)) {
+                return (int)constant(Redis::class . '::COMPRESSION_' . $name);
+            }
+        }
+
+        return Redis::COMPRESSION_NONE;
     }
 
     /**
-     * @param list<string> $keys
-     * @param list<string> $args
+     * The session data phpredis reads from a stored value: decompressed, or the value itself when it
+     * does not decompress (redis_session.c, session_uncompress_data()).
      */
-    private function script(string $script, array $keys, array $args): mixed
+    public static function uncompress(Redis $redis, string $stored, int $compression): string
+    {
+        if ($compression === Redis::COMPRESSION_NONE || $stored === '') {
+            return $stored;
+        }
+        try {
+            $redis->setOption(Redis::OPT_COMPRESSION, $compression);
+            $data = $redis->_uncompress($stored);
+        } catch (Throwable $exception) {
+            $data = false;
+        } finally {
+            $redis->setOption(Redis::OPT_COMPRESSION, Redis::COMPRESSION_NONE);
+        }
+
+        return is_string($data) ? $data : $stored;
+    }
+
+    private function keepLock(string $id): int
+    {
+        $lock = self::PREFIX . $id . '_LOCK';
+        $session = self::PREFIX . $id;
+
+        return (int)$this->redis(function (Redis $redis) use ($lock, $session) {
+            // The script compares stored bytes, this request read them decompressed: name the bytes
+            // that hold what it read, or none. A write in between changes them, and the script refuses.
+            $stored = $redis->get($session);
+            $stored = is_string($stored) ? $stored : '';
+            $unchanged = hash_equals($this->readHash, sha1(self::uncompress($redis, $stored, $this->compression)));
+
+            return $redis->eval(self::KEEP_LOCK, [
+                $lock,
+                $session,
+                self::lockSecret(),
+                $unchanged ? sha1($stored) : '',
+                (string)($this->lockExpire * 1000),
+            ], 2);
+        });
+    }
+
+    /**
+     * @param callable(Redis): mixed $command
+     * @return mixed the command's result, false without a connection
+     */
+    private function redis(callable $command): mixed
     {
         try {
             $redis = ($this->connect)();
             if (!$redis instanceof Redis) {
                 return false;
             }
-            $result = $redis->eval($script, array_merge($keys, $args), count($keys));
-            $redis->close();
-
-            return $result;
+            try {
+                return $command($redis);
+            } finally {
+                $redis->close();
+            }
         } catch (Throwable $exception) {
             return false;
         }
