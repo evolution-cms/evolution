@@ -203,14 +203,15 @@ if (!function_exists('useRedisSessionStorage')) {
             'session.save_handler' => (string)ini_get('session.save_handler'),
             'session.save_path' => (string)ini_get('session.save_path'),
         ];
-        $savePath = redisSessionSavePath([
+        $settings = [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'port' => env('REDIS_PORT', 6379),
             'timeout' => env('REDIS_TIMEOUT', 60),
             'database' => env('REDIS_SESSION_DATABASE', 0),
             'user' => env('REDIS_USER', null),
             'password' => env('REDIS_PASS', null),
-        ]);
+        ];
+        $savePath = redisSessionSavePath($settings);
         if (ini_set('session.save_handler', 'redis') === false || ini_set('session.save_path', $savePath) === false) {
             foreach ($previous as $option => $value) {
                 ini_set($option, $value);
@@ -229,6 +230,11 @@ if (!function_exists('useRedisSessionStorage')) {
             foreach ($lockSettings + ['redis.session.locking_enabled' => '1'] as $option => $value) {
                 ini_set($option, $value);
             }
+            // the TTL bounds a killed request; a live one keeps its lock past it
+            session_set_save_handler(new \EvolutionCMS\Support\RedisSessionHandler(
+                (int)ini_get('redis.session.lock_expire'),
+                static fn() => redisSessionConnect($settings)
+            ), true);
         }
 
         return $previous;
@@ -242,6 +248,7 @@ if (!function_exists('redisSessionLockSettings')) {
      *
      * - Expiry: max_execution_time, or 30 s without one. phpredis otherwise takes max_execution_time,
      *   and with 0 the lock never expires: one killed request would lock its session for good.
+     *   A live request that keeps the session longer still writes it (EvolutionCMS\Support\RedisSessionHandler).
      * - Acquisition: retries for 0.7 x max_execution_time, or 20 s without one (the replaced handler's
      *   budget), never longer than the expiry. Then session_start() fails and the caller falls back.
      *
@@ -311,6 +318,41 @@ if (!function_exists('redisSessionSavePath')) {
         }
 
         return $target . '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+    }
+}
+
+if (!function_exists('redisSessionConnect')) {
+    /**
+     * Opens a connection to the Redis session database named by the REDIS_* settings.
+     *
+     * @param array{host?: mixed, port?: mixed, timeout?: mixed, database?: mixed, user?: mixed, password?: mixed} $settings
+     * @return Redis|null
+     */
+    function redisSessionConnect(array $settings): ?Redis
+    {
+        $host = trim((string)($settings['host'] ?? '')) ?: '127.0.0.1';
+        $port = (int)($settings['port'] ?? 0) ?: 6379;
+        if (str_starts_with($host, 'unix://')) {
+            $host = substr($host, 7);
+        } elseif (str_starts_with($host, 'tcp://')) {
+            $host = substr($host, 6);
+        }
+        if (str_starts_with($host, '/')) {
+            $port = 0;
+        }
+
+        $redis = new Redis();
+        if (!$redis->connect($host, $port, (float)($settings['timeout'] ?? 0) ?: 60)) {
+            return null;
+        }
+        $user = (string)($settings['user'] ?? '');
+        $password = (string)($settings['password'] ?? '');
+        if ($password !== '' && !$redis->auth($user !== '' ? [$user, $password] : $password)) {
+            return null;
+        }
+        $redis->select((int)($settings['database'] ?? 0));
+
+        return $redis;
     }
 }
 

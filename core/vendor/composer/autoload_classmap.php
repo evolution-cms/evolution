@@ -1466,6 +1466,7 @@ return array(
     'EvolutionCMS\\Support\\MoveDocumentTargetGuard' => $baseDir . '/src/Support/MoveDocumentTargetGuard.php',
     'EvolutionCMS\\Support\\MysqlDumper' => $baseDir . '/src/Support/MysqlDumper.php',
     'EvolutionCMS\\Support\\Paginate' => $baseDir . '/src/Support/Paginate.php',
+    'EvolutionCMS\\Support\\RedisSessionHandler' => $baseDir . '/src/Support/RedisSessionHandler.php',
     'EvolutionCMS\\Support\\ResourceParentGuard' => $baseDir . '/src/Support/ResourceParentGuard.php',
     'EvolutionCMS\\Support\\RoleGuard' => $baseDir . '/src/Support/RoleGuard.php',
     'EvolutionCMS\\Support\\SecuritySettings' => $baseDir . '/src/Support/SecuritySettings.php',
