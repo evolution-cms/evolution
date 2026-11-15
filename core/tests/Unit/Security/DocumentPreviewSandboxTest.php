@@ -41,6 +41,22 @@ it('routes the editor preview through the origin helper, not a text prefix', fun
         ->and($source)->not->toContain('window.open(previewUrl');
 });
 
+/*
+| "Save and continue" saves over XHR and keeps the page, so a URL rendered into it goes stale once
+| the alias changes. 3.5.9 rendered makeUrl($id) there and previewed the old alias; the id-based
+| URL is resolved by the front-end at click time.
+*/
+
+it('previews a document by id so an alias saved in place is followed', function () {
+    $source = file_get_contents(dirname(__DIR__, 4) . '/manager/actions/mutate_content.dynamic.php');
+
+    expect(preg_match('/^\s*view: function\(\) \{\n(.*?)^\s{8}\}\n/ms', $source, $matches))->toBe(1);
+
+    expect($matches[1])->toContain("var target = site + 'index.php?id=<?= (int) \$id ?>&z=manprev';")
+        ->and($matches[1])->not->toContain('makeUrl')
+        ->and($matches[1])->not->toContain('<?= $content[');
+});
+
 it('opens only http(s) targets and sandboxes every same-origin one', function () {
     $node = (new Symfony\Component\Process\ExecutableFinder())->find('node');
     if ($node === null) {

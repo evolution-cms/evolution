@@ -269,8 +269,8 @@ class InstallEvo
                 ob_end_flush();
             }
 
-            throw new RuntimeException('Update incomplete: the custom Composer packages were not restored, so the site does not load them.'
-                . ' The install folder was kept. Restore them with the command above, then remove the install folder.');
+            throw new RuntimeException('Update incomplete: the custom Composer packages were not restored or migrated, so the site does not load them.'
+                . ' The install folder was kept. Run the command above, then remove the install folder.');
         }
         echo 'Evolution CMS updated!' . "\n";
         $this->checkRemoveInstall();
@@ -287,7 +287,7 @@ class InstallEvo
      * replacing the packages it runs on.
      *
      * @since 3.5.9
-     * @return bool False when they could not be restored; true when they were, there were none, or --skipComposer=y.
+     * @return bool False when they could not be restored or their migrations failed; true when they were, there were none, or --skipComposer=y.
      */
     public function restoreCustomPackages(): bool
     {
@@ -302,9 +302,13 @@ class InstallEvo
         }
 
         info('- Restoring custom Composer packages: ' . implode(' ', $names));
+        $updated = false;
         $result = restoreCustomComposerPackages(
             fn (string $command): array => $this->runComposerCommand($command),
-            fn () => $this->discoverPackages(),
+            function () use (&$updated): void {
+                $updated = true;
+                $this->discoverPackages();
+            },
             $this->composerForRestore(),
             $this->updateCustomPackages === 'y'
         );
@@ -315,7 +319,7 @@ class InstallEvo
         if ($result['restored']) {
             success('✔ Custom Composer packages restored');
 
-            return true;
+            return !$updated || $this->migrateCustomPackages();
         }
 
         warning('⚠ Custom Composer packages were not restored. Run in the site root: ' . $result['command']);
@@ -324,6 +328,39 @@ class InstallEvo
         }
 
         return false;
+    }
+
+    /**
+     * Apply the migrations of the restored packages.
+     *
+     * The core migrations ran before Composer, when the packages were not installed yet, and
+     * --updateCustomPackages=y may bring versions with new migrations. A new process: this one
+     * has not registered the providers that load them.
+     *
+     * @since 3.5.9
+     */
+    protected function migrateCustomPackages(): bool
+    {
+        info('- Running migrations of the custom Composer packages');
+        [$exitCode, $output] = $this->runArtisanCommand('migrate --force');
+        if ($exitCode === 0) {
+            return true;
+        }
+
+        echo installerOutputTail($output), PHP_EOL;
+        warning('⚠ Migrations of the custom Composer packages failed. Run in the core directory: php artisan migrate --force');
+
+        return false;
+    }
+
+    /**
+     * Run an Artisan command in a new PHP process.
+     *
+     * @return array{0: int, 1: string} Exit code and output.
+     */
+    protected function runArtisanCommand(string $arguments): array
+    {
+        return installerRunCommand(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(EVO_CORE_PATH . 'artisan') . ' ' . $arguments . ' 2>&1');
     }
 
     /**
