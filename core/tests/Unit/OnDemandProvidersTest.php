@@ -246,3 +246,48 @@ test('the bundled manager packages wait on the frontend and Livewire stays off t
         ->and((new OnDemandProviders($config['providers'], $config['on_demand_providers'], 'stask'))->pending())
         ->toBe([]);
 });
+
+test('a stale standalone Livewire declaration cannot bypass EvoUI request settings', function (bool $frontend, bool $optIn) {
+    $config = require dirname(__DIR__, 2) . '/config/app.php';
+    $providers = [
+        'Evolution_EvoUI' => $config['providers']['Evolution_EvoUI'],
+        'EvoUIServiceProvider' => EvoUI\EvoUIServiceProvider::class,
+        'LivewireServiceProvider' => Livewire\LivewireServiceProvider::class,
+    ];
+    $onDemand = ['Evolution_EvoUI' => $optIn ? false : $config['on_demand_providers']['Evolution_EvoUI']];
+    $manifest = tempnam(sys_get_temp_dir(), 'evo-on-demand-');
+    $app = new class($manifest, $providers, $onDemand, $frontend) extends OnDemandRuntimeCore {
+        public array $registered = [];
+
+        public function register($provider, $options = [], $force = false)
+        {
+            $this->registered[] = $provider;
+        }
+    };
+
+    $app->registerConfiguredProviders();
+
+    expect($app->registered)->toBe(!$frontend || $optIn ? [EvoUI\EvoUIServiceProvider::class] : [])
+        ->and((require $manifest)['providers'])->toBe(['Evolution_EvoUI' => EvoUI\EvoUIServiceProvider::class]);
+})->with([
+    'ordinary frontend' => [true, false],
+    'frontend with EvoUI enabled' => [true, true],
+    'manager' => [false, false],
+]);
+
+test('a site without EvoUI retains its standalone Livewire provider', function () {
+    $manifest = tempnam(sys_get_temp_dir(), 'evo-on-demand-');
+    $providers = ['LivewireServiceProvider' => Livewire\LivewireServiceProvider::class];
+    $app = new class($manifest, $providers, []) extends OnDemandRuntimeCore {
+        public array $registered = [];
+
+        public function register($provider, $options = [], $force = false)
+        {
+            $this->registered[] = $provider;
+        }
+    };
+
+    $app->registerConfiguredProviders();
+
+    expect($app->registered)->toBe([Livewire\LivewireServiceProvider::class]);
+});

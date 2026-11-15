@@ -14,7 +14,7 @@ The topbar uses the final menu produced by the existing Frame controller after
 `OnManagerMenuPrerender`. Plugin-added roots, nested groups, positions, links,
 handlers and optional buttons keep their indexed-array contract. Element lists
 load through the existing guarded AJAX endpoint. See
-[`docs/manager/evo-ui-topbar.md`](../../../../docs/manager/evo-ui-topbar.md).
+[EvoUI manager topbar in dDocs](https://github.com/Dmi3yy/dDocs/blob/main/docs/en/evolution-cms/04-development/evo-ui-topbar.md).
 
 The bar is compact, has no arrows on its standard root groups, and shows icons
 with accessible names on screens up to 600px wide. Nested menus retain labels

@@ -1384,11 +1384,38 @@ function removeFolder($path)
     rmdir($dir);
 }
 
-function copyFolder($src, $dest)
+/**
+ * Copy the staged update, omitting CMS development files and sample configuration for the site overlay.
+ *
+ * @param string $src Staged source directory.
+ * @param string $dest Destination directory.
+ * @param bool $siteOverlay True when copying the archive root into the site.
+ */
+function copyFolder($src, $dest, bool $siteOverlay = false)
 {
     $path = realpath($src);
     $dest = realpath($dest);
-    $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path), RecursiveIteratorIterator::SELF_FIRST);
+    $entries = new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS);
+    if ($siteOverlay) {
+        $entries = new RecursiveCallbackFilterIterator(
+            $entries,
+            static fn ($entry, $key, $directory) => !in_array(
+                strtolower(str_replace(DIRECTORY_SEPARATOR, "/", $directory->getSubPathname())),
+                [
+                    ".dockerignore", ".github", "agents.md", "security.md", "docs", "phpstan.neon", "publiccode.yml",
+                    "tools/build-manager-icons.php", "core/phpunit.xml", "core/tests",
+                    "core/custom/.env.docker.example",
+                    "core/custom/.env.example",
+                    "core/custom/define.php.example",
+                    "core/custom/routes.php.example",
+                    "core/custom/config/cms/settings/controllernamespace.php.example",
+                    "core/custom/config/cms/settings.php.example",
+                ],
+                true
+            )
+        );
+    }
+    $objects = new RecursiveIteratorIterator($entries, RecursiveIteratorIterator::SELF_FIRST);
     foreach ($objects as $name => $object) {
         set_time_limit(30);
         $startsAt = substr(dirname($name), strlen($path));
@@ -1447,7 +1474,7 @@ if (is_file(__DIR__ . "/assets/cache/siteManager.php")) {
         removeFolder(__DIR__ . "/temp/" . $dir . "/manager");
     }
 }
-copyFolder(__DIR__ . "/temp/" . $dir, __DIR__ . "/");
+copyFolder(__DIR__ . "/temp/" . $dir, __DIR__ . "/", true);
 removeFolder(__DIR__ . "/temp");
 unlink(__DIR__ . "/evo.zip");
 $ch = curl_init();

@@ -28,6 +28,9 @@ function removeStaleProviderDir(string $dir): void
     foreach (glob($dir . '*.php') ?: [] as $file) {
         unlink($file);
     }
+    if (is_file($dir . 'composer.json')) {
+        unlink($dir . 'composer.json');
+    }
     if (is_dir($dir)) {
         rmdir($dir);
     }
@@ -81,4 +84,33 @@ test('configured provider registration skips classes that do not exist', functio
         ->toContain('public function registerConfiguredProviders()')
         ->toContain('class_exists($provider)')
         ->toContain('Skipped missing service provider');
+});
+
+test('discovery leaves Livewire registration to EvoUI and supports standalone Livewire', function () {
+    $manifest = $this->providersDir . 'composer.json';
+    file_put_contents($manifest, json_encode([
+        'extra' => ['laravel' => ['providers' => [
+            Livewire\LivewireServiceProvider::class,
+            EvoUI\EvoUIServiceProvider::class,
+        ]]],
+    ]));
+
+    [$command] = buildStaleProviderCommand($this->providersDir);
+    $app = new Illuminate\Container\Container();
+    $config = new Illuminate\Config\Repository(['app' => ['providers' => [
+        'Evolution_EvoUI' => EvoUI\EvoUIServiceProvider::class,
+    ]]]);
+    $app->instance('config', $config);
+    $command->setLaravel($app);
+
+    for ($run = 0; $run < 2; $run++) {
+        $command->parseComposerServiceProvider($manifest);
+        expect(glob($this->providersDir . '*ServiceProvider.php'))->toBe([]);
+    }
+
+    $config->set('app.providers', []);
+    $command->parseComposerServiceProvider($manifest);
+
+    expect(require $this->providersDir . 'LivewireServiceProvider.php')->toBe(Livewire\LivewireServiceProvider::class)
+        ->and(require $this->providersDir . 'EvoUIServiceProvider.php')->toBe(EvoUI\EvoUIServiceProvider::class);
 });

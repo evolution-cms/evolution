@@ -441,6 +441,8 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     /**
      * Register configured providers in their existing framework-first order.
      *
+     * Drop redundant declarations before resolving on-demand providers so stale
+     * discovery files cannot boot Livewire without EvoUI on a frontend request.
      * Provider availability is checked when rebuilding the service manifest or
      * registering an eager provider, leaving deferred classes unloaded on warm requests.
      * On a frontend request the providers of `app.on_demand_providers` wait until used.
@@ -448,6 +450,12 @@ abstract class AbstractLaravel extends Container implements ApplicationContract
     public function registerConfiguredProviders()
     {
         $configured = (array) $this['config']->get('app.providers', []);
+        foreach ($configured as $key => $provider) {
+            if ($key !== Support\EvoUIProviders::CORE_KEY && is_string($provider)
+                && Support\EvoUIProviders::handles($provider, $configured)) {
+                unset($configured[$key]);
+            }
+        }
         $providers = Collection::make($configured)
             ->partition(function ($provider) {
                 // The core cache adapter keeps the framework provider's original slot.

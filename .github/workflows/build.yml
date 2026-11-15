@@ -142,9 +142,13 @@ jobs:
         run: |
           version=$(php -r '$c = json_decode(file_get_contents("core/composer.json"), true); echo $c["version"] ?? "0.0.0";')
           name="evolution-cms-${version}-${GITHUB_REF_NAME//\//-}-$(git rev-parse --short HEAD)-sqlite.zip"
-          # install/ is left empty by --removeInstall=y; the rest is repository
-          # tooling that has no place in a distributable build.
-          rm -rf .git .github install core/tests core/phpunit.xml AGENTS.md
+          # install/ is left empty by --removeInstall=y. Omit repository tooling
+          # and sample configuration from the distributable build.
+          rm -rf .git .github install docs core/tests core/phpunit.xml \
+            .dockerignore AGENTS.md SECURITY.md phpstan.neon publiccode.yml tools/build-manager-icons.php \
+            core/custom/.env.docker.example core/custom/.env.example \
+            core/custom/define.php.example core/custom/routes.php.example \
+            core/custom/config/cms/settings/ControllerNamespace.php.example core/custom/config/cms/settings.php.example
           # A leading "." keeps dotfiles such as core/.install, which the
           # manager requires to consider the CMS installed.
           zip -qr "/tmp/${name}" .
