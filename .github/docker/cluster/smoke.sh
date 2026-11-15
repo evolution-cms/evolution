@@ -137,19 +137,21 @@ keys=$(on redis "redis-cli --user evo --pass secret --no-auth-warning -n 2 dbsiz
 echo "  redis session keys: $keys"
 [ "${keys:-0}" -gt 0 ] || fail "no session reached Redis"
 mode=$(on php1 'printenv EVO_SESSION || echo 1')
-for node in php1 php2; do
-    # Only what the node wrote since it started: a session stored while the
-    # release was installed is in the image, on both nodes alike.
-    since=$("$DOCKER" inspect -f '{{.State.StartedAt}}' "$("${COMPOSE[@]}" ps -q "$node")")
-    # Laravel's file store is the session that counts in mode 1; in mode 0 it is
-    # PHP's own session, whose files would be in session.save_path.
-    files=$(on "$node" "find core/storage/sessions -maxdepth 1 -type f ! -name .gitignore -newermt '$since' | wc -l")
-    # Empty ones are left by CLI runs (artisan, the scheduler), which start a
-    # session that holds nothing; a web session on disk has content.
+# Laravel's file store is the session that counts in mode 1; in mode 0 it is
+# PHP's own session, whose files would be in session.save_path. In mode 1 the
+# web requests keep a native copy there by design (EvoSessionProxy), so only
+# mode 0 counts it. Nothing is excused: the release itself, built with artisan
+# (installer, package:discover), carries no session either.
+session_files() {
+    on "$1" 'find core/storage/sessions -maxdepth 1 -type f ! -name .gitignore'
     if [ "$mode" = 0 ]; then
-        files=$((files + $(on "$node" 'd=$(php -r "echo session_save_path() ?: sys_get_temp_dir();"); find "${d##*;}" -maxdepth 1 -name "sess_*" -size +0 | wc -l')))
+        on "$1" 'd=$(php -r "echo session_save_path() ?: sys_get_temp_dir();"); find "${d##*;}" -maxdepth 1 -name "sess_*"'
     fi
-    [ "$files" -eq 0 ] || fail "$node stored $files session file(s) on its own disk (EVO_SESSION=$mode)"
+}
+for node in php1 php2; do
+    files=$(session_files "$node")
+    [ -z "$files" ] || fail "$node keeps sessions on its own disk (EVO_SESSION=$mode): $(echo "$files" | tr '
+' ' ')"
 done
 echo "  no session files on either node (EVO_SESSION=$mode)"
 
@@ -209,6 +211,35 @@ for _ in 1 2; do
     seen
 done
 assert_alternated "manager after logout"
+
+say "Console commands store no session, on either node"
+# Every store a session can land in: Redis, and on each node the Laravel file
+# store and PHP's session.save_path, web copies of mode 1 included.
+session_snapshot() {
+    on redis "redis-cli --user evo --pass secret --no-auth-warning -n 2 --scan" | tr -d '' | sort | sed 's/^/redis: /'
+    for node in php1 php2; do
+        on "$node" 'd=$(php -r "echo session_save_path() ?: sys_get_temp_dir();"); { find core/storage/sessions -maxdepth 1 -type f ! -name .gitignore; find "${d##*;}" -maxdepth 1 -name "sess_*"; } | sort'             | sed "s/^/$node: /"
+    done
+}
+session_snapshot > "$work/sessions-before"
+since=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+for node in php1 php2; do
+    for command in list schedule:run; do
+        on "$node" "cd core && php artisan $command > /dev/null 2>&1" || fail "artisan $command failed on $node"
+        echo "  $node: artisan $command"
+    done
+done
+# One tick of the scheduler php1 runs (schedule:work), which starts its
+# commands as artisan processes of their own.
+for _ in $(seq 1 30); do
+    "${COMPOSE[@]}" logs --since "$since" php1 2>&1 | grep -q 'Running scheduled command' && break
+    on php1 'sleep 3'
+done
+"${COMPOSE[@]}" logs --since "$since" php1 2>&1 | grep -q 'Running scheduled command' || fail "the scheduler on php1 did not tick within 90 s"
+echo "  php1: a scheduler tick"
+session_snapshot > "$work/sessions-after"
+diff "$work/sessions-before" "$work/sessions-after" || fail "console commands stored sessions (EVO_SESSION=$mode); new entries above"
+echo "  no new session in Redis or on either node (EVO_SESSION=$mode)"
 
 say "Only php1 runs the scheduler"
 "${COMPOSE[@]}" logs php1 2>&1 | grep -q 'starting php artisan schedule:work' || fail "php1 never started the scheduler"
