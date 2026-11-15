@@ -29,6 +29,13 @@ on:
 permissions:
   contents: read
 
+# bash -eo pipefail: the smoke test and the Redis tests pipe their output
+# through tee, and without pipefail (the default shell runs bash -e only) a
+# failing test followed by a working tee would pass the step.
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: cluster-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
