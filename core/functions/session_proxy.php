@@ -200,16 +200,25 @@ class EvoSessionProxy
 
     /**
      * Whether nothing can read this session back: a visitor's page on which no session cookie
-     * came in and none goes out. Every such hit would otherwise leave two files behind.
+     * came in and none goes out, or a console command, which has no cookie at all (artisan runs in
+     * manager mode, so every run, each scheduler tick included, stored one). Every such hit would
+     * otherwise leave a session behind.
      * A worker emits the cookie of every session after its shutdown jobs (saveAndEmitCookie()).
      *
      * @param list<string> $responseHeaders
      */
     private static function isUnreachable(array $responseHeaders): bool
     {
-        if ((defined('IN_MANAGER_MODE') && IN_MANAGER_MODE)
-            || (class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)
-                && \EvolutionCMS\Runtime\WorkerRuntime::active())) {
+        if (class_exists(\EvolutionCMS\Runtime\WorkerRuntime::class, false)
+            && \EvolutionCMS\Runtime\WorkerRuntime::active()) {
+            return false;
+        }
+
+        if (function_exists('is_cli') && is_cli()) {
+            return true;
+        }
+
+        if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE) {
             return false;
         }
 
