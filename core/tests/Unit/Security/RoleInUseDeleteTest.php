@@ -73,7 +73,6 @@ function roleInUseController(RoleInUseThemeStub $theme): UserRoleController
     // $this->managerTheme, so the heavy controller constructor can be bypassed.
     $controller = (new ReflectionClass(UserRoleController::class))->newInstanceWithoutConstructor();
     $property = new ReflectionProperty(UserRoleController::class, 'managerTheme');
-    $property->setAccessible(true);
     $property->setValue($controller, $theme);
 
     return $controller;
