@@ -57,6 +57,15 @@ fetch() {
     echo "  ${STATUS} ${NODE} ${path}"
 }
 
+# A service's log, read whole before it is searched: under pipefail,
+# `logs | grep -q` fails when grep stops at the first match while logs is
+# still writing (SIGPIPE), which a long log makes likely.
+log_has() {
+    local service=$1 pattern=$2 since=${3:-} out
+    out=$("${COMPOSE[@]}" logs ${since:+--since "$since"} "$service" 2>&1)
+    grep -q -- "$pattern" <<< "$out"
+}
+
 body_has() {
     grep -qF -- "$1" "$work/body"
 }
@@ -116,7 +125,7 @@ fetch /manager/
 body_has 'id="loginfrm"' || fail "the manager did not show its login form"
 fetch '/manager/?a=0' -H "Origin: $BASE" -d ajax=1 -d rememberme=0 \
     --data-urlencode "username=$ADMIN" --data-urlencode "password=$PASSWORD"
-head -c 9 "$work/body" | grep -qi '^location:' || {
+grep -qi '^location:' <<< "$(head -c 9 "$work/body")" || {
     head -c 500 "$work/body" >&2
     fail "the login was refused on $NODE"
 }
@@ -232,21 +241,21 @@ done
 # One tick of the scheduler php1 runs (schedule:work), which starts its
 # commands as artisan processes of their own.
 for _ in $(seq 1 30); do
-    "${COMPOSE[@]}" logs --since "$since" php1 2>&1 | grep -q 'Running scheduled command' && break
+    log_has php1 'Running scheduled command' "$since" && break
     on php1 'sleep 3'
 done
-"${COMPOSE[@]}" logs --since "$since" php1 2>&1 | grep -q 'Running scheduled command' || fail "the scheduler on php1 did not tick within 90 s"
+log_has php1 'Running scheduled command' "$since" || fail "the scheduler on php1 did not tick within 90 s"
 echo "  php1: a scheduler tick"
 session_snapshot > "$work/sessions-after"
 diff "$work/sessions-before" "$work/sessions-after" || fail "console commands stored sessions (EVO_SESSION=$mode); new entries above"
 echo "  no new session in Redis or on either node (EVO_SESSION=$mode)"
 
 say "Only php1 runs the scheduler"
-"${COMPOSE[@]}" logs php1 2>&1 | grep -q 'starting php artisan schedule:work' || fail "php1 never started the scheduler"
-if "${COMPOSE[@]}" logs php1 2>&1 | grep -q 'schedule:work exited'; then
+log_has php1 'starting php artisan schedule:work' || fail "php1 never started the scheduler"
+if log_has php1 'schedule:work exited'; then
     fail "the scheduler on php1 exited"
 fi
-if "${COMPOSE[@]}" logs php2 2>&1 | grep -q 'schedule:work'; then
+if log_has php2 'schedule:work'; then
     fail "php2 runs a scheduler too"
 fi
 echo "  php1 schedules, php2 does not"
