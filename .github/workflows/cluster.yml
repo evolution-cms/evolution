@@ -180,18 +180,23 @@ jobs:
       # cases skip without it, so the extension is built here.
       - name: Build the test image
         run: |
-          docker build -t evo-redis-tests --build-arg "PHP_VERSION=${PHP_VERSION}"             -f .github/docker/cluster/Dockerfile.redis-tests .github/docker/cluster
+          docker build -t evo-redis-tests --build-arg "PHP_VERSION=${PHP_VERSION}" \
+            -f .github/docker/cluster/Dockerfile.redis-tests .github/docker/cluster
 
       - name: Install core dependencies
         run: |
-          docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app/core             evo-redis-tests composer install --no-interaction --no-progress --prefer-dist
+          docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app/core \
+            evo-redis-tests composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run the Redis tests
         run: |
-          docker run --rm --network host -u "$(id -u):$(id -g)" -v "$PWD:/app" -w /app/core             -e EVO_TEST_REDIS=127.0.0.1:6379 evo-redis-tests sh -c '
+          docker run --rm --network host -u "$(id -u):$(id -g)" -v "$PWD:/app" -w /app/core \
+            -e EVO_TEST_REDIS=127.0.0.1:6379 evo-redis-tests sh -c '
               php -v | head -n 1
               php --ri redis | grep -E "^(Redis Version|Available compression)"
-              php vendor/bin/pest --fail-on-warning --fail-on-risky --fail-on-deprecation                 --log-junit /app/redis-tests.xml                 tests/Unit/RedisSessionStorageTest.php tests/Unit/RedisConnectionConfigTest.php
+              php vendor/bin/pest --fail-on-warning --fail-on-risky --fail-on-deprecation \
+                --log-junit /app/redis-tests.xml \
+                tests/Unit/RedisSessionStorageTest.php tests/Unit/RedisConnectionConfigTest.php
             ' 2>&1 | tee redis-tests.log
 
       - name: Keep the test output
