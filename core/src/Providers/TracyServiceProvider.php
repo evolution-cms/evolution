@@ -7,7 +7,15 @@ use EvolutionCMS\Interfaces\TracyPanel;
 use Tracy\IBarPanel;
 
 if (session_status() == PHP_SESSION_NONE && (!defined('EVO_SESSION') || !EVO_SESSION) && !(class_exists('EvoSessionProxy', false) && \EvoSessionProxy::disabled())) {
-    session_start();
+    if (is_cli()) {
+        // A console command has no cookie to come back with: the session lives in the process only,
+        // as startCMSSession() and the Laravel session path also have it.
+        if (!isset($_SESSION) || !is_array($_SESSION)) {
+            $_SESSION = [];
+        }
+    } else {
+        session_start();
+    }
 }
 
 /**

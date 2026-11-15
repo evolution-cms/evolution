@@ -184,12 +184,17 @@ class EvoSessionProxy
 
     /**
      * Whether nothing can read this session back: a visitor's page on which no session cookie
-     * came in and none goes out. Every such hit would otherwise leave two files behind.
+     * came in and none goes out, or a console command, which has no cookie at all (artisan runs in
+     * manager mode, so every run stored one). Every such hit would otherwise leave a session behind.
      *
      * @param list<string> $responseHeaders
      */
     private static function isUnreachable(array $responseHeaders): bool
     {
+        if (function_exists('is_cli') && is_cli()) {
+            return true;
+        }
+
         if (defined('IN_MANAGER_MODE') && IN_MANAGER_MODE) {
             return false;
         }
