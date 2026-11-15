@@ -1,0 +1,14 @@
+# The Salo runtime of .github/docker/Dockerfile plus what a cluster needs and a
+# single node does not: phpredis, so sessions can live in Redis and every node
+# behind the balancer sees the same one. exif too where the runtime lacks it:
+# trees that do not ship core/vendor install it here, and their lock needs it.
+ARG BASE_IMAGE=evo-salo-runtime:8.4-apache
+FROM ${BASE_IMAGE}
+
+ARG PHPREDIS_VERSION=6.2.0
+
+RUN pecl install "redis-${PHPREDIS_VERSION}" < /dev/null \
+    && docker-php-ext-enable redis \
+    && rm -rf /tmp/pear \
+    && { php -m | grep -qx exif || docker-php-ext-install exif; } \
+    && php -r 'exit(extension_loaded("redis") && extension_loaded("exif") ? 0 : 1);'

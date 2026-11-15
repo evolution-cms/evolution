@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d5772eeba9722c710c951d64c061e9e",
+    "content-hash": "b4b62024ca2a5bc01025847964ab9150",
     "packages": [
         {
             "name": "blade-ui-kit/blade-icons",
@@ -888,42 +888,6 @@
                 "source": "https://github.com/dg/rss-php/tree/v1.7"
             },
             "time": "2026-02-25T00:47:42+00:00"
-        },
-        {
-            "name": "dmitry-suffi/redis-session-handler",
-            "version": "1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dmitry-suffi/redis-session-handler.git",
-                "reference": "7057430a726dd8df530e1e3071e32cc6b1b5b170"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dmitry-suffi/redis-session-handler/zipball/7057430a726dd8df530e1e3071e32cc6b1b5b170",
-                "reference": "7057430a726dd8df530e1e3071e32cc6b1b5b170",
-                "shasum": ""
-            },
-            "type": "project",
-            "autoload": {
-                "psr-4": {
-                    "suffi\\RedisSessionHandler\\": "src\\"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Обработчик сессий через Redis с механизмом блокировки",
-            "homepage": "https://github.com/dmitry-suffi/redis-session-handler",
-            "keywords": [
-                "redis",
-                "session"
-            ],
-            "support": {
-                "issues": "https://github.com/dmitry-suffi/redis-session-handler/issues",
-                "source": "https://github.com/dmitry-suffi/redis-session-handler/tree/1.0.4"
-            },
-            "time": "2017-06-30T13:11:32+00:00"
         },
         {
             "name": "doctrine/dbal",

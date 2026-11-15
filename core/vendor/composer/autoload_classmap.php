@@ -1466,6 +1466,7 @@ return array(
     'EvolutionCMS\\Support\\MoveDocumentTargetGuard' => $baseDir . '/src/Support/MoveDocumentTargetGuard.php',
     'EvolutionCMS\\Support\\MysqlDumper' => $baseDir . '/src/Support/MysqlDumper.php',
     'EvolutionCMS\\Support\\Paginate' => $baseDir . '/src/Support/Paginate.php',
+    'EvolutionCMS\\Support\\RedisSessionHandler' => $baseDir . '/src/Support/RedisSessionHandler.php',
     'EvolutionCMS\\Support\\ResourceParentGuard' => $baseDir . '/src/Support/ResourceParentGuard.php',
     'EvolutionCMS\\Support\\RoleGuard' => $baseDir . '/src/Support/RoleGuard.php',
     'EvolutionCMS\\Support\\SecuritySettings' => $baseDir . '/src/Support/SecuritySettings.php',
@@ -5080,6 +5081,5 @@ return array(
     'Wikimedia\\Composer\\Merge\\V2\\PluginState' => $vendorDir . '/wikimedia/composer-merge-plugin/src/PluginState.php',
     'Wikimedia\\Composer\\Merge\\V2\\StabilityFlags' => $vendorDir . '/wikimedia/composer-merge-plugin/src/StabilityFlags.php',
     'secondnetwork\\TablerIcons\\BladeTablerIconsServiceProvider' => $vendorDir . '/secondnetwork/blade-tabler-icons/src/BladeTablerIconsServiceProvider.php',
-    'suffi\\RedisSessionHandler\\RedisSessionHandler' => $vendorDir . '/dmitry-suffi/redis-session-handler/src/RedisSessionHandler.php',
     'voku\\helper\\ASCII' => $vendorDir . '/voku/portable-ascii/src/voku/helper/ASCII.php',
 );

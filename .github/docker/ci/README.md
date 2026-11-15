@@ -91,6 +91,10 @@ SQLite and mbstring support for the test suite. This prerelease compatibility
 job reports the build, version and test results in the Actions summary and as a
 warning while keeping the workflow status green.
 
+Running the CMS on more than one server - two nodes behind a balancer, one
+database, sessions in Redis, shared upload and cache folders - is checked by
+`.github/workflows/cluster.yml`, on demand only; see `../cluster/README.md`.
+
 The upgrade checks live in their own workflow, `.github/workflows/upgrade.yml`,
 off `push` and `pull_request` on purpose: an upgrade regression comes from a
 change to the migrations or the seeders, not from every commit, and each leg

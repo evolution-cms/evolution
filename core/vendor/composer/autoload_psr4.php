@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'voku\\' => array($vendorDir . '/voku/portable-ascii/src/voku'),
-    'suffi\\RedisSessionHandler\\' => array($vendorDir . '/dmitry-suffi/redis-session-handler/src'),
     'secondnetwork\\TablerIcons\\' => array($vendorDir . '/secondnetwork/blade-tabler-icons/src'),
     'Wikimedia\\Composer\\Merge\\V2\\' => array($vendorDir . '/wikimedia/composer-merge-plugin/src'),
     'WebPConvert\\' => array($vendorDir . '/rosell-dk/webp-convert/src'),

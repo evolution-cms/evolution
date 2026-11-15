@@ -30,7 +30,6 @@
         "php": "^8.3",
         "composer/composer": "*",
         "dg/rss-php": "^1.7",
-        "dmitry-suffi/redis-session-handler": "*",
         "doctrine/dbal": "4.*",
         "dragonmantank/cron-expression": "^3.6",
         "evolutioncms-services/document-manager": "1.*",

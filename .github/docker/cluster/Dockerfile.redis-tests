@@ -1,0 +1,17 @@
+# PHP CLI with a phpredis built with every session compression it supports
+# (lzf, zstd, lz4), for the Redis session integration tests of
+# .github/workflows/cluster.yml: without one, its compressed cases skip.
+ARG PHP_VERSION=8.4
+FROM php:${PHP_VERSION}-cli
+
+ARG PHPREDIS_VERSION=6.2.0
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git unzip libzip-dev libzstd-dev liblz4-dev \
+    && docker-php-ext-install -j"$(nproc)" zip \
+    && pecl install -D 'enable-redis-igbinary="no" enable-redis-msgpack="no" enable-redis-lzf="yes" enable-redis-zstd="yes" enable-redis-lz4="yes"' "redis-${PHPREDIS_VERSION}" \
+    && docker-php-ext-enable redis \
+    && rm -rf /tmp/pear /var/lib/apt/lists/* \
+    && php -r 'exit(defined("Redis::COMPRESSION_LZF") && defined("Redis::COMPRESSION_ZSTD") && defined("Redis::COMPRESSION_LZ4") ? 0 : 1);'
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
