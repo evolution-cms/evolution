@@ -37,6 +37,7 @@
 
 # Composer
 /composer.phar
+/core/custom/composer.installed.json
 /composer.lock
 
 /vendor
