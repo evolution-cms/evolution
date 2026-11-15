@@ -19,6 +19,15 @@ use Throwable;
  * With redis.session.compression phpredis stores the session compressed and reads it decompressed, so
  * "still the one this request read" is decided on the decompressed data, and the lock is then re-taken
  * only while the stored bytes are the ones that were decompressed.
+ *
+ * By design, a request whose lock expired while another request took the session and changed it loses
+ * its own write: phpredis refuses it and the session keeps the other request's data. The two requests
+ * were not serialized, the second ran while the first still held the data it read, so writing the first
+ * request's copy afterwards would silently discard the second one's changes (a lost update); sessions
+ * have no merge. A site with requests that hold their session longer than the TTL (max_execution_time,
+ * or 30 s without one) sets redis.session.lock_expire above that; a value an operator set is kept.
+ * RedisSessionStorageTest pins the case ("a request whose expired lock another request took does not
+ * overwrite the session it changed").
  */
 class RedisSessionHandler extends SessionHandler
 {
