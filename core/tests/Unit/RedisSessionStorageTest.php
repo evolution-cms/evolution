@@ -151,10 +151,11 @@ function redisSessionTestStart(
     string $name,
     float $hold = 0,
     string $lockExpire = '',
-    string $value = 'first'
+    string $value = 'first',
+    string $compression = ''
 ): int {
     $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__DIR__) . '/Mocks/redis_session_worker.php');
-    foreach ([$server, $id, $dir, (string)$hold, $lockExpire, $value] as $arg) {
+    foreach ([$server, $id, $dir, (string)$hold, $lockExpire, $value, $compression] as $arg) {
         $command .= ' ' . escapeshellarg($arg);
     }
     $pid = (int)trim(evoRunCommand($command . ' > ' . escapeshellarg("$dir/$name.out") . ' 2>&1 & echo $!'));
@@ -193,6 +194,30 @@ function redisSessionTestResult(int $pid, string $dir, string $name, float $dead
     expect($result)->toBeArray($output);
 
     return $result;
+}
+
+function redisSessionTestConnect(string $server): Redis
+{
+    [$host, $port] = explode(':', $server) + [1 => '6379'];
+    $redis = new Redis();
+    $redis->connect($host, (int)$port, 2);
+    $redis->select(15);
+
+    return $redis;
+}
+
+/**
+ * The Redis::COMPRESSION_* value of a redis.session.compression method, skipping the test when
+ * this ext-redis is built without it.
+ */
+function redisSessionTestCompression(string $method): int
+{
+    $constant = Redis::class . '::COMPRESSION_' . strtoupper($method);
+    if (!defined($constant)) {
+        test()->markTestSkipped("ext-redis is built without $method compression");
+    }
+
+    return (int)constant($constant);
 }
 
 function redisSessionTestCleanup(string $server, string $id, string $dir): void
@@ -301,25 +326,103 @@ test('a live request that keeps its session past the lock expiry still writes it
         ->and($fresh['session']['holder'] ?? null)->toBe('first');
 });
 
-test('a request whose expired lock another request took does not overwrite the session it changed', function () {
+test('a request whose expired lock another request took does not overwrite the session it changed', function (string $compression) {
     $server = redisSessionTestServer();
+    if ($compression !== 'none') {
+        redisSessionTestCompression($compression);
+    }
     $dir = $this->redisSessionDir;
-    $holder = redisSessionTestStart($server, $this->redisSessionId, $dir, 'holder', 5, '2');
+    $holder = redisSessionTestStart($server, $this->redisSessionId, $dir, 'holder', 5, '2', 'first', $compression);
     redisSessionTestWait($holder, $dir, 'holder', '/^locked$/m', 30);
     usleep(2500000);
 
     // the lock has expired: the next request takes it at once and changes the session
-    $other = redisSessionTestStart($server, $this->redisSessionId, $dir, 'other', 0.2, '2', 'second');
+    $other = redisSessionTestStart($server, $this->redisSessionId, $dir, 'other', 0.2, '2', 'second', $compression);
     $second = redisSessionTestResult($other, $dir, 'other', 30);
     $first = redisSessionTestResult($holder, $dir, 'holder', 30);
 
-    $reader = redisSessionTestStart($server, $this->redisSessionId, $dir, 'reader');
+    $reader = redisSessionTestStart($server, $this->redisSessionId, $dir, 'reader', 0, '', 'first', $compression);
     $fresh = redisSessionTestResult($reader, $dir, 'reader', 30);
 
     expect($second['opened'])->toBeLessThan(1.0)
         ->and($second['session']['holder'] ?? null)->toBe('second')
         ->and(redisSessionTestLog($dir))->toContain('session lock not held')
         ->and($fresh['session']['holder'] ?? null)->toBe('second');
+})->with(['none', 'lzf', 'zstd', 'lz4']);
+
+test('a live request keeps a compressed session it changed past the lock expiry', function (string $compression) {
+    $server = redisSessionTestServer();
+    $type = redisSessionTestCompression($compression);
+    $dir = $this->redisSessionDir;
+    $id = $this->redisSessionId;
+
+    // an earlier request leaves a non-empty session, stored compressed
+    $seed = redisSessionTestStart($server, $id, $dir, 'seed', 0.1, '2', 'seeded', $compression);
+    expect(redisSessionTestResult($seed, $dir, 'seed', 30)['session']['holder'] ?? null)->toBe('seeded');
+    $redis = redisSessionTestConnect($server);
+    $stored = (string)$redis->get('PHPREDIS_SESSION:' . $id);
+    $redis->setOption(Redis::OPT_COMPRESSION, $type);
+    $seeded = $redis->_uncompress($stored);
+    $redis->setOption(Redis::OPT_COMPRESSION, Redis::COMPRESSION_NONE);
+    expect($seeded)->toContain('holder|s:6:"seeded"')
+        ->and($stored)->not->toBe($seeded);
+
+    // this request reads it, changes it and keeps it past the 2 s lock, with nobody else around
+    $holder = redisSessionTestStart($server, $id, $dir, 'holder', 4, '2', 'changed', $compression);
+    $first = redisSessionTestResult($holder, $dir, 'holder', 30);
+
+    $reader = redisSessionTestStart($server, $id, $dir, 'reader', 0, '', 'first', $compression);
+    $fresh = redisSessionTestResult($reader, $dir, 'reader', 30);
+
+    expect($first['handler'])->toBe('user')
+        ->and($first['session']['holder'] ?? null)->toBe('changed')
+        ->and(redisSessionTestLog($dir))->not->toContain('lock not held')->not->toContain('lock expired')
+        ->and($redis->exists('PHPREDIS_SESSION:' . $id . '_LOCK'))->toBe(0)
+        ->and($fresh['session']['holder'] ?? null)->toBe('changed');
+})->with(['lzf', 'zstd', 'lz4']);
+
+test('the lock check reads a stored session as phpredis does', function (string $compression) {
+    $type = redisSessionTestCompression($compression);
+    $redis = redisSessionTestConnect(redisSessionTestServer());
+    $data = 'holder|s:5:"first";' . str_repeat('x', 200);
+    $redis->setOption(Redis::OPT_COMPRESSION, $type);
+    $stored = $redis->_compress($data);
+    $redis->setOption(Redis::OPT_COMPRESSION, Redis::COMPRESSION_NONE);
+
+    expect($stored)->not->toBe($data)
+        ->and(EvolutionCMS\Support\RedisSessionHandler::uncompress($redis, $stored, $type))->toBe($data)
+        // stored before compression was enabled: phpredis reads it as it is
+        ->and(EvolutionCMS\Support\RedisSessionHandler::uncompress($redis, $data, $type))->toBe($data)
+        ->and(EvolutionCMS\Support\RedisSessionHandler::uncompress($redis, '', $type))->toBe('')
+        ->and(EvolutionCMS\Support\RedisSessionHandler::uncompress($redis, $stored, Redis::COMPRESSION_NONE))->toBe($stored)
+        // the connection is left as it was: the lock script's arguments go out as they are
+        ->and($redis->getOption(Redis::OPT_COMPRESSION))->toBe(Redis::COMPRESSION_NONE);
+})->with(['lzf', 'zstd', 'lz4']);
+
+test('the session compression is read as phpredis reads redis.session.compression', function () {
+    if (!extension_loaded('redis')) {
+        test()->markTestSkipped('needs ext-redis');
+    }
+    $previous = (string)ini_get('redis.session.compression');
+    $read = static function (string $setting): int {
+        ini_set('redis.session.compression', $setting);
+
+        return EvolutionCMS\Support\RedisSessionHandler::compression();
+    };
+
+    try {
+        $expected = static fn(string $name): int => defined(Redis::class . '::COMPRESSION_' . $name)
+            ? (int)constant(Redis::class . '::COMPRESSION_' . $name)
+            : Redis::COMPRESSION_NONE;
+        expect($read('none'))->toBe(Redis::COMPRESSION_NONE)
+            ->and($read(''))->toBe(Redis::COMPRESSION_NONE)
+            ->and($read('brotli'))->toBe(Redis::COMPRESSION_NONE)
+            ->and($read('LZF'))->toBe($expected('LZF'))
+            ->and($read('zstd'))->toBe($expected('ZSTD'))
+            ->and($read('lz4'))->toBe($expected('LZ4'));
+    } finally {
+        ini_set('redis.session.compression', $previous);
+    }
 });
 
 test('the core no longer depends on a userland Redis session handler', function () {
