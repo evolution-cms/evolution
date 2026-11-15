@@ -211,7 +211,7 @@ final class EnvCacheLoader
         }
         try {
             $source = '<?php return ' . self::exportShortArray($payload) . ';' . PHP_EOL;
-            $permissions = @fileperms(self::$cachePath);
+            $permissions = is_file(self::$cachePath) ? @fileperms(self::$cachePath) : false;
             @chmod($temporary, $permissions === false ? (0666 & ~umask()) : ($permissions & 0777));
             if (@file_put_contents($temporary, $source, LOCK_EX) !== false && @rename($temporary, self::$cachePath)) {
                 if (function_exists('opcache_invalidate')) {
@@ -411,7 +411,7 @@ final class EnvCacheLoader
         try {
             ksort($vars, SORT_STRING);
             $php = "<?php return " . self::exportShortArray($vars) . ";\n";
-            $permissions = @fileperms($cachePath);
+            $permissions = is_file($cachePath) ? @fileperms($cachePath) : false;
             @chmod($tmpPath, $permissions === false ? (0666 & ~umask()) : ($permissions & 0777));
             if (@file_put_contents($tmpPath, $php, LOCK_EX) === false) {
                 return;
