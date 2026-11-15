@@ -92,6 +92,13 @@ default), and leaves the sessions in files on each node.
 Taking `storage-bootstrap` off the nodes fails step 5, and
 `SESSION_DRIVER=file` fails step 3.
 
+The same workflow also runs the Redis session integration tests
+(`RedisSessionStorageTest`, `RedisConnectionConfigTest`) against a Redis
+service, in `Dockerfile.redis-tests`: PHP CLI with a phpredis built with lzf,
+zstd and lz4, so the compressed session cases run instead of skipping. Both
+jobs keep their output as artifacts (`cluster-smoke-<mode>`,
+`redis-session-tests`, with a JUnit report).
+
 ## Running it locally
 
 From the repository root, with Docker and a clone of
