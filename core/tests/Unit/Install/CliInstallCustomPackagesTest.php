@@ -90,13 +90,18 @@ function restoreCustomPackagesRun(string $root, string $core, ?array $composer, 
         . '   }'
         . '   protected function composerForRestore(): ?array { return $this->composer; }'
         . '   protected function discoverPackages(): void { $this->discovered++; }'
+        . '   public array $artisan = [];'
+        . '   protected function runArtisanCommand(string $arguments): array {'
+        . '     $this->artisan[] = $arguments;'
+        . '     return $this->answers["artisan " . $arguments] ?? [0, ""];'
+        . '   }'
         . ' }'
         . ' $install = (new ReflectionClass(RecordingInstall::class))->newInstanceWithoutConstructor();'
         . ' $install->answers = ' . var_export($answers, true) . ';'
         . ' $install->composer = ' . var_export($composer, true) . ';'
         . ' foreach (' . var_export($flags, true) . ' as $k => $v) { $install->$k = $v; }'
         . ' ob_start(); $ok = $install->restoreCustomPackages(); $out = ob_get_clean();'
-        . ' echo json_encode(["ok" => $ok, "commands" => $install->commands, "discovered" => $install->discovered, "out" => $out]);');
+        . ' echo json_encode(["ok" => $ok, "commands" => $install->commands, "discovered" => $install->discovered, "artisan" => $install->artisan, "out" => $out]);');
     $out = trim(evoRunPhp($probe));
     unlink($probe);
 
@@ -244,6 +249,45 @@ test('a Composer before 2.7 is not given --minimal-changes', function () use ($r
     } finally {
         removeCustomPackagesCore($core);
     }
+});
+
+test('packages Composer restored get their migrations, in a process that loads them', function () use ($root, $standalone, $composer210) {
+    $core = customPackagesCore(['league/csv' => '^9.0']);
+    $answers = $composer210 + ['--dry-run' => [0, '  - Installing league/csv (9.28.0)']];
+
+    try {
+        $run = restoreCustomPackagesRun($root, $core, $standalone, $answers, ['updateCustomPackages' => 'y']);
+
+        expect($run['ok'])->toBeTrue()
+            ->and($run['artisan'])->toBe(['migrate --force']);
+    } finally {
+        removeCustomPackagesCore($core);
+    }
+});
+
+test('package migrations that fail leave the update incomplete', function () use ($root, $standalone, $composer210) {
+    $core = customPackagesCore(['league/csv' => '^9.0']);
+    $answers = $composer210 + [
+        '--dry-run' => [0, '  - Installing league/csv (9.28.0)'],
+        'artisan migrate --force' => [1, 'SQLSTATE[42S01]: Base table or view already exists'],
+    ];
+
+    try {
+        $run = restoreCustomPackagesRun($root, $core, $standalone, $answers, ['updateCustomPackages' => 'y']);
+
+        expect($run['ok'])->toBeFalse()
+            ->and($run['out'])->toContain('Base table or view already exists')
+            ->and($run['out'])->toContain('php artisan migrate --force');
+    } finally {
+        removeCustomPackagesCore($core);
+    }
+});
+
+test('the package migrations run in the PHP of the installer, on the site artisan', function () use ($root) {
+    $source = (string) file_get_contents($root . '/install/cli-install.php');
+    $runner = substr($source, strpos($source, 'protected function runArtisanCommand('), 400);
+
+    expect($runner)->toContain("escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(EVO_CORE_PATH . 'artisan')");
 });
 
 test('a CLI update without custom packages runs no Composer', function () use ($root, $standalone) {
