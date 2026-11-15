@@ -10,6 +10,8 @@ use Illuminate\Database\Schema\Blueprint;
  * private document 3 in group 5.
  */
 beforeEach(function () {
+    $this->originalSession = $_SESSION ?? null;
+    $_SESSION = [];
     // evo() needs a class name before it hands out the global set below.
     defined('EVO_CLASS') || define('EVO_CLASS', \Illuminate\Container\Container::class);
     defined('IN_MANAGER_MODE') || define('IN_MANAGER_MODE', false);
@@ -36,9 +38,9 @@ beforeEach(function () {
         $table->integer('document');
     });
     Capsule::table('site_content')->insert([
-        ['id' => 1, 'privateweb' => 0],
-        ['id' => 2, 'privateweb' => 0],
-        ['id' => 3, 'privateweb' => 1],
+        ['id' => 1, 'privateweb' => 0, 'privatemgr' => 0],
+        ['id' => 2, 'privateweb' => 0, 'privatemgr' => 0],
+        ['id' => 3, 'privateweb' => 1, 'privatemgr' => 1],
     ]);
     Capsule::table('document_groups')->insert([
         ['document_group' => 7, 'document' => 1],
@@ -48,9 +50,53 @@ beforeEach(function () {
 });
 
 afterEach(function () {
+    if ($this->originalSession === null) {
+        unset($_SESSION);
+    } else {
+        $_SESSION = $this->originalSession;
+    }
     global $evo;
     $evo = null;
     Capsule::connection()->disconnect();
+});
+
+/** Manager/API mode, including the anonymous error-page path of theme AJAX. */
+function managerVisitorInGroups(array $groups): void
+{
+    global $evo;
+    $evo = new class($groups) {
+        public function __construct(private array $groups) {}
+        public function getUserDocGroups() { return $this->groups ?: ''; }
+        public function isFrontend(): bool { return false; }
+    };
+}
+
+test('manager resource scope handles absent or malformed roles without SQL or admin access', function (bool $present, mixed $role, array $expected) {
+    managerVisitorInGroups([]);
+    if ($present) {
+        $_SESSION['mgrRole'] = $role;
+    }
+
+    $query = SiteContent::query()->select('site_content.id')->withoutProtected()->orderBy('site_content.id');
+    expect($query->pluck('id')->all())->toBe($expected);
+})->with([
+    'anonymous, no role' => [false, null, [1, 2]],
+    'null role' => [true, null, [1, 2]],
+    'regular manager' => [true, 2, [1, 2]],
+    'integer administrator' => [true, 1, [1, 2, 3]],
+    'string administrator' => [true, '1', [1, 2, 3]],
+    'empty string' => [true, '', [1, 2]],
+    'SQL expression' => [true, '1 OR 1=1', [1, 2]],
+    'numeric prefix' => [true, '1invalid', [1, 2]],
+    'array role' => [true, [1], [1, 2]],
+    'boolean role' => [true, true, [1, 2]],
+]);
+
+test('a non-admin manager retains access through their document groups', function () {
+    managerVisitorInGroups([5]);
+    $_SESSION['mgrRole'] = 2;
+    $ids = SiteContent::query()->select('site_content.id')->withoutProtected()->orderBy('site_content.id')->pluck('id');
+    expect($ids->unique()->values()->all())->toBe([1, 2, 3]);
 });
 
 /** A front-end visitor in the given document groups, as evo() hands it out. */
