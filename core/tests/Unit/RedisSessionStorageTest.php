@@ -144,10 +144,17 @@ function redisSessionTestServer(): string
  * Starts a worker in the background through evoRunCommand(); its output goes to <dir>/<name>.out.
  * @return int the worker's process id
  */
-function redisSessionTestStart(string $server, string $id, string $dir, string $name, float $hold = 0): int
-{
+function redisSessionTestStart(
+    string $server,
+    string $id,
+    string $dir,
+    string $name,
+    float $hold = 0,
+    string $lockExpire = '',
+    string $value = 'first'
+): int {
     $command = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(dirname(__DIR__) . '/Mocks/redis_session_worker.php');
-    foreach ([$server, $id, $dir, (string)$hold] as $arg) {
+    foreach ([$server, $id, $dir, (string)$hold, $lockExpire, $value] as $arg) {
         $command .= ' ' . escapeshellarg($arg);
     }
     $pid = (int)trim(evoRunCommand($command . ' > ' . escapeshellarg("$dir/$name.out") . ' 2>&1 & echo $!'));
@@ -226,9 +233,10 @@ test('concurrent requests on one Redis session run one after the other', functio
     $second = redisSessionTestResult($waiter, $dir, 'waiter', 30);
     $first = redisSessionTestResult($holder, $dir, 'holder', 30);
 
-    expect($first['handler'])->toBe('redis')
+    // "user": ext-redis behind EvolutionCMS\Support\RedisSessionHandler
+    expect($first['handler'])->toBe('user')
         ->and($first['lock'])->toBe(['expire' => '30', 'retries' => '1000', 'wait' => '20000'])
-        ->and($second['handler'])->toBe('redis')
+        ->and($second['handler'])->toBe('user')
         ->and($second['opened'])->toBeGreaterThan(1.0)
         ->and($second['session']['holder'] ?? null)->toBe('first');
 });
@@ -258,6 +266,60 @@ test('without an execution limit a killed request leaves an expiring lock and wa
         ->and($result['status'])->toBe(PHP_SESSION_ACTIVE)
         ->and((string)@file_get_contents($this->redisSessionDir . DIRECTORY_SEPARATOR . 'error.log'))
         ->toContain('the session stayed locked');
+});
+
+function redisSessionTestLog(string $dir): string
+{
+    return (string)@file_get_contents($dir . DIRECTORY_SEPARATOR . 'error.log');
+}
+
+test('a live request that keeps its session past the lock expiry still writes it', function () {
+    $server = redisSessionTestServer();
+    $dir = $this->redisSessionDir;
+    $holder = redisSessionTestStart($server, $this->redisSessionId, $dir, 'holder', 4, '2');
+    redisSessionTestWait($holder, $dir, 'holder', '/^locked$/m', 30);
+
+    // the handler re-takes the lock under the secret phpredis gives it
+    [$host, $port] = explode(':', $server) + [1 => '6379'];
+    $redis = new Redis();
+    $redis->connect($host, (int)$port, 2);
+    $redis->select(15);
+    expect($redis->get('PHPREDIS_SESSION:' . $this->redisSessionId . '_LOCK'))->toBe(gethostname() . '|' . $holder);
+
+    $first = redisSessionTestResult($holder, $dir, 'holder', 30);
+    $lockAfter = $redis->exists('PHPREDIS_SESSION:' . $this->redisSessionId . '_LOCK');
+
+    $reader = redisSessionTestStart($server, $this->redisSessionId, $dir, 'reader');
+    $fresh = redisSessionTestResult($reader, $dir, 'reader', 30);
+
+    expect($first['handler'])->toBe('user')
+        ->and($first['lock']['expire'])->toBe('2')
+        ->and(redisSessionTestLog($dir))->not->toContain('lock not held')->not->toContain('lock expired')
+        ->and($lockAfter)->toBe(0)
+        ->and($fresh['handler'])->toBe('user')
+        ->and($fresh['opened'])->toBeLessThan(1.0)
+        ->and($fresh['session']['holder'] ?? null)->toBe('first');
+});
+
+test('a request whose expired lock another request took does not overwrite the session it changed', function () {
+    $server = redisSessionTestServer();
+    $dir = $this->redisSessionDir;
+    $holder = redisSessionTestStart($server, $this->redisSessionId, $dir, 'holder', 5, '2');
+    redisSessionTestWait($holder, $dir, 'holder', '/^locked$/m', 30);
+    usleep(2500000);
+
+    // the lock has expired: the next request takes it at once and changes the session
+    $other = redisSessionTestStart($server, $this->redisSessionId, $dir, 'other', 0.2, '2', 'second');
+    $second = redisSessionTestResult($other, $dir, 'other', 30);
+    $first = redisSessionTestResult($holder, $dir, 'holder', 30);
+
+    $reader = redisSessionTestStart($server, $this->redisSessionId, $dir, 'reader');
+    $fresh = redisSessionTestResult($reader, $dir, 'reader', 30);
+
+    expect($second['opened'])->toBeLessThan(1.0)
+        ->and($second['session']['holder'] ?? null)->toBe('second')
+        ->and(redisSessionTestLog($dir))->toContain('session lock not held')
+        ->and($fresh['session']['holder'] ?? null)->toBe('second');
 });
 
 test('the core no longer depends on a userland Redis session handler', function () {
