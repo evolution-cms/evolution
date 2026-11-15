@@ -1,7 +1,12 @@
 <?php
 // A page that ends past the StartSession middleware, in a fresh process.
-// argv: <cookie:0|1> <manager:0|1> <set-cookie header:0|1> <sync:shutdown|direct>
-[, $cookie, $manager, $setCookie, $sync] = $argv;
+// argv: <cookie:0|1> <manager:0|1> <set-cookie header:0|1> <sync:shutdown|direct> <console:0|1>
+[, $cookie, $manager, $setCookie, $sync, $console] = $argv;
+// This process is a CLI one either way; the helper (guarded by function_exists) answers what the case asks.
+function is_cli(): bool
+{
+    return $GLOBALS['console'] === '1';
+}
 define('IN_MANAGER_MODE', (bool) $manager);
 define('EVO_SESSION', true);
 define('IN_INSTALL_MODE', false);
