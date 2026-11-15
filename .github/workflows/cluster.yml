@@ -1,0 +1,135 @@
+name: Cluster
+
+# Two Evolution CMS nodes behind a round-robin nginx, sharing one PostgreSQL
+# database, one Redis for sessions and the folders listed in
+# .github/docker/cluster/docker-compose.yml. A single-node build cannot show
+# what breaks when consecutive requests of one visitor land on different
+# servers: a session, a CSRF token, an upload or a cache purge that only one
+# node knows about.
+#
+# Manual only: it builds a runtime and an image and installs a site, which no
+# ordinary commit needs. Actions -> Cluster -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      php:
+        description: 'PHP version of the nodes (a Salo apache runtime; one the tree supports)'
+        type: choice
+        default: '8.4'
+        options: ['8.3', '8.4', '8.5']
+      session:
+        description: 'Redis session mode: Laravel store (EVO_SESSION=1), native PHP handler (EVO_SESSION=0), or both'
+        type: choice
+        default: both
+        options: [both, laravel, native]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cluster-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Same runtime recipes as .github/workflows/build.yml.
+  SALO2_REPO: https://github.com/evolution-cms/salo2
+  SALO2_REF: master
+  PHP_VERSION: ${{ inputs.php }}
+  CLUSTER_PORT: 8080
+  COMPOSE: .github/docker/cluster/docker-compose.yml
+
+jobs:
+  cluster:
+    name: Two nodes, PHP ${{ inputs.php }}, pgsql, Redis ${{ matrix.session }} sessions, nginx
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        session: ${{ fromJSON(inputs.session == 'both' && '["laravel","native"]' || format('["{0}"]', inputs.session)) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # 8.3 is offered for the 3.5 line only, see the script.
+      - name: Check the PHP version against the tree
+        run: |
+          versions=$(env -u GITHUB_OUTPUT sh .github/scripts/php-versions.sh | sed -n 's/^versions=//p')
+          echo "$versions" | grep -q "\"${PHP_VERSION}\"" || {
+            echo "::error::this tree runs on PHP ${versions}, not ${PHP_VERSION}"
+            exit 1
+          }
+
+      # Read by docker-compose.yml for both nodes.
+      - name: Session mode
+        run: |
+          if [ "${{ matrix.session }}" = native ]; then
+            echo "EVO_SESSION=0" >> "$GITHUB_ENV"
+          else
+            echo "EVO_SESSION=1" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build the Salo runtime image
+        run: |
+          git clone --depth 1 --branch "$SALO2_REF" "$SALO2_REPO" /tmp/salo2
+          recipe="/tmp/salo2/runtimes/${PHP_VERSION}"
+          test -d "$recipe" || {
+            echo "::error::salo2 has no apache runtime for PHP ${PHP_VERSION}"
+            exit 1
+          }
+          docker build -t "evo-salo-runtime:${PHP_VERSION}-apache" "$recipe"
+
+      - name: Add phpredis to the runtime
+        run: docker compose -f "$COMPOSE" --profile install build installer
+
+      - name: Start PostgreSQL and Redis
+        run: docker compose -f "$COMPOSE" up -d --wait pgsql redis
+
+      - name: Prepare the release
+        run: bash .github/docker/cluster/prepare.sh
+
+      # The 3.5 line commits core/vendor; from 3.6 on it is installed from the
+      # lock, as the zip job of build.yml does.
+      - name: Install core dependencies
+        run: |
+          if [ -f build/core/vendor/autoload.php ]; then
+            echo "core/vendor ships with the tree"
+            exit 0
+          fi
+          EVO_UID=$(id -u) EVO_GID=$(id -g) \
+            docker compose -f "$COMPOSE" --profile install run --rm -T --no-deps \
+              -e COMPOSER_HOME=/tmp/composer -w /var/www/html/core --entrypoint composer \
+              installer install --no-dev --no-interaction --no-progress --prefer-dist < /dev/null
+
+      # Once, before the image is built: every node then runs the same
+      # installed release, as a real deployment would.
+      - name: Install Evolution CMS on PostgreSQL
+        run: |
+          EVO_UID=$(id -u) EVO_GID=$(id -g) \
+            docker compose -f "$COMPOSE" --profile install run --rm -T installer < /dev/null
+          test -f build/core/.install
+          test ! -e build/install
+
+      - name: Build the node image
+        run: docker compose -f "$COMPOSE" build php1
+
+      - name: Start the nodes and the balancer
+        run: docker compose -f "$COMPOSE" up -d --wait php1 php2 balancer
+
+      - name: Smoke test the cluster
+        run: bash .github/docker/cluster/smoke.sh
+
+      - name: Container logs
+        if: failure()
+        run: |
+          docker compose -f "$COMPOSE" ps -a
+          for service in php1 php2 balancer redis pgsql; do
+            echo "::group::$service"
+            docker compose -f "$COMPOSE" logs --no-color --tail 200 "$service" || true
+            echo "::endgroup::"
+          done
+          echo "::group::core/storage/logs"
+          docker compose -f "$COMPOSE" exec -T php1 sh -c 'tail -n 100 /var/www/html/core/storage/logs/*.log' || true
+          echo "::endgroup::"
+
+      - name: Stop the cluster
+        if: always()
+        run: docker compose -f "$COMPOSE" --profile install down -v

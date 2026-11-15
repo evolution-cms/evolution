@@ -1,0 +1,191 @@
+# Two Evolution CMS nodes behind a round-robin balancer, one PostgreSQL and one
+# Redis shared by both. Driven by .github/workflows/cluster.yml; see README.md
+# for running it locally and for why each shared path is shared.
+#
+# Order matters, the workflow follows it:
+#   1. build the runtime (installer service) and start pgsql + redis
+#   2. `run --rm installer` installs build/ once, the way a release is prepared
+#   3. build php1 (the release baked into .github/docker/Dockerfile) and start
+#      php1, php2 and the balancer
+name: evo-cluster
+
+x-shared-paths: &shared-paths
+  # Uploads of both file managers (KCFinder types files/images/media plus the
+  # TinyMCE aliases file/image) and KCFinder's thumbnails.
+  - assets-images:/var/www/html/assets/images
+  - assets-files:/var/www/html/assets/files
+  - assets-media:/var/www/html/assets/media
+  - assets-image:/var/www/html/assets/image
+  - assets-file:/var/www/html/assets/file
+  - assets-thumbs:/var/www/html/assets/.thumbs
+  # phpThumb output, package store staging and other generated files.
+  - assets-cache:/var/www/html/assets/cache
+  # Database snapshots, static export and import.
+  - assets-backup:/var/www/html/assets/backup
+  - assets-export:/var/www/html/assets/export
+  - assets-import:/var/www/html/assets/import
+  # Site cache index and page cache: a purge on one node has to reach the other.
+  - storage-bootstrap:/var/www/html/core/storage/bootstrap
+  # Laravel's file cache store, its locks included.
+  - storage-cache:/var/www/html/core/storage/cache
+  - storage-logs:/var/www/html/core/storage/logs
+  - storage-stask:/var/www/html/core/storage/stask
+
+x-node-environment: &node-environment
+  # Both ways of keeping sessions in Redis are configured; EVO_SESSION picks the
+  # one in effect:
+  #   1 (the default): Laravel's session store, SESSION_DRIVER=redis on the
+  #     `default` connection of core/config/database.php
+  #   0: PHP's native session with the Redis handler of startCMSSession(),
+  #     SESSION_STORAGE=redis
+  EVO_SESSION: ${EVO_SESSION:-1}
+  SESSION_DRIVER: redis
+  SESSION_CONNECTION: default
+  SESSION_STORAGE: redis
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  REDIS_USER: evo
+  REDIS_PASS: secret
+  REDIS_DATABASE: 2
+  REDIS_SESSION_DATABASE: 2
+
+services:
+  pgsql:
+    image: postgres:${POSTGRES_IMAGE_TAG:-18.6}
+    environment:
+      POSTGRES_USER: evo
+      POSTGRES_PASSWORD: secret
+      # The installer connects here and creates the database it installs into.
+      POSTGRES_DB: evo
+    healthcheck:
+      # Over TCP: the entrypoint's temporary init server listens on the socket
+      # only, and answers a socket probe before the real server is up.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U evo -d evo"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  redis:
+    image: redis:${REDIS_IMAGE_TAG:-7.4-alpine}
+    # An ACL user rather than the default one, as a shared Redis would have.
+    # No persistence: sessions of a CI run are thrown away with it.
+    command:
+      - redis-server
+      - --save
+      - ""
+      - --appendonly
+      - "no"
+      - --user
+      - default
+      - "off"
+      - --user
+      - evo
+      - "on"
+      - ">secret"
+      - "~*"
+      - "&*"
+      - "+@all"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --user evo --pass secret --no-auth-warning ping | grep -q PONG"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  # Installs build/ in place, once, before it is baked into the node image.
+  installer:
+    profiles: [install]
+    image: evo-cluster-runtime:${PHP_VERSION:-8.4}
+    build:
+      context: .
+      dockerfile: Dockerfile.runtime
+      args:
+        BASE_IMAGE: evo-salo-runtime:${PHP_VERSION:-8.4}-apache
+    # The caller's ids keep build/ removable without root on a Linux host.
+    user: "${EVO_UID:-0}:${EVO_GID:-0}"
+    depends_on:
+      pgsql:
+        condition: service_healthy
+    volumes:
+      - ../../../build:/var/www/html
+    working_dir: /var/www/html/install
+    entrypoint: ["php", "cli-install.php"]
+    command:
+      - --typeInstall=1
+      - --databaseType=pgsql
+      - --databaseServer=pgsql
+      - --databaseUser=evo
+      - --databasePassword=secret
+      - --database=evolution
+      - --tablePrefix=evo_
+      - --cmsAdmin=${EVO_ADMIN:-admin}
+      - --cmsAdminEmail=admin@evo.local
+      - --cmsPassword=${EVO_ADMIN_PASSWORD:-Passw0rd123}
+      - --language=en
+      - --removeInstall=y
+      - --skipComposer=y
+
+  php1:
+    image: evo-cluster-app:${PHP_VERSION:-8.4}
+    build:
+      context: ../../..
+      dockerfile: .github/docker/Dockerfile
+      args:
+        BASE_IMAGE: evo-cluster-runtime:${PHP_VERSION:-8.4}
+    environment:
+      <<: *node-environment
+    volumes: *shared-paths
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck: &node-healthcheck
+      # A static file: a PHP page here would fill the shared page cache with
+      # URLs built for 127.0.0.1 instead of the balancer's host.
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://127.0.0.1/assets/images/index.html"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  php2:
+    image: evo-cluster-app:${PHP_VERSION:-8.4}
+    environment:
+      <<: *node-environment
+      # One scheduler per database (see .github/docker/entrypoint.sh): php1 owns
+      # the system task queue.
+      EVO_SCHEDULER: "0"
+    volumes: *shared-paths
+    depends_on:
+      # After php1, so the shared volumes are seeded from the image once.
+      php1:
+        condition: service_healthy
+    healthcheck: *node-healthcheck
+
+  balancer:
+    image: nginx:${NGINX_IMAGE_TAG:-1.28-alpine}
+    ports:
+      - "${CLUSTER_PORT:-8080}:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      php1:
+        condition: service_healthy
+      php2:
+        condition: service_healthy
+
+volumes:
+  assets-images:
+  assets-files:
+  assets-media:
+  assets-image:
+  assets-file:
+  assets-thumbs:
+  assets-cache:
+  assets-backup:
+  assets-export:
+  assets-import:
+  storage-bootstrap:
+  storage-cache:
+  storage-logs:
+  storage-stask:
