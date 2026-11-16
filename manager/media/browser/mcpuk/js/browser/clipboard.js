@@ -46,9 +46,9 @@ browser.openClipboard = function() {
     $.each(this.clipboard, function(i, val) {
         icon = _.getFileExtension(val.name);
         if (val.thumb)
-            icon = '.image';
+            icon = 'generic-image';
         else if (!val.smallIcon || !icon.length)
-            icon = '.';
+            icon = 'generic-file';
         var icon = 'themes/' + browser.theme + '/img/files/small/' + icon + '.png';
         html += '<a style="background-image:url(' + _.escapeDirs(icon) + ')" title="' + browser.label("Click to remove from the Clipboard") + '" onclick="browser.removeFromClipboard(' + i + ')">' + _.htmlData(_.basename(val.name)) + '</a>';
     });

@@ -301,9 +301,9 @@ browser.showFiles = function(callBack, selected) {
                 var icon = file.isDir ? 'folder' : _.getFileExtension(file.name);
                 if (!file.isDir) {
                     if (file.thumb)
-                        icon = '.image';
+                        icon = 'generic-image';
                     else if (!icon.length || !file.smallIcon)
-                        icon = '.';
+                        icon = 'generic-file';
                 }
                 icon = 'themes/' + browser.theme + '/img/files/small/' + icon + '.png';
                 html += '<tr class="file">' +
@@ -319,8 +319,8 @@ browser.showFiles = function(callBack, selected) {
                     var icon = browser.siteURL + browser.assetsURL + '/' + browser.dir + '/' + file.name;
                     icon = _.escapeDirs(icon).replace(/\'/g, "%27");
                 } else if (!file.isDir) {
-                    var icon = file.bigIcon ? _.getFileExtension(file.name) : '.';
-                    if (!icon.length) icon = '.';
+                    var icon = file.bigIcon ? _.getFileExtension(file.name) : 'generic-file';
+                    if (!icon.length) icon = 'generic-file';
                     icon = 'themes/' + browser.theme + '/img/files/big/' + icon + '.png';
                 }
                 var thumbClass = file.isDir ? 'thumb folder-icon' : 'lazy thumb ' + (file.thumb ? '' : 'skipthumb');
