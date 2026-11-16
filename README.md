@@ -4,12 +4,11 @@
 
 [![CMS Evolution](https://img.shields.io/badge/CMS-Evolution-brightgreen.svg)](https://packagist.org/packages/evolution-cms/evolution)
 [![GitHub release](https://img.shields.io/github/release/evolution-cms/evolution.svg)](https://github.com/evolution-cms/evolution/releases)
-[![PHP: 8.4 and 8.5](https://img.shields.io/badge/PHP-8.4_%7C_8.5-777BB4?logo=php&logoColor=white)](#compatibility)
+[![PHP: 8.4, 8.5 and 8.6](https://img.shields.io/badge/PHP-8.4_%7C_8.5_%7C_8.6-777BB4?logo=php&logoColor=white)](#compatibility)
 [![Issues](https://img.shields.io/github/issues-closed-raw/evolution-cms/evolution.svg?maxAge=2592000)](https://github.com/evolution-cms/evolution/issues)
 [![Total Installs](https://img.shields.io/packagist/dt/evolution-cms/evolution)](https://packagist.org/packages/evolution-cms/evolution)
 [![Documentation](https://img.shields.io/badge/Documentation-processed-orange.svg)](https://github.com/evolution-cms/docs/)
 ![Made in Ukraine](https://img.shields.io/badge/made_in-Ukraine-ffd700.svg?labelColor=0057b7)
-
 
 ## What is Evolution CMS
 

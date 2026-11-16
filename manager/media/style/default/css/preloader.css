@@ -1,0 +1,33 @@
+.evo__logo {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
+    color: #4b4b4b;
+    font-size: 38px;
+}
+
+.dark .evo__logo,
+.darkness .evo__logo { color: #fff; }
+
+.evo__logo::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    box-shadow: 5px 5px #ffd040, 14px -7px #438ef4, -7px 11px #72c54f, -11px -7px #96d04e;
+    transform: translate(-50%, -50%);
+    animation: evo-preloader-rotate 2s linear infinite;
+}
+
+@keyframes evo-preloader-rotate {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .evo__logo::before { animation: none; }
+}

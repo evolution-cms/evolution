@@ -8,6 +8,7 @@
     EVO_MANAGER_PATH . 'media/style/default/css/custom.css',
     EVO_MANAGER_PATH . 'media/style/default/css/tabpane.css',
     EVO_MANAGER_PATH . 'media/style/default/css/contextmenu.css',
+    EVO_MANAGER_PATH . 'media/style/default/css/preloader.css',
     EVO_MANAGER_PATH . 'media/style/default/css/index.css',
     EVO_MANAGER_PATH . 'media/style/default/css/main.css'
 ];
