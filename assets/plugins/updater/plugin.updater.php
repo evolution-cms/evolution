@@ -525,6 +525,13 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             data.updater_task_token = config.token;
         }
 
+        // VerifyCsrfToken rejects any manager POST without the session `_token`.
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var csrfToken = config.csrfToken || (csrfMeta ? csrfMeta.getAttribute('content') : '');
+        if (csrfToken) {
+            data._token = csrfToken;
+        }
+
         return fetch(config.endpoint || 'index.php?a=2&updater_system_task=1', {
             method: 'POST',
             credentials: 'same-origin',
@@ -1148,7 +1155,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                     if ($hideUntilValue === false) {
                         $hideUntilValue = time() + 86400;
                     }
-                    $csrfToken = isset($_SESSION['_token']) ? (string)$_SESSION['_token'] : '';
+                    $csrfToken = (string)csrf_token();
                     $hideAction = 'return window.updaterHideForDay('
                         . json_encode($hideKey) . ','
                         . json_encode($csrfToken) . ','
@@ -1215,6 +1222,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                             $liveUpdateScript = updaterBuildSystemTaskScript([
                                 'endpoint' => 'index.php?a=2&updater_system_task=1',
                                 'token' => $systemTaskToken,
+                                'csrfToken' => $csrfToken,
                                 'repository' => $version,
                                 'targetRef' => $latestVersionRaw,
                                 'currentVersion' => $currentVersionString,
