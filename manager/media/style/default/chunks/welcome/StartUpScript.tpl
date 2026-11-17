@@ -14,7 +14,9 @@
     }
     (function($) {
         $("[data-toggle='collapse']").click(function(e) {
-            if(e.target.tagName === "A") return;
+            // Let links inside a toggle row navigate; a toggle that is itself a link (the info button) still toggles.
+            var link = $(e.target).closest("a");
+            if(link.length && !link.is(this)) return;
             if($(this).data("target")) {
                 $($(this).data("target")).toggleClass("in")
             }
