@@ -85,7 +85,9 @@ it('escapes the manager log row, including the header controlled columns', funct
         ->not->toContain("<td class=\"text-nowrap\"><?= \$logentry['ip'] ?></td>")
         ->not->toContain("<td class=\"text-nowrap\"><?= \$logentry['useragent'] ?></td>")
         ->not->toContain("<td class=\"text-xs-right\"><?= \$logentry['itemid'] ?></td>")
-        ->not->toContain("<td><?= \$item ?></td>");
+        // $item is markup built around the escaped name
+        ->toContain("\$itemname = entities((string)\$logentry['itemname']")
+        ->not->toMatch("/\\\$item = [^;]*\\\$logentry\\['itemname'\\]/");
 });
 
 it('escapes the file manager path fields', function () {
