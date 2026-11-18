@@ -151,7 +151,6 @@ $logs = \EvolutionCMS\Models\ManagerLog::query()->select('internalKey', 'usernam
 if (isset($_REQUEST['log_submit'])) {
     $logs = \EvolutionCMS\Models\ManagerLog::query()->orderBy('timestamp', 'DESC')->orderBy('id', 'DESC');
     // get the selections the user made.
-    $sqladd = [];
     if (get_by_key($_REQUEST, 'searchuser') != 0) {
         $logs = $logs->where('internalKey', (int)get_by_key($_REQUEST, 'searchuser'));
     }
@@ -161,31 +160,30 @@ if (isset($_REQUEST['log_submit'])) {
     if (get_by_key($_REQUEST, 'itemid') != 0 || get_by_key($_REQUEST, 'itemid') == "-") {
         $logs = $logs->where('itemid', get_by_key($_REQUEST, 'itemid'));
     }
-    if (get_by_key($_REQUEST, 'itemname') != '0') {
+    if ((string)get_by_key($_REQUEST, 'itemname', '0', 'is_scalar') !== '0') {
         $logs = $logs->where('itemname', get_by_key($_REQUEST, 'itemname'));
     }
-    if (get_by_key($_REQUEST, 'message') != "") {
-        $logs = $logs->where('itemname', 'LIKE', '%'.get_by_key($_REQUEST, 'itemname').'%');
+    $message = (string)get_by_key($_REQUEST, 'message', '', 'is_scalar');
+    if ($message !== '') {
+        $logs = $logs->where('message', 'LIKE', '%' . $message . '%');
     }
     // date stuff
-    if ($_REQUEST['datefrom'] != "") {
-        $logs = $logs->where('timestamp', '>', EvolutionCMS()->toTimeStamp($_REQUEST['datefrom']));
+    $datefrom = (string)get_by_key($_REQUEST, 'datefrom', '', 'is_scalar');
+    if ($datefrom !== '') {
+        $logs = $logs->where('timestamp', '>', EvolutionCMS()->toTimeStamp($datefrom));
+    }
+    $dateto = (string)get_by_key($_REQUEST, 'dateto', '', 'is_scalar');
+    if ($dateto !== '') {
+        $logs = $logs->where('timestamp', '<', EvolutionCMS()->toTimeStamp($dateto));
+    }
 
-        $sqladd[] = "timestamp>" . EvolutionCMS()->toTimeStamp($_REQUEST['datefrom']);
-    }
-    if ($_REQUEST['dateto'] != "") {
-        $logs = $logs->where('timestamp', '<', EvolutionCMS()->toTimeStamp($_REQUEST['dateto']));
-    }
-
-    // If current position is not set, set it to zero
-    if (!isset($_REQUEST['int_cur_position']) || $_REQUEST['int_cur_position'] == 0) {
-        $int_cur_position = 0;
-    } else {
-        $int_cur_position = $_REQUEST['int_cur_position'];
-    }
+    $int_cur_position = max(0, (int)get_by_key($_REQUEST, 'int_cur_position', 0, 'is_numeric'));
 
     // Number of result to display on the page, will be in the LIMIT of the sql query also
-    $int_num_result = is_numeric($_REQUEST['nrresults']) ? $_REQUEST['nrresults'] : EvolutionCMS()->getConfig('number_of_logs');
+    $int_num_result = (int)get_by_key($_REQUEST, 'nrresults', 0, 'is_numeric');
+    if ($int_num_result < 1) {
+        $int_num_result = max(1, (int)EvolutionCMS()->getConfig('number_of_logs'));
+    }
 
     // Paginate urldecodes this before escaping it into href="", so '%' is encoded once more to
     // keep filter values that contain '&' or '=' intact.
@@ -210,7 +208,14 @@ if (isset($_REQUEST['log_submit'])) {
 if ($limit < 1) {
     echo '<p>' . $_lang["mgrlog_emptysrch"] . '</p>';
 } else {
-    echo '<p>' . $_lang["mgrlog_sortinst"] . '</p>';
+    // The lexicon links to "empty the log" (a=55), which changes state and so needs the token.
+    $emptyLogLink = '~<a href=(["\'])index\.php\?a=55\1>(.*?)</a>~s';
+    if (EvolutionCMS()->hasPermission('settings')) {
+        $sortinst = preg_replace($emptyLogLink, '<a href="index.php?a=55&amp;_token=' . e(csrf_token()) . '">$2</a>', $_lang["mgrlog_sortinst"]);
+    } else {
+        $sortinst = preg_replace($emptyLogLink, '$2', $_lang["mgrlog_sortinst"]);
+    }
+    echo '<p>' . $sortinst . '</p>';
 
     // New instance of the Paging class, you can modify the color and the width of the html table
     $p = new EvolutionCMS\Support\Paginate($num_rows, $int_cur_position, $int_num_result, $extargv);
@@ -218,28 +223,23 @@ if ($limit < 1) {
     // Load up the 2 array in order to display result
     $array_paging = $p->getPagingArray();
     $array_row_paging = $p->getPagingRowArray();
-    $current_row = $int_cur_position / $int_num_result;
 
     // Display the result as you like...
     print "<p>" . $_lang["paging_showing"] . " " . $array_paging['lower'];
     print " " . $_lang["paging_to"] . " " . $array_paging['upper'];
     print " (" . $array_paging['total'] . " " . $_lang["paging_total"] . ")<br />";
-    $paging = $array_paging['first_link'] . $_lang["paging_first"] . (isset($array_paging['first_link']) ? "</a> " : " ");
-    $paging .= $array_paging['previous_link'] . $_lang["paging_prev"] . (isset($array_paging['previous_link']) ? "</a> " : " ");
-    $pagesfound = sizeof($array_row_paging);
-    if ($pagesfound > 6) {
-        $paging .= $array_row_paging[$current_row - 2]; // ."&nbsp;";
-        $paging .= $array_row_paging[$current_row - 1]; // ."&nbsp;";
-        $paging .= $array_row_paging[$current_row]; // ."&nbsp;";
-        $paging .= $array_row_paging[$current_row + 1]; // ."&nbsp;";
-        $paging .= $array_row_paging[$current_row + 2]; // ."&nbsp;";
-    } else {
-        for ($i = 0; $i < $pagesfound; $i++) {
-            $paging .= $array_row_paging[$i] . "&nbsp;";
-        }
+    $pagingItem = static function (string $link, string $label): string {
+        return $link !== ''
+            ? '<span class="mr-2">' . $link . $label . '</a></span>'
+            : '<span class="mr-2 text-muted">' . $label . '</span>';
+    };
+    $paging = $pagingItem($array_paging['first_link'], $_lang["paging_first"]);
+    $paging .= $pagingItem($array_paging['previous_link'], $_lang["paging_prev"]);
+    foreach ($p->getPageWindow() as $page) {
+        $paging .= '<span class="mr-2">' . preg_replace('/(&nbsp;)+$/', '', $array_row_paging[$page]) . '</span>';
     }
-    $paging .= $array_paging['next_link'] . $_lang["paging_next"] . (isset($array_paging['next_link']) ? "</a> " : " ") . " ";
-    $paging .= $array_paging['last_link'] . $_lang["paging_last"] . (isset($array_paging['last_link']) ? "</a> " : " ") . " ";
+    $paging .= $pagingItem($array_paging['next_link'], $_lang["paging_next"]);
+    $paging .= $pagingItem($array_paging['last_link'], $_lang["paging_last"]);
     // The above exemple print somethings like:
     // Results 1 to 20 of 597  <<< 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 >>>
     // Of course you can now play with array_row_paging in order to print
@@ -248,7 +248,7 @@ if ($limit < 1) {
 
     <script type="text/javascript" src="media/script/tablesort.js"></script>
 
-    <div class="pagination">
+    <div class="pagination flex-wrap">
         <?= $paging ?>
     </div>
 
@@ -272,12 +272,13 @@ if ($limit < 1) {
                 $logentries = [];
                 $i = 0;
                 foreach ($rs->toArray() as $logentry) {
-                    if (!preg_match("/^[0-9]+$/", $logentry['itemid'])) {
-                        $item = '<div style="text-align:center;">-</div>';
+                    $itemname = entities((string)$logentry['itemname'], EvolutionCMS()->getConfig('modx_charset'));
+                    if (!preg_match("/^[0-9]+$/", (string)$logentry['itemid'])) {
+                        $item = '<div class="text-center">-</div>';
                     } elseif ($logentry['action'] == 3 || $logentry['action'] == 27 || $logentry['action'] == 5) {
-                        $item = '<a href="index.php?a=3&amp;id=' . $logentry['itemid'] . '">' . $logentry['itemname'] . '</a>';
+                        $item = '<a href="index.php?a=3&amp;id=' . (int)$logentry['itemid'] . '">' . $itemname . '</a>';
                     } else {
-                        $item = $logentry['itemname'];
+                        $item = $itemname;
                     }
                     //index.php?a=13&searchuser=' . $logentry['internalKey'] . '&action=' . $logentry['action'] . '&itemname=' . $logentry['itemname'] . '&log_submit=true'
                     $user_drill = 'index.php?a=13&searchuser=' . $logentry['internalKey'] . '&itemname=0&log_submit=true';
@@ -286,7 +287,7 @@ if ($limit < 1) {
                         <td><?= '<a href="' . $user_drill . '">' . entities($logentry['username'], EvolutionCMS()->getConfig('modx_charset')) . '</a>' ?></td>
                         <td class="text-nowrap"><?= '[' . (int)$logentry['action'] . '] ' . entities($logentry['message'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
                         <td class="text-xs-right"><?= entities((string)$logentry['itemid'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
-                        <td><?= entities($item, EvolutionCMS()->getConfig('modx_charset')) ?></td>
+                        <td><?= $item ?></td>
                         <td class="text-nowrap"><?= EvolutionCMS()->toDateFormat($logentry['timestamp'] + EvolutionCMS()->getConfig('server_offset_time')) ?></td>
                         <td class="text-nowrap"><?= entities($logentry['ip'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
                         <td class="text-nowrap"><?= entities($logentry['useragent'], EvolutionCMS()->getConfig('modx_charset')) ?></td>
@@ -300,7 +301,7 @@ if ($limit < 1) {
         </div>
     </div>
 
-    <div class="pagination">
+    <div class="pagination flex-wrap">
         <?= $paging ?>
     </div>
 <?php

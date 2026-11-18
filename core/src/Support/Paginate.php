@@ -115,7 +115,7 @@ class Paginate implements PaginginateInterface
 
         if (($this->int_nbr_row - $this->int_cur_position) > $this->int_num_result) {
             $int_new_position = $this->int_cur_position + $this->int_num_result;
-            $array_paging['last_link'] = "<a href=\"$PHP_SELF?int_cur_position=" . $this->int_nbr_row . $this->str_ext_argv . "\">";
+            $array_paging['last_link'] = "<a href=\"$PHP_SELF?int_cur_position=" . $this->getLastPagePosition() . $this->str_ext_argv . "\">";
             $array_paging['next_link'] = "<a href=\"$PHP_SELF?int_cur_position=$int_new_position" . $this->str_ext_argv . "\">";
         } else {
             $array_paging['last_link'] = '';
@@ -154,6 +154,10 @@ class Paginate implements PaginginateInterface
      */
     public function getNumberOfPage()
     {
+        if ($this->int_num_result <= 0) {
+            return 0;
+        }
+
         return $this->int_nbr_row / $this->int_num_result;
     }
 
@@ -164,8 +168,42 @@ class Paginate implements PaginginateInterface
      */
     public function getCurrentPage()
     {
-        $int_cur_page = ($this->int_cur_position * $this->getNumberOfPage()) / $this->int_nbr_row;
+        if ($this->int_num_result <= 0) {
+            return 0;
+        }
 
-        return number_format($int_cur_page, 0);
+        return (int)floor($this->int_cur_position / $this->int_num_result);
+    }
+
+    /**
+     * Offset of the first row of the last page.
+     *
+     * @return int
+     */
+    public function getLastPagePosition()
+    {
+        if ($this->int_num_result <= 0 || $this->int_nbr_row <= 0) {
+            return 0;
+        }
+
+        return (int)(floor(($this->int_nbr_row - 1) / $this->int_num_result) * $this->int_num_result);
+    }
+
+    /**
+     * Indexes of at most $size pages around the current one, for a page list that stays short.
+     *
+     * @param int $size
+     * @return int[]
+     */
+    public function getPageWindow($size = 5)
+    {
+        $pages = (int)ceil($this->getNumberOfPage());
+        $size = max(1, (int)$size);
+        if ($pages <= $size) {
+            return $pages > 0 ? range(0, $pages - 1) : [];
+        }
+        $first = min(max(0, $this->getCurrentPage() - intdiv($size, 2)), $pages - $size);
+
+        return range($first, $first + $size - 1);
     }
 }
