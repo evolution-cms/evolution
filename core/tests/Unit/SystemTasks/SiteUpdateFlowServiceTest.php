@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\SystemCliTask;
 use EvolutionCMS\Services\SystemTasks\SiteUpdateFlowService;
+use EvolutionCMS\Services\SystemTasks\SystemTaskService;
 
 if (!defined('EVO_CORE_PATH')) {
     define('EVO_CORE_PATH', dirname(__DIR__, 3) . '/');
@@ -181,4 +182,29 @@ test('site update flow passes a heartbeat to the worker without a log line', fun
     ]);
 
     expect($seen)->toBe([null, 'info']);
+});
+
+test('site update flow keeps every message within the task message column', function () {
+    // a 300 character line, then a silence long enough for a heartbeat
+    $service = streamingSiteUpdateFlow('echo str_repeat("é", 300), "\n"; usleep(1600000);');
+    $messages = [];
+
+    invokeSiteUpdateFlowMethod($service, 'runStreaming', [
+        invokeSiteUpdateFlowMethod($service, 'createProcess', [[]]),
+        function ($step, $progress, $message, $level) use (&$messages) {
+            $messages[] = [$message, $level];
+        },
+        40,
+        [],
+    ]);
+
+    $heartbeats = array_filter($messages, fn ($entry) => $entry[1] === null);
+
+    expect($heartbeats)->not->toBeEmpty()
+        ->and(mb_strlen($messages[0][0]))->toBe(SystemTaskService::MESSAGE_LENGTH);
+    foreach ($messages as [$message]) {
+        expect(mb_strlen($message))->toBeLessThanOrEqual(SystemTaskService::MESSAGE_LENGTH);
+    }
+    // the elapsed time survives, the line gives way
+    expect(reset($heartbeats)[0])->toMatch('/^é+ \(0:0\d\)$/u');
 });

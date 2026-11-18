@@ -194,8 +194,10 @@ class SiteUpdateFlowService implements SystemTaskHandlerInterface
 
             if (time() - $lastReport >= $this->heartbeatSeconds) {
                 $lastReport = time();
-                $this->report($report, 'site_update', $progress, ($lastLine !== '' ? $lastLine : 'Running Evolution CMS update.')
-                    . ' (' . $this->formatElapsed(time() - $started) . ')', null);
+                $this->report($report, 'site_update', $progress, $this->fitMessage(
+                    $lastLine !== '' ? $lastLine : 'Running Evolution CMS update.',
+                    ' (' . $this->formatElapsed(time() - $started) . ')'
+                ), null);
             }
 
             usleep(200000);
@@ -213,8 +215,17 @@ class SiteUpdateFlowService implements SystemTaskHandlerInterface
         $line = trim(strip_tags($line));
         $line = trim((string) preg_replace('~^Evolution CMS \d+\.\d+\.\d+(?:\.\d+)?\s*~', '', $line));
 
-        // the task message column holds 255 characters
-        return function_exists('mb_substr') ? mb_substr($line, 0, 250) : substr($line, 0, 250);
+        return $this->fitMessage($line);
+    }
+
+    /**
+     * Shorten the text, never the suffix, so the whole message fits the task message column.
+     */
+    protected function fitMessage(string $text, string $suffix = ''): string
+    {
+        $room = max(0, SystemTaskService::MESSAGE_LENGTH - mb_strlen($suffix));
+
+        return mb_substr($text, 0, $room) . $suffix;
     }
 
     protected function milestoneProgress(string $line): ?int

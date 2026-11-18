@@ -10,6 +10,9 @@ class SystemTaskService
 {
     public const DEFAULT_LEASE_SECONDS = 900;
 
+    /** Length of `system_cli_tasks.message` (VARCHAR); the log keeps the whole text. */
+    public const MESSAGE_LENGTH = 255;
+
     /**
      * How far down the queue one acquire attempt looks for a startable task.
      *
@@ -572,7 +575,8 @@ class SystemTaskService
             'status' => trim((string) $status),
             'progress' => max(0, min(100, (int) $progress)),
             'step' => trim((string) $step),
-            'message' => trim((string) $message),
+            // strict MySQL refuses a longer value, which would end the task instead of reporting it
+            'message' => mb_substr(trim((string) $message), 0, self::MESSAGE_LENGTH),
             'heartbeat_at' => $now,
             'lease_expires_at' => $now->copy()->addSeconds(self::DEFAULT_LEASE_SECONDS),
             'updated_at' => $now,

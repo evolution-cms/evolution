@@ -103,3 +103,30 @@ test('the dashboard asks for the refresh before the widget renders', function ()
         ->and(strpos($source, 'updaterRefreshPermissionsAfterBuildChange((array)'))
         ->toBeLessThan(strpos($source, "if (\$e->name == 'OnManagerWelcomeHome') {"));
 });
+
+test('a refresh that fails keeps the old build noted, so the next dashboard tries again', function () {
+    $_SESSION['updater_build'] = '3.5.9@e8a4913';
+    // refreshCurrentManagerPermissions() refuses a session that is not validated
+    unset($_SESSION['mgrValidated']);
+
+    expect(updaterRefreshPermissionsAfterBuildChange(['version' => '3.5.9', 'commit' => 'b796f06']))->toBeFalse()
+        ->and($_SESSION['updater_build'])->toBe('3.5.9@e8a4913')
+        ->and($_SESSION['mgrPermissions'])->toBe(['settings' => 1]);
+
+    $_SESSION['mgrValidated'] = 1;
+
+    expect(updaterRefreshPermissionsAfterBuildChange(['version' => '3.5.9', 'commit' => 'b796f06']))->toBeTrue()
+        ->and($_SESSION['updater_build'])->toBe('3.5.9@b796f06')
+        ->and($_SESSION['mgrPermissions'])->toHaveKey('system_tasks.site_update', 1);
+});
+
+test('a refresh that throws keeps the old build noted too', function () {
+    $_SESSION['updater_build'] = '3.5.9@e8a4913';
+    // no role tables: the permission query throws
+    $capsule = new Capsule();
+    $capsule->addConnection(['driver' => 'sqlite', 'database' => ':memory:', 'prefix' => '']);
+    Model::setConnectionResolver($capsule->getDatabaseManager());
+
+    expect(updaterRefreshPermissionsAfterBuildChange(['version' => '3.5.9', 'commit' => 'b796f06']))->toBeFalse()
+        ->and($_SESSION['updater_build'])->toBe('3.5.9@e8a4913');
+});

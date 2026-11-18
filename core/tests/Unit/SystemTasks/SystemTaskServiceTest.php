@@ -975,3 +975,13 @@ test('task worker passes a heartbeat of a handler on without a log line', functi
         ->and($messages)->not->toContain('Install Composer dependencies (0:15)')
         ->and($messages)->not->toContain('');
 });
+
+test('task progress keeps the message within its column and the whole text in the log', function () {
+    $task = seedSiteUpdateTask();
+    $long = str_repeat('x', 300);
+
+    $task = (new SystemTaskService())->updateTaskProgress($task, 'running', 50, 'site_update', $long, 'info');
+
+    expect(mb_strlen($task->message))->toBe(SystemTaskService::MESSAGE_LENGTH)
+        ->and(\EvolutionCMS\Models\SystemCliTaskLog::query()->where('task_id', $task->id)->value('message'))->toBe($long);
+});
