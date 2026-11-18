@@ -976,9 +976,13 @@ if (!function_exists('updaterRefreshPermissionsAfterBuildChange')) {
     {
         $build = trim((string)($versionData['version'] ?? '')) . '@' . trim((string)($versionData['commit'] ?? ''));
         $seen = isset($_SESSION['updater_build']) ? (string)$_SESSION['updater_build'] : '';
-        $_SESSION['updater_build'] = $build;
+        if ($seen === '') {
+            // the login has just built the permissions for this build
+            $_SESSION['updater_build'] = $build;
+            return false;
+        }
 
-        if ($seen === '' || $seen === $build || !class_exists(\EvolutionCMS\Services\Store\StoreContextService::class)) {
+        if ($seen === $build || !class_exists(\EvolutionCMS\Services\Store\StoreContextService::class)) {
             return false;
         }
 
@@ -988,7 +992,13 @@ if (!function_exists('updaterRefreshPermissionsAfterBuildChange')) {
             return false;
         }
 
-        return !empty($result['ok']);
+        // a failed refresh keeps the old build noted, so the next dashboard tries again
+        if (empty($result['ok'])) {
+            return false;
+        }
+        $_SESSION['updater_build'] = $build;
+
+        return true;
     }
 }
 
