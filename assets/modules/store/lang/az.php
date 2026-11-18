@@ -9,3 +9,9 @@ $_Lang['install_file_artifact_queued'] = 'Composer paketi %1$s %2$s sistem tapş
 $_Lang['install_file_artifact_no_version'] = 'Arxivdə Composer paketi %1$s var, lakin versiyası yoxdur. Onun composer.json faylına "version" əlavə edin və ya versiyanı fayl adında göstərin, məsələn %2$s-1.0.0.zip.';
 $_Lang['install_file_artifact_failed'] = 'Composer paketi %1$s növbəyə əlavə edilə bilmədi: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Arxiv Composer paketinə bənzəyir, lakin %1$s paket adı "name" olan düzgün JSON deyil. Heç nə quraşdırılmadı.';
+
+$_Lang['check_updates'] = 'Yeniləmələri yoxla';
+$_Lang['check_updates_title'] = 'Evolution CMS və əlavələrin yeni versiyalarını gündəlik yoxlamanı gözləmədən indi axtarın';
+$_Lang['check_updates_done'] = 'Yeniləmə məlumatı yeniləndi: paket siyahısı ən yeni versiyaları göstərir. Sistem versiyasını və köhnəlmiş əlavələri görmək üçün idarəetmə panelini açın:';
+$_Lang['check_updates_dashboard'] = 'İdarəetmə paneli';
+$_Lang['check_updates_failed'] = 'Yeniləmələri yoxlamaq mümkün olmadı. Sonra yenidən cəhd edin.';

@@ -2,6 +2,9 @@
 
 class ModuleActionService
 {
+    /** Key under which OutdatedExtrasCheck (CheckOutdated::CACHE_KEY) keeps the list of outdated extras. */
+    public const OUTDATED_EXTRAS_CACHE_KEY = 'evo.outdated_extras';
+
     public function handle($store, $action, array $request = [], array $files = [], array $get = [], array $post = [])
     {
         switch ((string) $action) {
@@ -150,9 +153,62 @@ class ModuleActionService
 
             case 'refresh_manager_permissions':
                 return $this->json($store->refreshCurrentManagerPermissions());
+
+            case 'check_updates':
+                return $this->json($this->checkUpdatesNow($store, strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'))));
         }
 
         return ['handled' => false];
+    }
+
+    /**
+     * Drop what keeps an administrator from seeing a release or a fix as soon as it is published.
+     *
+     * The Updater widget looks for system releases once a day and for a branch head once an hour,
+     * OutdatedExtrasCheck caches its list of outdated (vulnerable) extras, and the console catalog
+     * lives for 15 minutes. After a fix is announced the administrator needs them now: this drops
+     * the first two, so the next dashboard asks GitHub again, and fetches the catalog at once.
+     * Only a super administrator may do it, so no other manager can spend the site's GitHub quota.
+     *
+     * @since 3.5.10
+     * @param object $store The Extras module (assets/modules/store/core.php).
+     * @param string $method Request method; the check changes caches, so it takes POST only.
+     * @param string|null $updaterCacheDir assets/cache/updater by default.
+     * @return array
+     */
+    public function checkUpdatesNow($store, string $method, ?string $updaterCacheDir = null): array
+    {
+        if (!$store->isSuperAdmin()) {
+            return [
+                'ok' => false,
+                'error_code' => 'ACL_DENIED',
+                'message' => 'Only administrators can check for updates.',
+            ];
+        }
+
+        if ($method !== 'POST') {
+            return [
+                'ok' => false,
+                'error_code' => 'METHOD_NOT_ALLOWED',
+                'message' => 'The update check takes a POST request.',
+            ];
+        }
+
+        $directory = rtrim($updaterCacheDir ?? EVO_BASE_PATH . 'assets/cache/updater', '/\\') . '/';
+        $dropped = 0;
+        foreach (array_merge(glob($directory . 'check_*.json') ?: [], glob($directory . 'head_*.json') ?: []) as $file) {
+            if (@unlink($file)) {
+                $dropped++;
+            }
+        }
+
+        \Illuminate\Support\Facades\Cache::forget(self::OUTDATED_EXTRAS_CACHE_KEY);
+
+        return [
+            'ok' => true,
+            'updater_cache_dropped' => $dropped,
+            'catalog_refreshed' => (bool) $store->refreshConsoleCatalog(),
+        ];
     }
 
     protected function json(array $payload)
