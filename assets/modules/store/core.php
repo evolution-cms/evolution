@@ -183,6 +183,11 @@ class Store
         return $this->catalogService()->getConsoleCatalog();
     }
 
+    public function refreshConsoleCatalog()
+    {
+        return $this->catalogService()->refreshConsoleCatalog();
+    }
+
     public function getConsoleReadmePayload($repo, $branch = '', $sourceUrl = '')
     {
         return $this->catalogService()->getConsoleReadmePayload($repo, $branch, $sourceUrl);

@@ -2,6 +2,9 @@
 
 class CheckOutdated
 {
+    /** Its own key: it used to share 'users' with whatever else cached under that name. */
+    public const CACHE_KEY = 'evo.outdated_extras';
+
     /**
      * @var string
      */
@@ -46,7 +49,8 @@ class CheckOutdated
     public function load($source)
     {
         if (0 === strpos($source, 'http')) {
-            $data = Cache::remember('users', 24 * 60, function () use($source) {
+            // the Extras module drops this key when an administrator checks for updates
+            $data = Cache::remember(self::CACHE_KEY, 24 * 60, function () use($source) {
                 return json_decode(file_get_contents($source), true);
             });
         } else {

@@ -9,3 +9,10 @@ $_Lang['install_file_artifact_queued'] = 'Balíček Composer %1$s %2$s je zařaz
 $_Lang['install_file_artifact_no_version'] = 'Archiv obsahuje balíček Composer %1$s, ale bez verze. Přidejte "version" do jeho composer.json nebo uveďte verzi v názvu souboru, např. %2$s-1.0.0.zip.';
 $_Lang['install_file_artifact_failed'] = 'Balíček Composer %1$s se nepodařilo zařadit do fronty: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Archiv vypadá jako balíček Composer, ale %1$s není platný JSON s názvem balíčku "name". Nic nebylo nainstalováno.';
+
+$_Lang['check_updates'] = 'Zkontrolovat aktualizace';
+$_Lang['check_updates_title'] = 'Vyhledat nové verze Evolution CMS a doplňků hned, bez čekání na denní kontrolu';
+$_Lang['check_updates_done'] = 'Informace o aktualizacích byly obnoveny: seznam balíčků ukazuje nejnovější verze. Otevřete úvodní stránku, kde uvidíte verzi systému a zastaralé doplňky:';
+$_Lang['check_updates_dashboard'] = 'Domů';
+$_Lang['check_updates_partial'] = 'Informace o aktualizacích byly obnoveny, ale katalog balíčků se nepodařilo stáhnout ani uložit: seznam níže může být zastaralý. Otevřete úvodní stránku, kde uvidíte verzi systému a zastaralé doplňky:';
+$_Lang['check_updates_failed'] = 'Aktualizace se nepodařilo zkontrolovat. Zkuste to později.';

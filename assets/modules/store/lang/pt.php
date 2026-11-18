@@ -9,3 +9,10 @@ $_Lang['install_file_artifact_queued'] = 'O pacote Composer %1$s %2$s está na f
 $_Lang['install_file_artifact_no_version'] = 'O arquivo contém o pacote Composer %1$s, mas sem versão. Adicione "version" ao composer.json dele ou indique a versão no nome do arquivo, por exemplo %2$s-1.0.0.zip.';
 $_Lang['install_file_artifact_failed'] = 'Não foi possível colocar o pacote Composer %1$s na fila: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'O arquivo parece um pacote Composer, mas %1$s não é um JSON válido com o nome do pacote "name". Nada foi instalado.';
+
+$_Lang['check_updates'] = 'Verificar atualizações';
+$_Lang['check_updates_title'] = 'Procurar agora novas versões do Evolution CMS e dos complementos, sem esperar pela verificação diária';
+$_Lang['check_updates_done'] = 'Informações de atualização renovadas: a lista de pacotes mostra as versões mais recentes. Abra o Início para ver a versão do sistema e os complementos desatualizados:';
+$_Lang['check_updates_dashboard'] = 'Início';
+$_Lang['check_updates_partial'] = 'Informações de atualização renovadas, mas não foi possível obter ou salvar o catálogo de pacotes: a lista abaixo pode estar desatualizada. Abra o Início para ver a versão do sistema e os complementos desatualizados:';
+$_Lang['check_updates_failed'] = 'Não foi possível verificar atualizações. Tente novamente mais tarde.';

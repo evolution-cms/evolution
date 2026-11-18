@@ -9,3 +9,10 @@ $_Lang['install_file_artifact_queued'] = 'بسته Composer %1$s %2$s به‌ع�
 $_Lang['install_file_artifact_no_version'] = 'بایگانی شامل بسته Composer %1$s است، اما نسخه ندارد. "version" را به composer.json آن اضافه کنید یا نسخه را در نام فایل بنویسید، مثلاً %2$s-1.0.0.zip.';
 $_Lang['install_file_artifact_failed'] = 'بسته Composer %1$s در صف قرار نگرفت: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'بایگانی شبیه یک بسته Composer است، اما %1$s یک JSON معتبر با نام بسته "name" نیست. چیزی نصب نشد.';
+
+$_Lang['check_updates'] = 'بررسی به‌روزرسانی‌ها';
+$_Lang['check_updates_title'] = 'هم‌اکنون، بدون انتظار برای بررسی روزانه، نسخه‌های جدید Evolution CMS و افزونه‌ها را جستجو کنید';
+$_Lang['check_updates_done'] = 'اطلاعات به‌روزرسانی تازه شد: فهرست بسته‌ها جدیدترین نسخه‌ها را نشان می‌دهد. برای دیدن نسخه سیستم و افزونه‌های قدیمی، پیشخوان را باز کنید:';
+$_Lang['check_updates_dashboard'] = 'پیشخوان';
+$_Lang['check_updates_partial'] = 'اطلاعات به‌روزرسانی تازه شد، اما دریافت یا ذخیره کاتالوگ بسته‌ها ممکن نشد: فهرست زیر ممکن است قدیمی باشد. برای دیدن نسخه سیستم و افزونه‌های قدیمی، پیشخوان را باز کنید:';
+$_Lang['check_updates_failed'] = 'بررسی به‌روزرسانی‌ها ممکن نشد. بعداً دوباره تلاش کنید.';
