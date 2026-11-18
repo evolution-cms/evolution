@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Sjå etter oppdateringar';
 $_Lang['check_updates_title'] = 'Sjå etter nye versjonar av Evolution CMS og utvidingane no, utan å venta på den daglege kontrollen';
 $_Lang['check_updates_done'] = 'Oppdateringsinformasjonen er henta på nytt: pakkelista viser dei nyaste versjonane. Opna startsida for å sjå systemversjonen og utdaterte utvidingar:';
 $_Lang['check_updates_dashboard'] = 'Hjem';
+$_Lang['check_updates_partial'] = 'Oppdateringsinformasjonen er henta på nytt, men pakkekatalogen kunne ikkje hentast eller lagrast: lista nedanfor kan vere utdatert. Opna startsida for å sjå systemversjonen og utdaterte utvidingar:';
 $_Lang['check_updates_failed'] = 'Kunne ikkje sjå etter oppdateringar. Prøv igjen seinare.';

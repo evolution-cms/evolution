@@ -59,7 +59,10 @@ beforeEach(function () {
 });
 
 afterEach(function () {
-    array_map('unlink', glob($this->dir . '/*') ?: []);
+    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST);
+    foreach ($files as $file) {
+        $file->isDir() ? rmdir($file->getPathname()) : unlink($file->getPathname());
+    }
     @rmdir($this->dir);
     Facade::clearResolvedInstances();
     Facade::setFacadeApplication($this->facadeApp);
@@ -128,33 +131,83 @@ test('the button is rendered for administrators only and posts with the CSRF tok
         ->and($template)->toContain('<span class="input-group-btn" [+check_updates_attr+]>')
         ->and($handler)->toContain("url: link() + '&action=check_updates',")
         ->and($handler)->toContain("type: 'POST',")
-        ->and($handler)->toContain('data: {_token: csrfToken()}');
+        ->and($handler)->toContain('data: {_token: csrfToken()}')
+        // the notice is decided by check-updates.js, which the template loads before store.js
+        ->and($handler)->toContain('window.evoStoreCheckUpdates.noticeFor(data, {')
+        ->and($handler)->toContain("partial: $('[name=\"check_updates_partial\"]').val(),")
+        ->and(strpos($template, 'js/check-updates.js?v='))->toBeLessThan(strpos($template, 'js/store.js?v='));
 });
 
-test('the catalog is fetched past its 15 minute cache, and a failed fetch keeps the cached copy', function () {
-    $cacheFile = rtrim(EVO_CORE_PATH, '/\\') . '/custom/cache/store/console-catalog.json';
-    $saved = is_file($cacheFile) ? file_get_contents($cacheFile) : null;
-    @mkdir(dirname($cacheFile), 0775, true);
-    file_put_contents($cacheFile, '{"packages":[{"name":"old/package"}]}');
-
-    $catalog = new class extends \EvolutionCMS\Services\Store\CatalogService {
+/** Catalog service that answers with the given body and keeps its cache in the given folder. */
+function scriptedCatalog(string $directory): object
+{
+    return new class($directory) extends \EvolutionCMS\Services\Store\CatalogService {
         public string $answer = '';
+
+        public function __construct(private string $directory)
+        {
+            parent::__construct();
+        }
 
         public function fetchRemoteBody($url)
         {
             return $this->answer;
         }
+
+        protected function getConsoleCatalogCacheDirectory(): string
+        {
+            return $this->directory;
+        }
     };
+}
 
-    try {
-        $catalog->answer = '<html>rate limited</html>';
-        expect($catalog->refreshConsoleCatalog())->toBeFalse()
-            ->and(file_get_contents($cacheFile))->toContain('old/package');
+test('the catalog is fetched past its 15 minute cache, and a failed fetch keeps the cached copy', function () {
+    $cacheFile = $this->dir . '/store/console-catalog.json';
+    mkdir(dirname($cacheFile));
+    file_put_contents($cacheFile, '{"packages":[{"name":"old/package"}]}');
+    $catalog = scriptedCatalog(dirname($cacheFile));
 
-        $catalog->answer = '{"packages":[{"name":"new/package"}]}';
-        expect($catalog->refreshConsoleCatalog())->toBeTrue()
-            ->and(file_get_contents($cacheFile))->toContain('new/package');
-    } finally {
-        $saved === null ? @unlink($cacheFile) : file_put_contents($cacheFile, $saved);
+    $catalog->answer = '<html>rate limited</html>';
+    expect($catalog->refreshConsoleCatalog())->toBeFalse()
+        ->and(file_get_contents($cacheFile))->toContain('old/package');
+
+    $catalog->answer = '{"packages":[{"name":"new/package"}]}';
+    expect($catalog->refreshConsoleCatalog())->toBeTrue()
+        ->and(file_get_contents($cacheFile))->toContain('new/package')
+        ->and(glob(dirname($cacheFile) . '/*.tmp'))->toBe([]);
+});
+
+test('a valid catalog that cannot be stored is not reported as refreshed', function () {
+    // a file where the cache folder belongs: the folder cannot be created, for root either
+    file_put_contents($this->dir . '/store', 'not a folder');
+    $catalog = scriptedCatalog($this->dir . '/store/cache');
+    $catalog->answer = '{"packages":[{"name":"new/package"}]}';
+
+    expect($catalog->refreshConsoleCatalog())->toBeFalse()
+        ->and(file_get_contents($this->dir . '/store'))->toBe('not a folder');
+});
+
+test('a failed write leaves what was stored before untouched and no temporary file behind', function () {
+    $directory = $this->dir . '/store';
+    // the catalog path taken by a folder: the rename onto it fails, as a write the web user may not do
+    mkdir($directory . '/console-catalog.json', 0775, true);
+    file_put_contents($directory . '/console-catalog.json/keep', 'previous');
+    $catalog = scriptedCatalog($directory);
+    $catalog->answer = '{"packages":[{"name":"new/package"}]}';
+
+    expect($catalog->refreshConsoleCatalog())->toBeFalse()
+        ->and(file_get_contents($directory . '/console-catalog.json/keep'))->toBe('previous')
+        ->and(glob($directory . '/*.tmp'))->toBe([]);
+});
+
+test('the Extras module tells a partial refresh from a full one', function () {
+    $node = (new Symfony\Component\Process\ExecutableFinder())->find('node');
+    if ($node === null) {
+        $this->markTestSkipped('Node.js is not installed.');
     }
+
+    $test = dirname(__DIR__, 4) . '/assets/modules/store/js/tests/check-updates.test.js';
+    $output = evoRunCommand(escapeshellarg($node) . ' --test ' . escapeshellarg($test) . ' 2>&1', $exitCode);
+
+    expect($exitCode)->toBe(0, $output);
 });

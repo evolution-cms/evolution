@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Verificar atualizações';
 $_Lang['check_updates_title'] = 'Procurar agora novas versões do Evolution CMS e dos complementos, sem esperar pela verificação diária';
 $_Lang['check_updates_done'] = 'Informações de atualização renovadas: a lista de pacotes mostra as versões mais recentes. Abra o Início para ver a versão do sistema e os complementos desatualizados:';
 $_Lang['check_updates_dashboard'] = 'Início';
+$_Lang['check_updates_partial'] = 'Informações de atualização renovadas, mas não foi possível obter ou salvar o catálogo de pacotes: a lista abaixo pode estar desatualizada. Abra o Início para ver a versão do sistema e os complementos desatualizados:';
 $_Lang['check_updates_failed'] = 'Não foi possível verificar atualizações. Tente novamente mais tarde.';

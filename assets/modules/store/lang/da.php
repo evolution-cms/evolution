@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Søg efter opdateringer';
 $_Lang['check_updates_title'] = 'Søg efter nye versioner af Evolution CMS og udvidelserne nu uden at vente på den daglige kontrol';
 $_Lang['check_updates_done'] = 'Opdateringsoplysningerne er genindlæst: pakkelisten viser de nyeste versioner. Åbn startsiden for at se systemversionen og forældede udvidelser:';
 $_Lang['check_updates_dashboard'] = 'Startside';
+$_Lang['check_updates_partial'] = 'Opdateringsoplysningerne er genindlæst, men pakkekataloget kunne ikke hentes eller gemmes: listen nedenfor kan være forældet. Åbn startsiden for at se systemversionen og forældede udvidelser:';
 $_Lang['check_updates_failed'] = 'Kunne ikke søge efter opdateringer. Prøv igen senere.';

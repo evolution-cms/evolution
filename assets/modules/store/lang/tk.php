@@ -51,6 +51,7 @@ $_Lang['check_updates'] = "Täzelenmeleri barla";
 $_Lang['check_updates_title'] = "Evolution CMS-iň we goşmaçalaryň täze wersiýalaryny gündelik barlaga garaşman häzir gözle";
 $_Lang['check_updates_done'] = "Täzelenme maglumatlary täzelendi: paketler sanawy iň täze wersiýalary görkezýär. Ulgamyň wersiýasyny we köne goşmaçalary görmek üçin dolandyryş panelini açyň:";
 $_Lang['check_updates_dashboard'] = "Dolandyryş paneli";
+$_Lang['check_updates_partial'] = "Täzelenme maglumatlary täzelendi, emma paketler katalogyny alyp ýa-da saklap bolmady: aşakdaky sanaw köne bolup biler. Ulgamyň wersiýasyny we köne goşmaçalary görmek üçin dolandyryş panelini açyň:";
 $_Lang['check_updates_failed'] = "Täzelenmeleri barlap bolmady. Soňrak gaýtadan synanyşyň.";
 $_Lang['sort_by'] = "Şu boýunça tertiple:";
 $_Lang['sort_default'] = "Deslapky";

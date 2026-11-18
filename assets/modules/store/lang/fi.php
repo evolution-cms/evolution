@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Tarkista päivitykset';
 $_Lang['check_updates_title'] = 'Etsi Evolution CMS:n ja lisäosien uusia versioita nyt odottamatta päivittäistä tarkistusta';
 $_Lang['check_updates_done'] = 'Päivitystiedot päivitetty: pakettiluettelo näyttää uusimmat versiot. Avaa etusivu nähdäksesi järjestelmän version ja vanhentuneet lisäosat:';
 $_Lang['check_updates_dashboard'] = 'Alkuun';
+$_Lang['check_updates_partial'] = 'Päivitystiedot päivitetty, mutta pakettikatalogia ei voitu noutaa tai tallentaa: alla oleva luettelo voi olla vanhentunut. Avaa etusivu nähdäksesi järjestelmän version ja vanhentuneet lisäosat:';
 $_Lang['check_updates_failed'] = 'Päivityksiä ei voitu tarkistaa. Yritä myöhemmin uudelleen.';

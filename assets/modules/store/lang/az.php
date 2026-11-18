@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Yeniləmələri yoxla';
 $_Lang['check_updates_title'] = 'Evolution CMS və əlavələrin yeni versiyalarını gündəlik yoxlamanı gözləmədən indi axtarın';
 $_Lang['check_updates_done'] = 'Yeniləmə məlumatı yeniləndi: paket siyahısı ən yeni versiyaları göstərir. Sistem versiyasını və köhnəlmiş əlavələri görmək üçün idarəetmə panelini açın:';
 $_Lang['check_updates_dashboard'] = 'İdarəetmə paneli';
+$_Lang['check_updates_partial'] = 'Yeniləmə məlumatı yeniləndi, lakin paket kataloqunu almaq və ya saxlamaq mümkün olmadı: aşağıdakı siyahı köhnəlmiş ola bilər. Sistem versiyasını və köhnəlmiş əlavələri görmək üçün idarəetmə panelini açın:';
 $_Lang['check_updates_failed'] = 'Yeniləmələri yoxlamaq mümkün olmadı. Sonra yenidən cəhd edin.';

@@ -37,6 +37,7 @@ $_Lang['check_updates'] = "Controlla aggiornamenti";
 $_Lang['check_updates_title'] = "Cerca ora nuove versioni di Evolution CMS e degli add-on, senza attendere il controllo giornaliero";
 $_Lang['check_updates_done'] = "Informazioni sugli aggiornamenti rinnovate: l'elenco dei pacchetti mostra le versioni più recenti. Apri la Dashboard per vedere la versione del sistema e gli add-on non aggiornati:";
 $_Lang['check_updates_dashboard'] = "Dashboard";
+$_Lang['check_updates_partial'] = "Informazioni sugli aggiornamenti rinnovate, ma non è stato possibile scaricare o salvare il catalogo dei pacchetti: l'elenco qui sotto potrebbe non essere aggiornato. Apri la Dashboard per vedere la versione del sistema e gli add-on non aggiornati:";
 $_Lang['check_updates_failed'] = "Impossibile controllare gli aggiornamenti. Riprova più tardi.";
 $_Lang['more'] = "more";
 $_Lang['sort_by'] = "Ordina per:";

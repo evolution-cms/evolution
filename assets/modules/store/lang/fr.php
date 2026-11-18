@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Rechercher des mises à jour';
 $_Lang['check_updates_title'] = 'Rechercher dès maintenant les nouvelles versions d’Evolution CMS et des extensions, sans attendre la vérification quotidienne';
 $_Lang['check_updates_done'] = 'Informations de mise à jour actualisées : la liste des paquets affiche les dernières versions. Ouvrez l’accueil pour voir la version du système et les extensions obsolètes :';
 $_Lang['check_updates_dashboard'] = 'Accueil';
+$_Lang['check_updates_partial'] = 'Informations de mise à jour actualisées, mais le catalogue des paquets n’a pas pu être récupéré ou enregistré : la liste ci-dessous peut être obsolète. Ouvrez l’accueil pour voir la version du système et les extensions obsolètes :';
 $_Lang['check_updates_failed'] = 'Impossible de rechercher des mises à jour. Réessayez plus tard.';

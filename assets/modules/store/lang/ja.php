@@ -37,6 +37,7 @@ $_Lang['check_updates'] = "更新を確認";
 $_Lang['check_updates_title'] = "毎日のチェックを待たずに、Evolution CMS とアドオンの新しいバージョンを今すぐ確認します";
 $_Lang['check_updates_done'] = "更新情報を再取得しました。パッケージ一覧に最新バージョンが表示されています。システムのバージョンと古いアドオンはダッシュボードで確認できます:";
 $_Lang['check_updates_dashboard'] = "ダッシュボード";
+$_Lang['check_updates_partial'] = "更新情報を再取得しましたが、パッケージカタログを取得または保存できませんでした。下の一覧は古い可能性があります。システムのバージョンと古いアドオンはダッシュボードで確認できます:";
 $_Lang['check_updates_failed'] = "更新を確認できませんでした。しばらくしてから再度お試しください。";
 $_Lang['more'] = "more";
 $_Lang['sort_by'] = "並び替え:";
