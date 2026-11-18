@@ -53,10 +53,14 @@
             }
 
             var selectedItem;
-            var contextm = '{{$cm->getClientScriptObject()}}';
+            // The menu is rendered in the page body, after this script.
+            function contextMenuElement() {
+                return document.getElementById(@js($cm->id));
+            }
 
             function showContentMenu(id, e) {
                 selectedItem = id;
+                var contextm = contextMenuElement();
                 contextm.style.left = (e.pageX || (e.clientX + (document.documentElement.scrollLeft || document.body.scrollLeft))) + 'px';
                 contextm.style.top = (e.pageY || (e.clientY + (document.documentElement.scrollTop || document.body.scrollTop))) + 'px';
                 contextm.style.visibility = 'visible';
@@ -76,7 +80,10 @@
             }
 
             document.addEventListener('click', function() {
-                contextm.style.visibility = 'hidden';
+                var contextm = contextMenuElement();
+                if (contextm) {
+                    contextm.style.visibility = 'hidden';
+                }
             });
 
             document.addEventListener('DOMContentLoaded', function() {
