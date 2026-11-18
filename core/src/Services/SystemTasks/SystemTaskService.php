@@ -817,6 +817,8 @@ class SystemTaskService
             'finished_at' => $task->finished_at ? $task->finished_at->toAtomString() : null,
             'can_retry' => false,
             'can_refresh_state' => in_array((string) $task->status, ['finished', 'succeeded'], true),
+            // lets the manager tell how old heartbeat_at is without trusting the browser clock
+            'server_time' => Carbon::now()->toAtomString(),
         ];
     }
 
@@ -1142,11 +1144,48 @@ class SystemTaskService
             return null;
         }
 
+        return $this->activeTaskQuery($exclusiveTypes)
+            ->orderBy('id')
+            ->first();
+    }
+
+    /**
+     * The newest queued or live task of a type the requester may see, with its logs.
+     *
+     * A page that reloads while the worker still runs the task (the site update replaces the
+     * manager under the open page) picks the task up again from this instead of offering to
+     * queue it once more.
+     *
+     * @since 3.5.10
+     * @param string $type System task type.
+     * @param array $requesterSnapshot
+     * @param bool $isSuperAdmin
+     * @return array|null
+     */
+    public function getActiveTaskPayload($type, array $requesterSnapshot = [], $isSuperAdmin = false)
+    {
+        $task = $this->activeTaskQuery([(string) $type])
+            ->orderByDesc('id')
+            ->first();
+
+        if (!$task || !$this->canAccessTask($task, $requesterSnapshot, (bool) $isSuperAdmin)) {
+            return null;
+        }
+
+        return $this->buildTaskPayloadWithLogs($task);
+    }
+
+    /**
+     * @param list<string> $types
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function activeTaskQuery(array $types)
+    {
         $now = Carbon::now();
 
         return SystemCliTask::query()
             ->whereIn('status', ['queued', 'picked', 'running'])
-            ->whereIn('type', $exclusiveTypes)
+            ->whereIn('type', $types)
             ->where(function ($query) use ($now) {
                 // A queued task holds the lock unconditionally — it has no
                 // lease yet. A picked or running one holds it only while its
@@ -1158,9 +1197,7 @@ class SystemTaskService
                 $query->where('status', 'queued')
                     ->orWhereNull('lease_expires_at')
                     ->orWhere('lease_expires_at', '>=', $now);
-            })
-            ->orderBy('id')
-            ->first();
+            });
     }
 
     protected function canAccessTask(SystemCliTask $task, array $requesterSnapshot = [], $isSuperAdmin = false)

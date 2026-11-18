@@ -873,3 +873,105 @@ test('artifact install task passes the same preflight as a catalog install', fun
         ->and($response['error_code'])->toBe('ACL_DENIED')
         ->and(SystemCliTask::query()->count())->toBe(0);
 });
+
+function seedSiteUpdateTask(array $overrides = []): SystemCliTask
+{
+    return SystemCliTask::query()->create(array_merge([
+        'uuid' => (string) \Illuminate\Support\Str::uuid(),
+        'type' => 'site_update',
+        'target' => 'core',
+        'requested_version' => '3.5.x',
+        'status' => 'running',
+        'step' => 'site_update',
+        'progress' => 40,
+        'message' => 'Running Evolution CMS update to 3.5.x.',
+        'payload_json' => [],
+        'result_json' => [],
+        'created_by' => 1,
+        'locked_by' => 'worker',
+        'attempt_count' => 1,
+        'lease_expires_at' => Carbon::now()->addMinutes(10),
+        'worker_host' => '',
+        'worker_pid' => null,
+        'error_code' => '',
+        'catalog_snapshot_hash' => '',
+        'requested_by_snapshot' => ['user_id' => 1],
+        'created_at' => Carbon::now(),
+        'updated_at' => Carbon::now(),
+    ], $overrides));
+}
+
+test('the running site update is found again for a page reloaded during the update', function () {
+    seedSiteUpdateTask(['status' => 'succeeded', 'step' => 'completed', 'lease_expires_at' => null]);
+    seedSiteUpdateTask(['type' => 'console_install', 'target' => 'vendor/package']);
+    $running = seedSiteUpdateTask();
+    (new SystemTaskService())->appendLog($running, 'info', 'site_update', 'Start unpacking Evolution CMS');
+
+    $payload = (new SystemTaskService())->getActiveTaskPayload('site_update', ['user_id' => 1], true);
+
+    expect($payload['id'])->toBe((int) $running->id)
+        ->and($payload['status'])->toBe('running')
+        ->and(array_column($payload['logs'], 'message'))->toContain('Start unpacking Evolution CMS');
+});
+
+test('a queued site update counts as active, a finished or abandoned one does not', function () {
+    $service = new SystemTaskService();
+
+    seedSiteUpdateTask(['status' => 'failed', 'lease_expires_at' => null]);
+    // the worker died: its lease ran out, so nothing follows that task any more
+    seedSiteUpdateTask(['lease_expires_at' => Carbon::now()->subMinute()]);
+    expect($service->getActiveTaskPayload('site_update', ['user_id' => 1], true))->toBeNull();
+
+    $queued = seedSiteUpdateTask(['status' => 'queued', 'step' => 'queued', 'lease_expires_at' => null]);
+    expect($service->getActiveTaskPayload('site_update', ['user_id' => 1], true)['id'])->toBe((int) $queued->id);
+});
+
+test('another manager does not get a site update task it may not see', function () {
+    seedSiteUpdateTask(['created_by' => 1]);
+    $service = new SystemTaskService();
+
+    expect($service->getActiveTaskPayload('site_update', [
+        'user_id' => 2,
+        'permissions' => ['exec_module' => 1, 'system_tasks.view' => 1],
+    ], false))->toBeNull()
+        ->and($service->getActiveTaskPayload('site_update', [
+            'user_id' => 1,
+            'permissions' => ['exec_module' => 1, 'system_tasks.view' => 1],
+        ], false))->not->toBeNull();
+});
+
+test('a heartbeat renews the task lease and message but adds no log line', function () {
+    $task = seedSiteUpdateTask(['lease_expires_at' => Carbon::now()->addSeconds(5)]);
+    $service = new SystemTaskService();
+
+    $task = $service->updateTaskProgress($task, 'running', 62, 'site_update', 'Install Composer dependencies (0:15)', null);
+
+    expect($task->message)->toBe('Install Composer dependencies (0:15)')
+        ->and($task->lease_expires_at->greaterThan(Carbon::now()->addSeconds(SystemTaskService::DEFAULT_LEASE_SECONDS - 5)))->toBeTrue()
+        ->and(\EvolutionCMS\Models\SystemCliTaskLog::query()->where('task_id', $task->id)->count())->toBe(0)
+        ->and($service->getActiveTaskPayload('site_update', ['user_id' => 1], true)['server_time'])->toBeString();
+});
+
+test('task worker passes a heartbeat of a handler on without a log line', function () {
+    $handler = new class implements SystemTaskHandlerInterface {
+        public function execute(SystemCliTask $task, ?callable $report = null)
+        {
+            $report('site_update', 62, 'Install Composer dependencies', 'info');
+            $report('site_update', 62, 'Install Composer dependencies (0:15)', null);
+
+            return ['message' => 'Done.', 'result' => []];
+        }
+    };
+    SystemTaskRegistry::register('custom.worker_test', $handler, ['label' => 'Custom worker test']);
+    seedSiteUpdateTask(['type' => 'custom.worker_test', 'status' => 'queued', 'lease_expires_at' => null]);
+
+    $command = new TaskWorkerCommand();
+    $command->setLaravel(new SystemTaskWorkerTestContainer());
+    (new CommandTester($command))->execute(['--once' => true]);
+
+    $messages = \EvolutionCMS\Models\SystemCliTaskLog::query()->orderBy('seq')->pluck('message')->all();
+
+    expect($messages)->toContain('Install Composer dependencies')
+        ->and($messages)->not->toContain('Install Composer dependencies (0:15)')
+        ->and($messages)->not->toContain('');
+});

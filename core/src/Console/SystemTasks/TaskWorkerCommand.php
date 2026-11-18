@@ -57,7 +57,8 @@ class TaskWorkerCommand extends Command
                     (int) $progress,
                     (string) $step,
                     (string) $message,
-                    (string) $level,
+                    // null: a heartbeat that renews the lease and message without a log line
+                    $level === null ? null : (string) $level,
                     $context
                 );
             });
