@@ -193,6 +193,26 @@ class CatalogService
         return $this->remoteTransportService->fetchBody($url);
     }
 
+    /**
+     * Fetch the console catalog now, past its cache, so new package versions show at once.
+     *
+     * A fetch that brings no packages keeps the cached copy.
+     *
+     * @since 3.5.10
+     * @return bool Whether a fresh catalog was stored.
+     */
+    public function refreshConsoleCatalog(): bool
+    {
+        $remote = $this->fetchRemoteBody(self::CONSOLE_CATALOG_URL);
+        if ($this->decodeConsoleCatalogPackages($remote) === []) {
+            return false;
+        }
+
+        $this->writeConsoleCatalogCache((string) $remote);
+
+        return true;
+    }
+
     private function loadConsoleCatalogPackages(): array
     {
         $cachedFresh = $this->readConsoleCatalogCache(false);

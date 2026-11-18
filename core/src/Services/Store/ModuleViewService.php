@@ -24,6 +24,8 @@ class ModuleViewService
             : rtrim(EVO_BASE_PATH, '/\\') . '/core';
         $store->lang['system_task_ui_flags'] = json_encode($store->getSystemTaskUiFlags(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         $store->lang['csrf_token'] = csrf_token();
+        // the update check spends the site's GitHub quota: administrators only (ModuleActionService::checkUpdatesNow())
+        $store->lang['check_updates_attr'] = $store->isSuperAdmin() ? '' : 'hidden';
 
         if ((int) ($modx->config['manager_theme_mode'] ?? 0) === 4) {
             $store->lang['body_class_name'] = 'darkness';
