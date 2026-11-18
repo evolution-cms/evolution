@@ -51,6 +51,7 @@ $_Lang['check_updates'] = "Otsi uuendusi";
 $_Lang['check_updates_title'] = "Otsi Evolution CMS-i ja lisandmoodulite uusi versioone kohe, ootamata igapäevast kontrolli";
 $_Lang['check_updates_done'] = "Uuenduste teave on värskendatud: pakettide loend näitab uusimaid versioone. Avage töölaud, et näha süsteemi versiooni ja aegunud lisandmooduleid:";
 $_Lang['check_updates_dashboard'] = "Töölaud";
+$_Lang['check_updates_partial'] = "Uuenduste teave on värskendatud, kuid pakettide kataloogi ei õnnestunud alla laadida ega salvestada: allolev loend võib olla aegunud. Avage töölaud, et näha süsteemi versiooni ja aegunud lisandmooduleid:";
 $_Lang['check_updates_failed'] = "Uuenduste otsimine ebaõnnestus. Proovige hiljem uuesti.";
 $_Lang['sort_by'] = "Sordi:";
 $_Lang['sort_default'] = "Vaikimisi";

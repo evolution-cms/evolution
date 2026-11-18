@@ -51,6 +51,7 @@ $_Lang['check_updates'] = "Yangilanishlarni tekshirish";
 $_Lang['check_updates_title'] = "Evolution CMS va qoʻshimchalarning yangi versiyalarini kundalik tekshiruvni kutmasdan hozir qidirish";
 $_Lang['check_updates_done'] = "Yangilanishlar haqidagi maʼlumot yangilandi: paketlar roʻyxati eng yangi versiyalarni koʻrsatadi. Tizim versiyasi va eskirgan qoʻshimchalarni koʻrish uchun boshqaruv panelini oching:";
 $_Lang['check_updates_dashboard'] = "Boshqaruv paneli";
+$_Lang['check_updates_partial'] = "Yangilanishlar haqidagi maʼlumot yangilandi, biroq paketlar katalogini olib yoki saqlab boʻlmadi: quyidagi roʻyxat eskirgan boʻlishi mumkin. Tizim versiyasi va eskirgan qoʻshimchalarni koʻrish uchun boshqaruv panelini oching:";
 $_Lang['check_updates_failed'] = "Yangilanishlarni tekshirib boʻlmadi. Keyinroq qayta urinib koʻring.";
 $_Lang['sort_by'] = "Saralash mezoni:";
 $_Lang['sort_default'] = "Standart";

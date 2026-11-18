@@ -952,14 +952,23 @@ store = {
 				dataType: 'json',
 				data: {_token: csrfToken()}
 			}).done(function(data){
-				if (!data || !data.ok) {
-					$notice.text((data && data.message) || $('[name="check_updates_failed"]').val() || '').prop('hidden', false);
+				// check-updates.js: a fresh catalog reloads the list, anything less is said as it is
+				var notice = window.evoStoreCheckUpdates.noticeFor(data, {
+					done: $('[name="check_updates_done"]').val(),
+					partial: $('[name="check_updates_partial"]').val(),
+					failed: $('[name="check_updates_failed"]').val()
+				});
+				var html = $('<div></div>').append($('<span></span>').text(notice.text));
+				if (notice.dashboard) {
+					html.append(' ').append($('<a target="main" href="index.php?a=2"></a>').text($('[name="check_updates_dashboard"]').val() || 'dashboard'));
+				}
+				$notice.attr('data-state', notice.state);
+				if (!notice.reload) {
+					$notice.html(html.html()).prop('hidden', false);
 					return;
 				}
-				var dashboard = $('<a target="main" href="index.php?a=2"></a>').text($('[name="check_updates_dashboard"]').val() || 'dashboard');
-				var text = $('<span></span>').text($('[name="check_updates_done"]').val() || '');
 				try {
-					window.sessionStorage.setItem(noticeKey, $('<div></div>').append(text).append(' ').append(dashboard).html());
+					window.sessionStorage.setItem(noticeKey, html.html());
 				} catch (e) {}
 				window.location.reload();
 			}).fail(function(){

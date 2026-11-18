@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Nach Updates suchen';
 $_Lang['check_updates_title'] = 'Jetzt nach neuen Versionen von Evolution CMS und den Erweiterungen suchen, ohne auf die tägliche Prüfung zu warten';
 $_Lang['check_updates_done'] = 'Update-Informationen aktualisiert: Die Paketliste zeigt die neuesten Versionen. Öffnen Sie das Dashboard, um die Systemversion und veraltete Erweiterungen zu sehen:';
 $_Lang['check_updates_dashboard'] = 'Dashboard';
+$_Lang['check_updates_partial'] = 'Update-Informationen aktualisiert, aber der Paketkatalog konnte nicht abgerufen oder gespeichert werden: Die Liste unten ist möglicherweise veraltet. Öffnen Sie das Dashboard, um die Systemversion und veraltete Erweiterungen zu sehen:';
 $_Lang['check_updates_failed'] = 'Die Suche nach Updates ist fehlgeschlagen. Versuchen Sie es später erneut.';

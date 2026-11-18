@@ -51,6 +51,7 @@ $_Lang['check_updates'] = "Pārbaudīt atjauninājumus";
 $_Lang['check_updates_title'] = "Meklēt jaunas Evolution CMS un papildinājumu versijas tagad, negaidot ikdienas pārbaudi";
 $_Lang['check_updates_done'] = "Atjauninājumu informācija atsvaidzināta: pakotņu sarakstā redzamas jaunākās versijas. Atveriet vadības paneli, lai redzētu sistēmas versiju un novecojušos papildinājumus:";
 $_Lang['check_updates_dashboard'] = "Vadības panelis";
+$_Lang['check_updates_partial'] = "Atjauninājumu informācija atsvaidzināta, taču pakotņu katalogu neizdevās iegūt vai saglabāt: zemāk redzamais saraksts var būt novecojis. Atveriet vadības paneli, lai redzētu sistēmas versiju un novecojušos papildinājumus:";
 $_Lang['check_updates_failed'] = "Neizdevās pārbaudīt atjauninājumus. Mēģiniet vēlāk vēlreiz.";
 $_Lang['sort_by'] = "Kārtot pēc:";
 $_Lang['sort_default'] = "Noklusējums";

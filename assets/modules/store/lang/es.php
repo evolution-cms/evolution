@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Buscar actualizaciones';
 $_Lang['check_updates_title'] = 'Buscar ahora nuevas versiones de Evolution CMS y de los complementos, sin esperar a la comprobación diaria';
 $_Lang['check_updates_done'] = 'Información de actualizaciones renovada: la lista de paquetes muestra las versiones más recientes. Abra el Cuadro de Mando para ver la versión del sistema y los complementos desactualizados:';
 $_Lang['check_updates_dashboard'] = 'Cuadro de Mando';
+$_Lang['check_updates_partial'] = 'Información de actualizaciones renovada, pero no se pudo obtener o guardar el catálogo de paquetes: la lista de abajo puede estar desactualizada. Abra el Cuadro de Mando para ver la versión del sistema y los complementos desactualizados:';
 $_Lang['check_updates_failed'] = 'No se pudieron buscar actualizaciones. Inténtelo de nuevo más tarde.';

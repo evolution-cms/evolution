@@ -51,6 +51,7 @@ $_Lang['check_updates'] = "Tikrinti atnaujinimus";
 $_Lang['check_updates_title'] = "Ieškoti naujų Evolution CMS ir priedų versijų dabar, nelaukiant kasdienio patikrinimo";
 $_Lang['check_updates_done'] = "Atnaujinimų informacija atnaujinta: paketų sąraše rodomos naujausios versijos. Atidarykite valdymo skydelį, kad pamatytumėte sistemos versiją ir pasenusius priedus:";
 $_Lang['check_updates_dashboard'] = "Valdymo skydelis";
+$_Lang['check_updates_partial'] = "Atnaujinimų informacija atnaujinta, tačiau nepavyko gauti arba išsaugoti paketų katalogo: toliau pateiktas sąrašas gali būti pasenęs. Atidarykite valdymo skydelį, kad pamatytumėte sistemos versiją ir pasenusius priedus:";
 $_Lang['check_updates_failed'] = "Nepavyko patikrinti atnaujinimų. Bandykite vėliau.";
 $_Lang['sort_by'] = "Rikiuoti pagal:";
 $_Lang['sort_default'] = "Numatytasis";

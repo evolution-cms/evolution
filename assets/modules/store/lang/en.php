@@ -38,6 +38,7 @@ $_Lang['check_updates'] = "Check for updates";
 $_Lang['check_updates_title'] = "Look for new versions of Evolution CMS and the extras now, without waiting for the daily check";
 $_Lang['check_updates_done'] = "Update information refreshed: the package list shows the newest versions. Open the dashboard to see the system version and outdated extras:";
 $_Lang['check_updates_dashboard'] = "Dashboard";
+$_Lang['check_updates_partial'] = "Update information refreshed, but the package catalog could not be fetched or saved: the list below may be outdated. Open the dashboard to see the system version and outdated extras:";
 $_Lang['check_updates_failed'] = "Could not check for updates. Try again later.";
 $_Lang['sort_by'] = "Sort by:";
 $_Lang['sort_default'] = "Default";

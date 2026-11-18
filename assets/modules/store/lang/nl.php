@@ -37,6 +37,7 @@ $_Lang['check_updates'] = "Controleren op updates";
 $_Lang['check_updates_title'] = "Nu zoeken naar nieuwe versies van Evolution CMS en de add-ons, zonder op de dagelijkse controle te wachten";
 $_Lang['check_updates_done'] = "Update-informatie vernieuwd: de pakketlijst toont de nieuwste versies. Open de startpagina om de systeemversie en verouderde add-ons te zien:";
 $_Lang['check_updates_dashboard'] = "Start";
+$_Lang['check_updates_partial'] = "Update-informatie vernieuwd, maar de pakketcatalogus kon niet worden opgehaald of opgeslagen: de lijst hieronder is mogelijk verouderd. Open de startpagina om de systeemversie en verouderde add-ons te zien:";
 $_Lang['check_updates_failed'] = "Controleren op updates is mislukt. Probeer het later opnieuw.";
 $_Lang['more'] = "more";
 $_Lang['sort_by'] = "Sorteren op:";

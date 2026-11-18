@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Sök efter uppdateringar';
 $_Lang['check_updates_title'] = 'Sök efter nya versioner av Evolution CMS och tilläggen nu, utan att vänta på den dagliga kontrollen';
 $_Lang['check_updates_done'] = 'Uppdateringsinformationen har hämtats på nytt: paketlistan visar de senaste versionerna. Öppna startsidan för att se systemversionen och inaktuella tillägg:';
 $_Lang['check_updates_dashboard'] = 'Hem';
+$_Lang['check_updates_partial'] = 'Uppdateringsinformationen har hämtats på nytt, men paketkatalogen kunde inte hämtas eller sparas: listan nedan kan vara inaktuell. Öppna startsidan för att se systemversionen och inaktuella tillägg:';
 $_Lang['check_updates_failed'] = 'Det gick inte att söka efter uppdateringar. Försök igen senare.';

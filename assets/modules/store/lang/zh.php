@@ -14,4 +14,5 @@ $_Lang['check_updates'] = '检查更新';
 $_Lang['check_updates_title'] = '立即查找 Evolution CMS 和扩展的新版本，无需等待每日检查';
 $_Lang['check_updates_done'] = '更新信息已刷新：软件包列表显示最新版本。打开主页可查看系统版本和过时的扩展:';
 $_Lang['check_updates_dashboard'] = '主页';
+$_Lang['check_updates_partial'] = '更新信息已刷新，但无法获取或保存软件包目录：下面的列表可能已过时。打开主页可查看系统版本和过时的扩展:';
 $_Lang['check_updates_failed'] = '无法检查更新。请稍后再试。';

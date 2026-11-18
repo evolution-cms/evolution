@@ -14,4 +14,5 @@ $_Lang['check_updates'] = 'Zkontrolovat aktualizace';
 $_Lang['check_updates_title'] = 'Vyhledat nové verze Evolution CMS a doplňků hned, bez čekání na denní kontrolu';
 $_Lang['check_updates_done'] = 'Informace o aktualizacích byly obnoveny: seznam balíčků ukazuje nejnovější verze. Otevřete úvodní stránku, kde uvidíte verzi systému a zastaralé doplňky:';
 $_Lang['check_updates_dashboard'] = 'Domů';
+$_Lang['check_updates_partial'] = 'Informace o aktualizacích byly obnoveny, ale katalog balíčků se nepodařilo stáhnout ani uložit: seznam níže může být zastaralý. Otevřete úvodní stránku, kde uvidíte verzi systému a zastaralé doplňky:';
 $_Lang['check_updates_failed'] = 'Aktualizace se nepodařilo zkontrolovat. Zkuste to později.';
