@@ -245,7 +245,7 @@ it('checks protected folders in every file manager write before anything runs', 
     expect($gate)->not->toBeFalse()
         ->and($gate)->toBeLessThan(strpos($dynamic, 'echo textsave();'))
         ->and($gate)->toBeLessThan(strpos($dynamic, '$information = fileupload();'))
-        ->and($gate)->toBeLessThan(strpos($dynamic, 'echo fileManagerDeleteEntries('))
+        ->and($gate)->toBeLessThan(strpos($dynamic, 'echo fileManagerDeleteSelectionRequest('))
         ->and($dynamic)->toContain('$protected_path = fileManagerProtectedPaths();')
         ->and($functions)->toContain('fileManagerPathTouchesProtected($folder, $protected_path)')
         ->and($dynamic)->toContain('fileManagerPathTouchesProtected($dirname, $protected_path)')

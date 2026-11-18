@@ -358,7 +358,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 } elseif (!$currentPathWritable) {
                     echo fileManagerDenied();
                 } else {
-                    echo fileManagerDeleteEntries($filemanager_path, $startpath, $relative_path, $_POST['names'] ?? null, $userGroups, $protected_path);
+                    echo fileManagerDeleteSelectionRequest($_POST, $filemanager_path, $startpath, $relative_path, $userGroups, $protected_path);
                 }
             } elseif (get_by_key($_POST, 'mode') == 'savegroups') {
                 if ($token_check) {
@@ -832,6 +832,8 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 <input type="hidden" name="mode" value="deletemany">
                 <input type="hidden" name="path" value="<?= entities($relative_path, evo()->getConfig('modx_charset')) ?>">
                 <input type="hidden" name="token" value="<?= $newToken ?>">
+                <input type="hidden" name="count" value="">
+                <input type="hidden" name="names" value="">
             </form>
         <?php } ?>
         <script src="media/script/range-select.js?v=<?= e(evo()->getVersionData('version')) ?>"></script>
@@ -845,7 +847,12 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                     return;
                 }
                 var form = document.forms.fileManagerDeleteMany;
-                var lang = <?= js_json(['delete' => $_lang['files_delete_selected'], 'confirm' => $_lang['files_confirm_delete_selected']]) ?>;
+                var lang = <?= js_json([
+                    'delete' => $_lang['files_delete_selected'],
+                    'confirm' => $_lang['files_confirm_delete_selected'],
+                    'tooMany' => sprintf($_lang['files_selection_too_large'], FILE_MANAGER_SELECTION_LIMIT),
+                ]) ?>;
+                var limit = <?= (int) FILE_MANAGER_SELECTION_LIMIT ?>;
                 var trashIcon = <?= js_json((string) $_style['icon_trash']) ?>;
 
                 function deletable(row) {
@@ -862,17 +869,21 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                         }
                         return;
                     }
-                    if (!form || !rows.every(deletable)
-                        || !confirm(lang.confirm.replace(/\\n/g, '\n').replace('%s', String(rows.length)))) {
+                    if (!form || !rows.every(deletable)) {
                         return;
                     }
-                    rows.forEach(function (row) {
-                        var input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'names[]';
-                        input.value = row.getAttribute('data-name');
-                        form.appendChild(input);
-                    });
+                    if (rows.length > limit) {
+                        alert(lang.tooMany);
+                        return;
+                    }
+                    if (!confirm(lang.confirm.replace(/\\n/g, '\n').replace('%s', String(rows.length)))) {
+                        return;
+                    }
+                    // one field for every name: PHP would silently drop fields past max_input_vars
+                    form.elements.names.value = JSON.stringify(rows.map(function (row) {
+                        return row.getAttribute('data-name');
+                    }));
+                    form.elements.count.value = String(rows.length);
                     window.documentDirty = false;
                     form.submit();
                 }

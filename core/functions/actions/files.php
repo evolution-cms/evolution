@@ -2751,6 +2751,77 @@ if(!function_exists('fileManagerDeleteEntries')) {
     }
 }
 
+if (!defined('FILE_MANAGER_SELECTION_LIMIT')) {
+    /** The most entries one selection delete takes. */
+    define('FILE_MANAGER_SELECTION_LIMIT', 5000);
+}
+
+if (!function_exists('fileManagerSelectionFromRequest')) {
+    /**
+     * The entry names of a selection delete, or null when the request does not hold the whole selection.
+     * The names arrive as one JSON field next to their count: PHP drops input variables past
+     * max_input_vars without telling the script, so one field per name could arrive cut short and
+     * delete only part of what the manager confirmed.
+     *
+     * @param array $post
+     * @return string[]|null
+     */
+    function fileManagerSelectionFromRequest(array $post)
+    {
+        $json = $post['names'] ?? null;
+        $count = $post['count'] ?? null;
+        if (!is_string($json) || !is_string($count) || !ctype_digit($count)
+            || strlen($json) > FILE_MANAGER_SELECTION_LIMIT * 1024) {
+            return null;
+        }
+        try {
+            // objects stay objects, so only a JSON array is a list of names
+            $names = json_decode($json, false, 2, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            return null;
+        }
+        if (!is_array($names) || !array_is_list($names) || count($names) !== (int) $count
+            || $names === [] || count($names) > FILE_MANAGER_SELECTION_LIMIT) {
+            return null;
+        }
+        foreach ($names as $name) {
+            if (!is_string($name)) {
+                return null;
+            }
+        }
+
+        return $names;
+    }
+}
+
+if (!function_exists('fileManagerDeleteSelectionRequest')) {
+    /**
+     * A selection delete as the listing posts it: nothing at all unless the whole selection arrived,
+     * then every entry through its own delete action's checks.
+     *
+     * @param array $post
+     * @param string $filemanager_path
+     * @param string $startpath
+     * @param string $relative_path
+     * @param array $userGroups
+     * @param array $protected_path
+     * @return string
+     */
+    function fileManagerDeleteSelectionRequest(array $post, $filemanager_path, $startpath, $relative_path, array $userGroups, array $protected_path)
+    {
+        global $_lang;
+
+        $names = fileManagerSelectionFromRequest($post);
+        if ($names === null) {
+            $message = $_lang['files_selection_incomplete'] ?? 'The selection did not arrive complete, so nothing was deleted.';
+
+            return '<span class="warning"><b>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</b></span><br /><br />';
+        }
+
+        return fileManagerDeleteEntries($filemanager_path, $startpath, $relative_path, $names, $userGroups, $protected_path);
+    }
+}
+
 if(!function_exists('parsePlaceholder')) {
     /**
      * @param string $tpl

@@ -47,15 +47,18 @@ it('deletes a file manager selection only by POST, with both tokens, in a folder
     $branch = substr($page, $start, 700);
     expect($branch)->toContain('if (!$token_check)')
         ->and($branch)->toContain('} elseif (!$currentPathWritable) {')
-        ->and($branch)->toContain("fileManagerDeleteEntries(\$filemanager_path, \$startpath, \$relative_path, \$_POST['names'] ?? null, \$userGroups, \$protected_path)")
-        ->and(strpos($branch, '$token_check'))->toBeLessThan(strpos($branch, 'fileManagerDeleteEntries('))
+        ->and($branch)->toContain('fileManagerDeleteSelectionRequest($_POST, $filemanager_path, $startpath, $relative_path, $userGroups, $protected_path)')
+        ->and(strpos($branch, '$token_check'))->toBeLessThan(strpos($branch, 'fileManagerDeleteSelectionRequest('))
         ->and($page)->not->toContain("get_by_key(\$_REQUEST, 'mode') == 'deletemany'");
 
     preg_match('/<form name="fileManagerDeleteMany".*?<\/form>/s', $page, $form);
     expect($form[0] ?? '')->toContain('method="post"')
         ->toContain('<?= csrf_field() ?>')
         ->toContain('name="mode" value="deletemany"')
-        ->toContain('name="token" value="<?= $newToken ?>"');
+        ->toContain('name="token" value="<?= $newToken ?>"')
+        // the whole selection in one field: PHP drops fields past max_input_vars
+        ->toContain('<input type="hidden" name="count" value="">')
+        ->toContain('<input type="hidden" name="names" value="">');
 });
 
 it('marks every listed entry and its trash icon for the selection script', function () {
@@ -69,7 +72,9 @@ it('marks every listed entry and its trash icon for the selection script', funct
         ->and($page)->toContain('<script src="media/script/range-select.js?v=')
         ->and($page)->toContain('keyboard: true,')
         ->and($page)->toContain("var own = rows[0].querySelector('a.fm-delete');")
-        ->and($page)->toContain("input.name = 'names[]';");
+        ->and($page)->toContain('form.elements.names.value = JSON.stringify(rows.map(function (row) {')
+        ->and($page)->toContain('form.elements.count.value = String(rows.length);')
+        ->and($page)->not->toContain("'names[]'");
 });
 
 it('keeps the edit and view row marks of the listing', function () {
