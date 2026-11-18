@@ -193,6 +193,24 @@ class CatalogService
         return $this->remoteTransportService->fetchBody($url);
     }
 
+    /**
+     * Fetch the console catalog now, past its cache, so new package versions show at once.
+     *
+     * A fetch that brings no packages, or a catalog that cannot be stored, keeps the cached copy.
+     *
+     * @since 3.5.10
+     * @return bool Whether a fresh catalog was stored.
+     */
+    public function refreshConsoleCatalog(): bool
+    {
+        $remote = $this->fetchRemoteBody(self::CONSOLE_CATALOG_URL);
+        if ($this->decodeConsoleCatalogPackages($remote) === []) {
+            return false;
+        }
+
+        return $this->writeConsoleCatalogCache((string) $remote);
+    }
+
     private function loadConsoleCatalogPackages(): array
     {
         $cachedFresh = $this->readConsoleCatalogCache(false);
@@ -241,7 +259,13 @@ class CatalogService
         return is_string($raw) ? $raw : null;
     }
 
-    private function writeConsoleCatalogCache(string $raw): void
+    /**
+     * Store the catalog through a temporary file and a rename, so a write that fails halfway
+     * leaves the previous catalog whole.
+     *
+     * @return bool Whether the new catalog is in place.
+     */
+    private function writeConsoleCatalogCache(string $raw): bool
     {
         $directory = $this->getConsoleCatalogCacheDirectory();
         if (!is_dir($directory)) {
@@ -249,13 +273,20 @@ class CatalogService
         }
 
         if (!is_dir($directory)) {
-            return;
+            return false;
         }
 
-        @file_put_contents($this->getConsoleCatalogCachePath(), $raw, LOCK_EX);
+        $path = $this->getConsoleCatalogCachePath();
+        $temporary = $path . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($temporary, $raw) !== strlen($raw) || !@rename($temporary, $path)) {
+            @unlink($temporary);
+            return false;
+        }
+
+        return true;
     }
 
-    private function getConsoleCatalogCacheDirectory(): string
+    protected function getConsoleCatalogCacheDirectory(): string
     {
         return rtrim(EVO_CORE_PATH, '/\\') . DIRECTORY_SEPARATOR . 'custom' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'store';
     }

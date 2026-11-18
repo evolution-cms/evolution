@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="media/style/common/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" type="text/css" href="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.css" media="screen" />
     <script src="[+site_url+]/assets/modules/store/js/jquery.min.js" type="text/javascript"></script>
-    <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.55" type="text/javascript"></script>
+    <script src="[+site_url+]/assets/modules/store/js/check-updates.js?v=1.0.56" type="text/javascript"></script>
+    <script src="[+site_url+]/assets/modules/store/js/store.js?v=1.0.56" type="text/javascript"></script>
     <script type="text/javascript" src="[+site_url+]/assets/modules/store/js/fancybox/jquery.mousewheel-3.0.6.pack.js"></script>
     <script type="text/javascript" src="[+site_url+]/assets/modules/store/js/fancybox/jquery.fancybox.pack.js"></script>
     [+onManagerMainFrameHeaderHTMLBlock+]
@@ -81,6 +82,10 @@
     <input type="hidden" name="console_uninstall_scheduler_intro" value="[+console_uninstall_scheduler_intro+]">
     <input type="hidden" name="console_uninstall_confirm" value="[+console_uninstall_confirm+]">
     <input type="hidden" name="system_task_ui_flags" value='[+system_task_ui_flags+]'>
+    <input type="hidden" name="check_updates_done" value="[+check_updates_done+]">
+    <input type="hidden" name="check_updates_partial" value="[+check_updates_partial+]">
+    <input type="hidden" name="check_updates_failed" value="[+check_updates_failed+]">
+    <input type="hidden" name="check_updates_dashboard" value="[+check_updates_dashboard+]">
     <input type="hidden" name="delete_label" value="[+delete+]">
     <input type="hidden" name="delete_preview_title" value="[+delete_preview_title+]">
     <input type="hidden" name="delete_preview_intro" value="[+delete_preview_intro+]">
@@ -185,6 +190,7 @@
                             <input type="hidden" name="parent" value="2">
                         </div>
 
+                        <div id="check-updates-notice" class="alert alert-info" role="status" hidden></div>
                         <div class="list-tools">
 
                             <div class="input-group">
@@ -197,6 +203,9 @@
 				</span>
 				<span class="input-group-btn">
 					<button id="3col-btn" type="button" class="btn btn-secondary"><i class="fa fa-th" aria-hidden="true"></i></button>
+				</span>
+				<span class="input-group-btn" [+check_updates_attr+]>
+					<button id="check-updates-btn" type="button" class="btn btn-secondary" title="[+check_updates_title+]"><i class="fa fa-refresh" aria-hidden="true"></i> [+check_updates+]</button>
 				</span>
 				<span class="input-group-btn store-select-wrap store-sort-wrap">
                                     <span class="store-select-display"></span>

@@ -160,6 +160,7 @@ store = {
 		store.types =  eval('('+$('[name="types"]').val()+')');
 		store.installedState = store.parseInstalledState();
 		store.systemTaskUiFlags = store.parseSystemTaskUiFlags();
+		store.bindCheckUpdates();
 
 		$('a.item-install').live('click',function(){
 			store.install(this);
@@ -925,6 +926,58 @@ store = {
 		var $selected = $('.category_list a[data-id="' + parentId + '"]');
 		var tpl = ($selected.attr('data-tpl') || 'list');
 		store.update_list(store.category[parentId] || [], tpl);
+	},
+	// Administrators: drop the cached release, branch head and outdated-extras lists and fetch the
+	// catalog again (action check_updates), then reload the module so the package list is current.
+	bindCheckUpdates: function(){
+		var noticeKey = 'evo.store.checkUpdatesNotice';
+		var $notice = $('#check-updates-notice');
+		try {
+			var pending = window.sessionStorage.getItem(noticeKey);
+			if (pending) {
+				window.sessionStorage.removeItem(noticeKey);
+				$notice.html(pending).prop('hidden', false);
+			}
+		} catch (e) {}
+
+		$('#check-updates-btn').on('click', function(){
+			var $button = $(this);
+			if ($button.prop('disabled')) {
+				return false;
+			}
+			$button.prop('disabled', true).find('i').addClass('fa-spin');
+			$.ajax({
+				url: link() + '&action=check_updates',
+				type: 'POST',
+				dataType: 'json',
+				data: {_token: csrfToken()}
+			}).done(function(data){
+				// check-updates.js: a fresh catalog reloads the list, anything less is said as it is
+				var notice = window.evoStoreCheckUpdates.noticeFor(data, {
+					done: $('[name="check_updates_done"]').val(),
+					partial: $('[name="check_updates_partial"]').val(),
+					failed: $('[name="check_updates_failed"]').val()
+				});
+				var html = $('<div></div>').append($('<span></span>').text(notice.text));
+				if (notice.dashboard) {
+					html.append(' ').append($('<a target="main" href="index.php?a=2"></a>').text($('[name="check_updates_dashboard"]').val() || 'dashboard'));
+				}
+				$notice.attr('data-state', notice.state);
+				if (!notice.reload) {
+					$notice.html(html.html()).prop('hidden', false);
+					return;
+				}
+				try {
+					window.sessionStorage.setItem(noticeKey, html.html());
+				} catch (e) {}
+				window.location.reload();
+			}).fail(function(){
+				$notice.text($('[name="check_updates_failed"]').val() || '').prop('hidden', false);
+			}).always(function(){
+				$button.prop('disabled', false).find('i').removeClass('fa-spin');
+			});
+			return false;
+		});
 	},
 	loadConsoleCatalog: function(callback){
 		$.ajax({
