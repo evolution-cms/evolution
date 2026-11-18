@@ -289,6 +289,7 @@ if (!function_exists('updaterBuildSystemTaskUiState')) {
             'can_queue_site_update' => false,
             'scheduler' => null,
             'worker' => null,
+            'active_task' => null,
             'message' => '',
         ];
 
@@ -322,6 +323,11 @@ if (!function_exists('updaterBuildSystemTaskUiState')) {
                 && !empty($permissions['system_tasks.site_update'])
                 && $schedulerStatus === 'healthy'
                 && $workerStatus !== 'unhealthy';
+            // the plugin may run on a core older than this method while it is being updated
+            if ($state['can_view'] && method_exists(\EvolutionCMS\Services\SystemTasks\SystemTaskService::class, 'getActiveTaskPayload')) {
+                $state['active_task'] = (new \EvolutionCMS\Services\SystemTasks\SystemTaskService())
+                    ->getActiveTaskPayload('site_update', $requesterSnapshot, $isSuperAdmin);
+            }
 
             return $state;
         } catch (Throwable $exception) {
@@ -476,6 +482,17 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
     var activeTask = null;
     var lastTaskResult = null;
     var reloadOnClose = false;
+    var sessionRefreshed = false;
+    // The update replaces the manager that answers the polls, so some of them fail on the way:
+    // keep asking for this long before telling the operator to reload.
+    var pollRetryWindowMs = 10 * 60 * 1000;
+    var pollFailedSince = 0;
+    var pollFailures = 0;
+    var nextPollAt = 0;
+    // seconds between the worker's last heartbeat and the server clock of the last answer, and when it came
+    var serverAge = null;
+    var answeredAt = 0;
+    var ticker = null;
 
     try {
         payload = payloadNode ? JSON.parse(payloadNode.textContent || '{}') : {};
@@ -573,6 +590,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             clearTimeout(timer);
             timer = null;
         }
+        stopTicker();
 
         var modal = document.getElementById('updater-system-task-modal');
 
@@ -677,7 +695,79 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
     }
 
-    function renderTask(task, result) {
+    function fmt(text, values) {
+        var next = 0;
+
+        return String(text).replace(/%(?:(\d+)\$)?s/g, function (all, position) {
+            var value = position ? values[parseInt(position, 10) - 1] : values[next++];
+            return value === undefined ? '' : String(value);
+        });
+    }
+
+    function duration(seconds) {
+        seconds = Math.max(0, Math.floor(seconds));
+        return Math.floor(seconds / 60) + ':' + ('0' + (seconds % 60)).slice(-2);
+    }
+
+    // What tells the operator the server is still working: how old the worker's last word is and,
+    // while the manager does not answer, for how long and when the next check runs.
+    function livenessText() {
+        var parts = [];
+        var now = Date.now();
+
+        if (serverAge !== null) {
+            parts.push(fmt(t('server_activity', 'Last server activity: %s ago.'), [duration(serverAge + (now - answeredAt) / 1000)]));
+        }
+
+        if (pollFailedSince) {
+            parts.push(fmt(t('no_answer', 'No answer from the manager for %1$s (attempts: %2$s). Next attempt in %3$s s.'), [
+                duration((now - pollFailedSince) / 1000),
+                pollFailures,
+                Math.max(0, Math.ceil((nextPollAt - now) / 1000))
+            ]));
+        }
+
+        return parts.join(' ');
+    }
+
+    function tick() {
+        var modal = document.getElementById('updater-system-task-modal');
+        var content = modal ? modal.querySelector('[data-role=content]') : null;
+        var node = content && content.querySelector ? content.querySelector('[data-role=liveness]') : null;
+
+        if (node) {
+            node.textContent = livenessText();
+        }
+    }
+
+    function startTicker() {
+        if (!ticker && typeof setInterval === 'function') {
+            ticker = setInterval(tick, 1000);
+        }
+    }
+
+    function stopTicker() {
+        if (ticker) {
+            clearInterval(ticker);
+            ticker = null;
+        }
+    }
+
+    function noteAnswer(task) {
+        var serverTime = Date.parse(task.server_time || '');
+        var heartbeat = Date.parse(task.heartbeat_at || '');
+
+        answeredAt = Date.now();
+        if (isNaN(heartbeat)) {
+            serverAge = null;
+        } else {
+            // a manager without server_time (the release being replaced, or replacing it) is measured by the browser clock
+            serverAge = Math.max(0, ((isNaN(serverTime) ? answeredAt : serverTime) - heartbeat) / 1000);
+        }
+    }
+
+    // notice: '' while the manager answers, 'reconnecting' while polls are retried, 'gave_up' after the retry window
+    function renderTask(task, result, notice) {
         task = task || {};
         result = result || {};
 
@@ -695,7 +785,9 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         if (isSucceeded) {
-            if (!reloadOnClose) {
+            // a lost poll has already set reloadOnClose, so it cannot stand for "refreshed"
+            if (!sessionRefreshed) {
+                sessionRefreshed = true;
                 request('refresh_session').catch(function () {});
             }
             reloadOnClose = true;
@@ -709,6 +801,16 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             + '<div><small>' + esc(t('progress', 'Progress')) + '</small><br><strong>' + progress + '%</strong></div>'
             + '</div>'
             + '<div class="updater-system-task-progress"><span style="width:' + Math.max(0, Math.min(100, progress)) + '%"></span></div>';
+
+        if (notice) {
+            html += '<div class="updater-system-task-warning' + (notice === 'gave_up' ? ' is-danger' : '') + '">' + esc(notice === 'gave_up'
+                ? t('response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.')
+                : t('reconnecting', 'The manager did not answer while the update replaces its files. The update keeps running on the server; this window checks again in a few seconds.')) + '</div>';
+        }
+
+        if (!isFinished) {
+            html += '<p class="updater-system-task-text" data-role="liveness">' + esc(livenessText()) + '</p>';
+        }
 
         if (isSucceeded) {
             html += '<div class="updater-system-task-warning is-success"><strong>' + esc(t('completed', 'Update completed. Close this window to reload the manager and verify the new version.')) + '</strong></div>';
@@ -732,39 +834,22 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             html += '</div>';
         }
 
-        if (isFinished) {
-            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(isSucceeded ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
+        if (isFinished || notice) {
+            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(isSucceeded || notice ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
         }
 
         setContent(html);
+
+        if (isFinished || notice === 'gave_up') {
+            stopTicker();
+        } else {
+            startTicker();
+        }
     }
 
-    function renderRecoverablePollError(error) {
-        var logs = (lastTaskResult && lastTaskResult.logs) || (activeTask && activeTask.logs) || [];
-        var html = '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
-            + '<p class="updater-system-task-text">' + esc(t('response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.')) + '</p>';
-
+    function renderRecoverablePollError(error, retrying) {
         reloadOnClose = true;
-
-        if (logs.length) {
-            html += '<div class="updater-system-task-logs">';
-            logs.forEach(function (log) {
-                var cls = 'updater-system-task-log';
-
-                if (log.level === 'error') {
-                    cls += ' is-error';
-                } else if (log.level === 'warning') {
-                    cls += ' is-warning';
-                }
-
-                html += '<div class="' + cls + '">' + esc(log.message || '') + '</div>';
-            });
-            html += '</div>';
-        }
-
-        html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(t('close_reload', 'Close and reload')) + '</button></div>';
-
-        setContent(html);
+        renderTask(activeTask, lastTaskResult, retrying ? 'reconnecting' : 'gave_up');
     }
 
     function queue() {
@@ -804,7 +889,10 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
                 throw new Error((response && response.message) || t('failed', 'Unable to read update status.'));
             }
 
+            pollFailedSince = 0;
+            pollFailures = 0;
             activeTask = response.task;
+            noteAnswer(activeTask);
             lastTaskResult = response.result || response;
             renderTask(activeTask, lastTaskResult);
 
@@ -814,8 +902,20 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
 
             timer = setTimeout(poll, 2200);
         }).catch(function (error) {
+            if (!pollFailedSince) {
+                pollFailedSince = Date.now();
+            }
+            pollFailures++;
+            var retrying = Date.now() - pollFailedSince < pollRetryWindowMs;
+            // at least six checks a minute, so the operator sees the window is still working
+            var delay = Math.min(10000, 2200 * pollFailures);
+
             try {
-                renderRecoverablePollError(error);
+                nextPollAt = Date.now() + delay;
+                renderRecoverablePollError(error, retrying);
+                if (retrying) {
+                    timer = setTimeout(poll, delay);
+                }
             } catch (fallbackError) {
                 setContent(
                     '<h2 class="updater-system-task-title">' + esc(t('title', 'System update')) + '</h2>'
@@ -826,19 +926,84 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         });
     }
 
+    function resume(task) {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        activeTask = task;
+        noteAnswer(activeTask);
+        renderTask(activeTask, activeTask);
+        poll();
+    }
+
     window.EvoUpdaterSystemTask = {
         openConfirm: function () {
+            if (config.activeTask && config.activeTask.id) {
+                resume(activeTask || config.activeTask);
+                return false;
+            }
             renderConfirm();
             return false;
         },
         close: close
     };
+
+    // The page was reloaded while the update still runs: follow that task instead of offering a new one.
+    if (config.activeTask && config.activeTask.id) {
+        resume(config.activeTask);
+    }
 })();
 </script>
 HTML;
 
         return '<script type="application/json" id="updater-system-task-payload">' . $payloadJson . '</script>' . $script;
     }
+}
+
+if (!function_exists('updaterRefreshPermissionsAfterBuildChange')) {
+    /**
+     * Rebuild the session permissions once the installed build differs from the one this session saw.
+     *
+     * An update can add permissions to a role; without this they stay missing until the next login
+     * whenever the live update window could not refresh them itself (a poll lost while files moved,
+     * a page closed, a CLI update).
+     *
+     * @param array $versionData factory/version.php
+     * @return bool Whether the permissions were rebuilt.
+     */
+    function updaterRefreshPermissionsAfterBuildChange(array $versionData)
+    {
+        $build = trim((string)($versionData['version'] ?? '')) . '@' . trim((string)($versionData['commit'] ?? ''));
+        $seen = isset($_SESSION['updater_build']) ? (string)$_SESSION['updater_build'] : '';
+        if ($seen === '') {
+            // the login has just built the permissions for this build
+            $_SESSION['updater_build'] = $build;
+            return false;
+        }
+
+        if ($seen === $build || !class_exists(\EvolutionCMS\Services\Store\StoreContextService::class)) {
+            return false;
+        }
+
+        try {
+            $result = (new \EvolutionCMS\Services\Store\StoreContextService())->refreshCurrentManagerPermissions();
+        } catch (Throwable $exception) {
+            return false;
+        }
+
+        // a failed refresh keeps the old build noted, so the next dashboard tries again
+        if (empty($result['ok'])) {
+            return false;
+        }
+        $_SESSION['updater_build'] = $build;
+
+        return true;
+    }
+}
+
+if (isset($modx->Event->name) && $modx->Event->name === 'OnManagerWelcomeHome') {
+    updaterRefreshPermissionsAfterBuildChange((array)$modx->getVersionData());
 }
 
 if (isset($_REQUEST['updater_system_task'])) {
@@ -1215,7 +1380,8 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                             . '</div>';
 
                         $systemTaskUiState = updaterBuildSystemTaskUiState();
-                        if (!empty($systemTaskUiState['can_queue_site_update'])) {
+                        $activeUpdateTask = is_array($systemTaskUiState['active_task']) ? $systemTaskUiState['active_task'] : null;
+                        if (!empty($systemTaskUiState['can_queue_site_update']) || $activeUpdateTask !== null) {
                             $systemTaskToken = updaterEnsureSystemTaskToken();
                             $schedulerStatus = isset($systemTaskUiState['scheduler']['status']) ? (string)$systemTaskUiState['scheduler']['status'] : 'unknown';
                             $workerStatus = isset($systemTaskUiState['worker']['status']) ? (string)$systemTaskUiState['worker']['status'] : 'unknown';
@@ -1228,6 +1394,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'currentVersion' => $currentVersionString,
                                 'schedulerStatus' => $schedulerStatus,
                                 'workerStatus' => $workerStatus,
+                                'activeTask' => $activeUpdateTask,
                             ], [
                                 'title' => updaterLang($_lang, 'updater_live_update_title', 'System update'),
                                 'intro' => updaterLang($_lang, 'updater_live_update_intro', 'Scheduler is available. The update can be queued and monitored from the manager.'),
@@ -1251,12 +1418,22 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'close_reload' => updaterLang($_lang, 'updater_live_update_close_reload', 'Close and reload'),
                                 'completed' => updaterLang($_lang, 'updater_live_update_completed', 'Update completed. Close this window to reload the manager and verify the new version.'),
                                 'response_changed' => updaterLang($_lang, 'updater_live_update_response_changed', 'The manager response changed while the update was running. Close this window to reload the manager and read the final state.'),
+                                'reconnecting' => updaterLang($_lang, 'updater_live_update_reconnecting', 'The manager did not answer while the update replaces its files. The update keeps running on the server; this window checks again in a few seconds.'),
+                                'server_activity' => updaterLang($_lang, 'updater_live_update_server_activity', 'Last server activity: %s ago.'),
+                                'no_answer' => updaterLang($_lang, 'updater_live_update_no_answer', 'No answer from the manager for %1$s (attempts: %2$s). Next attempt in %3$s s.'),
                                 'failed' => updaterLang($_lang, 'updater_live_update_failed', 'Unable to start update.'),
                                 'invalid_response' => updaterLang($_lang, 'updater_live_update_invalid_response', 'Manager returned an invalid update response.'),
                             ]);
                             $managerUpdateButtonHtml = '<button type="button" class="btn btn-sm btn-primary" onclick="return window.EvoUpdaterSystemTask && window.EvoUpdaterSystemTask.openConfirm ? window.EvoUpdaterSystemTask.openConfirm() : false;">'
-                                . '<i class="evo-icon evo-icon-refresh"></i> ' . htmlspecialchars(updaterLang($_lang, 'updater_live_update_button', 'Manual update (WEB)'), ENT_QUOTES, 'UTF-8')
+                                . '<i class="evo-icon evo-icon-refresh"></i> ' . htmlspecialchars($activeUpdateTask !== null
+                                    ? updaterLang($_lang, 'updater_live_update_show_progress', 'Show update progress')
+                                    : updaterLang($_lang, 'updater_live_update_button', 'Manual update (WEB)'), ENT_QUOTES, 'UTF-8')
                                 . '</button>';
+                            if ($activeUpdateTask !== null) {
+                                $branchModeNoticeHtml = '<p style="margin:0 0 8px 0;font-weight:600;"><i class="evo-icon evo-icon-refresh evo-icon-spin"></i> '
+                                    . htmlspecialchars(updaterLang($_lang, 'updater_live_update_in_progress', 'An update is already running on the server. This page follows its progress until it finishes.'), ENT_QUOTES, 'UTF-8')
+                                    . '</p>' . $branchModeNoticeHtml;
+                            }
                         }
                     }
 

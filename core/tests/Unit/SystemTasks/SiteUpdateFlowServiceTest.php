@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Models\SystemCliTask;
 use EvolutionCMS\Services\SystemTasks\SiteUpdateFlowService;
+use EvolutionCMS\Services\SystemTasks\SystemTaskService;
 
 if (!defined('EVO_CORE_PATH')) {
     define('EVO_CORE_PATH', dirname(__DIR__, 3) . '/');
@@ -101,4 +102,109 @@ test('site update flow can skip database backup from task payload', function () 
         ->and(invokeSiteUpdateFlowMethod($service, 'shouldCreateDatabaseBackup', [[
             'backup_database' => '0',
         ]]))->toBeFalse();
+});
+
+/** make:site replaced by a PHP script that prints what the test gives it. */
+function streamingSiteUpdateFlow(string $script): SiteUpdateFlowService
+{
+    return new class ($script) extends SiteUpdateFlowService {
+        protected int $heartbeatSeconds = 1;
+
+        public function __construct(private string $script)
+        {
+            parent::__construct(sys_get_temp_dir());
+        }
+
+        protected function createProcess(array $arguments): \Symfony\Component\Process\Process
+        {
+            return new \Symfony\Component\Process\Process([PHP_BINARY, '-r', $this->script]);
+        }
+    };
+}
+
+test('site update flow reports make site output while it runs, with milestones and heartbeats', function () {
+    $service = streamingSiteUpdateFlow(<<<'PHP'
+        echo "Start download Evolution CMS 3.5.x\n";
+        usleep(300000);
+        echo "\033[32mStart unpacking Evolution CMS\033[0m\n";
+        echo "half a line";
+        fwrite(STDERR, "Install Composer dependencies\n");
+        usleep(2600000);
+        echo " finished\n  - Installing vendor/package (1.0.0)\n";
+        echo "Run Core Migrations\n";
+        exit(3);
+        PHP);
+    $reports = [];
+    $process = invokeSiteUpdateFlowMethod($service, 'createProcess', [[]]);
+
+    $exitCode = invokeSiteUpdateFlowMethod($service, 'runStreaming', [
+        $process,
+        function ($step, $progress, $message, $level, array $context = []) use (&$reports) {
+            $reports[] = [$progress, $message, $level];
+        },
+        40,
+        ['target_ref' => '3.5.x'],
+    ]);
+
+    $logged = array_values(array_filter($reports, fn ($report) => $report[2] !== null));
+    $heartbeats = array_values(array_filter($reports, fn ($report) => $report[2] === null));
+
+    expect($exitCode)->toBe(3)
+        ->and($logged)->toBe([
+            [45, 'Start download Evolution CMS 3.5.x', 'info'],
+            [50, 'Start unpacking Evolution CMS', 'info'],
+            [62, 'Install Composer dependencies', 'info'],
+            // the stdout line waited for its end instead of taking in the stderr line
+            [62, 'half a line finished', 'info'],
+            [62, '- Installing vendor/package (1.0.0)', 'info'],
+            [70, 'Run Core Migrations', 'info'],
+        ])
+        ->and($heartbeats)->not->toBeEmpty()
+        ->and($heartbeats[0][0])->toBe(62)
+        ->and($heartbeats[0][1])->toMatch('/^Install Composer dependencies \(0:0\d\)$/');
+});
+
+test('site update flow passes a heartbeat to the worker without a log line', function () {
+    $service = new SiteUpdateFlowService(sys_get_temp_dir());
+    $seen = [];
+
+    invokeSiteUpdateFlowMethod($service, 'report', [
+        function ($step, $progress, $message, $level) use (&$seen) {
+            $seen[] = $level;
+        },
+        'site_update', 62, 'Install Composer dependencies (0:15)', null,
+    ]);
+    invokeSiteUpdateFlowMethod($service, 'report', [
+        function ($step, $progress, $message, $level) use (&$seen) {
+            $seen[] = $level;
+        },
+        'site_update', 62, 'Install Composer dependencies', 'info',
+    ]);
+
+    expect($seen)->toBe([null, 'info']);
+});
+
+test('site update flow keeps every message within the task message column', function () {
+    // a 300 character line, then a silence long enough for a heartbeat
+    $service = streamingSiteUpdateFlow('echo str_repeat("é", 300), "\n"; usleep(1600000);');
+    $messages = [];
+
+    invokeSiteUpdateFlowMethod($service, 'runStreaming', [
+        invokeSiteUpdateFlowMethod($service, 'createProcess', [[]]),
+        function ($step, $progress, $message, $level) use (&$messages) {
+            $messages[] = [$message, $level];
+        },
+        40,
+        [],
+    ]);
+
+    $heartbeats = array_filter($messages, fn ($entry) => $entry[1] === null);
+
+    expect($heartbeats)->not->toBeEmpty()
+        ->and(mb_strlen($messages[0][0]))->toBe(SystemTaskService::MESSAGE_LENGTH);
+    foreach ($messages as [$message]) {
+        expect(mb_strlen($message))->toBeLessThanOrEqual(SystemTaskService::MESSAGE_LENGTH);
+    }
+    // the elapsed time survives, the line gives way
+    expect(reset($heartbeats)[0])->toMatch('/^é+ \(0:0\d\)$/u');
 });
