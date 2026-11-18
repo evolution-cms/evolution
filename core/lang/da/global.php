@@ -333,6 +333,9 @@ $_lang["files_link_broken"] = 'brudt link';
 $_lang["files_link_hidden"] = 'uden for filhåndteringen eller ikke tilgængelig';
 $_lang["files_link_delete"] = 'Slet link';
 $_lang["files_link_confirm_delete"] = 'Slet dette link? Kun linket fjernes; det, det peger på, bevares.';
+$_lang["files_delete_selected"] = 'Slet de valgte elementer';
+$_lang["files_confirm_delete_selected"] = 'Er du sikker på, at du vil slette de %s valgte elementer?\n\nMapper slettes med alt deres indhold.';
+$_lang["files_select_hint"] = 'Shift+klik, eller tryk og hold og træk derefter, for at vælge flere elementer. Ctrl+klik tilføjer eller fjerner enkelte elementer. Ctrl+A vælger alt i denne mappe, Del sletter de valgte.';
 $_lang["files_link_deleted"] = 'Linket er slettet.';
 $_lang["files_link_not_deleted"] = 'Linket kunne ikke slettes.';
 $_lang["files_folder_copy_links"] = 'Links kopieres ikke (filhåndteringen opretter ikke links):';
@@ -1368,5 +1371,6 @@ $_lang['time_unit_hour_short'] = 't';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 'sek';
 $_lang['admin_account_protected'] = 'Kun en administrator kan ændre eller slette en administratorkonto';
+$_lang["sort_select_group_msg"] = 'Shift+klik, eller på en touchskærm stryg sidelæns (eller tryk og hold) og træk hen over dem, for at vælge flere tilstødende elementer og trække dem samlet. Ctrl+klik tilføjer eller fjerner enkelte elementer: træk et af dem, og de andre følger med som én blok i deres rækkefølge.';
 
 return $_lang;

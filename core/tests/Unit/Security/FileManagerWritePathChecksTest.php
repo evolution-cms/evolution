@@ -31,7 +31,8 @@ function runFileManagerWrite(string $site, string $function, array $request, arr
         // no file groups here: keeps delete_file() away from the database
         . ' function fileManagerAclKey($relativePath) { return null; }'
         . ' $_lang = ["files_access_denied" => "ACCESS_DENIED", "file_saved" => "SAVED", "file_not_saved" => "NOT_SAVED",'
-        . '   "deleting_file" => "Deleting %s: ", "file_deleted" => "DELETED", "file_not_deleted" => "NOT_DELETED"];'
+        . '   "deleting_file" => "Deleting %s: ", "file_deleted" => "DELETED", "file_not_deleted" => "NOT_DELETED",'
+        . '   "file_folder_deleted" => "FOLDER_DELETED", "file_folder_not_deleted" => "FOLDER_NOT_DELETED"];'
         . ' $_POST = ' . var_export($request, true) . ';'
         . ' $_REQUEST = $_POST;'
         . ' $_FILES = ["userfile" => ["name" => [], "tmp_name" => [], "error" => [], "type" => []]];'
@@ -307,4 +308,54 @@ it('escapes what a client sent before it reaches the event log', function () {
     $output = runFileManagerWrite($this->site, 'fileManagerLogDenied("save", "<img src=x onerror=alert(1)>\\nfake", "")', [], []);
 
     expect($output)->not->toContain('<img')->and($output)->toContain('LOG[2|File manager|');
+});
+
+/** fileManagerDeleteEntries() for the entries of one folder, as the listing's selection posts them. */
+function fileManagerDeleteSelection(string $folder, array $names): string
+{
+    return 'fileManagerDeleteEntries(rtrim(EVO_BASE_PATH, "/"), rtrim(EVO_BASE_PATH . ' . var_export($folder, true) . ', "/"), '
+        . var_export($folder, true) . ', ' . var_export($names, true) . ', [], fileManagerProtectedPaths())';
+}
+
+it('deletes a selection of files and folders of one folder', function () {
+    mkdir($this->site . '/assets/files/batch/sub', 0777, true);
+    foreach (['a.txt', 'b.txt', 'c.txt', 'sub/inner.txt'] as $name) {
+        file_put_contents($this->site . '/assets/files/batch/' . $name, 'x');
+    }
+
+    $output = runFileManagerWrite($this->site, fileManagerDeleteSelection('assets/files/batch', ['a.txt', 'sub', 'c.txt']), []);
+
+    expect($output)->toContain('Deleting assets/files/batch/a.txt: DELETED')
+        ->and($output)->toContain('Deleting assets/files/batch/c.txt: DELETED')
+        ->and($output)->toContain('sub: FOLDER_DELETED')
+        ->and(is_file($this->site . '/assets/files/batch/a.txt'))->toBeFalse()
+        ->and(is_file($this->site . '/assets/files/batch/c.txt'))->toBeFalse()
+        ->and(is_dir($this->site . '/assets/files/batch/sub'))->toBeFalse()
+        ->and(is_file($this->site . '/assets/files/batch/b.txt'))->toBeTrue();
+});
+
+it('holds every selected entry to its own delete action, not to the first one', function () {
+    $output = runFileManagerWrite($this->site, fileManagerDeleteSelection('', ['notes..txt', 'manager', 'temp']), ['empty_cache']);
+
+    // manager/ needs a permission that runs code, temp/backup inside temp/ needs bk_manager
+    expect($output)->toContain('DELETED')
+        ->and(substr_count($output, 'ACCESS_DENIED'))->toBe(2)
+        ->and(is_file($this->site . '/notes..txt'))->toBeFalse()
+        ->and(is_file($this->site . '/manager/index.php'))->toBeTrue()
+        ->and(is_file($this->site . '/temp/backup/dump.sql'))->toBeTrue();
+});
+
+it('refuses selected names that leave the folder', function () {
+    $output = runFileManagerWrite($this->site, fileManagerDeleteSelection('assets', ['../notes..txt', '..', 'plugins/demo/plugin.php', '']), ['save_plugin']);
+
+    expect(substr_count($output, 'Invalid path'))->toBe(4)
+        ->and(is_file($this->site . '/notes..txt'))->toBeTrue()
+        ->and(is_file($this->site . '/assets/plugins/demo/plugin.php'))->toBeTrue();
+});
+
+it('refuses a selection that is not a list of names', function () {
+    $output = runFileManagerWrite($this->site, 'fileManagerDeleteEntries(rtrim(EVO_BASE_PATH, "/"), rtrim(EVO_BASE_PATH, "/"), "", "notes..txt", [], [])', []);
+
+    expect($output)->toContain('Invalid path')
+        ->and(is_file($this->site . '/notes..txt'))->toBeTrue();
 });

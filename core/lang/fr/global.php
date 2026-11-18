@@ -335,6 +335,9 @@ $_lang["files_link_broken"] = 'lien brisé';
 $_lang["files_link_hidden"] = 'hors du gestionnaire de fichiers ou inaccessible';
 $_lang["files_link_delete"] = 'Supprimer le lien';
 $_lang["files_link_confirm_delete"] = 'Supprimer ce lien ? Seul le lien est supprimé ; sa cible est conservée.';
+$_lang["files_delete_selected"] = 'Supprimer les éléments sélectionnés';
+$_lang["files_confirm_delete_selected"] = 'Voulez-vous vraiment supprimer les %s éléments sélectionnés ?\n\nLes dossiers sont supprimés avec tout leur contenu.';
+$_lang["files_select_hint"] = 'Maj+clic, ou appui long puis glissement, pour sélectionner plusieurs éléments. Ctrl+clic ajoute ou retire des éléments un par un. Ctrl+A sélectionne tout le contenu de ce dossier, Suppr supprime la sélection.';
 $_lang["files_link_deleted"] = 'Lien supprimé.';
 $_lang["files_link_not_deleted"] = 'Le lien n\'a pas pu être supprimé.';
 $_lang["files_folder_copy_links"] = 'Les liens ne sont pas copiés (le gestionnaire de fichiers ne crée pas de liens) :';
@@ -1335,5 +1338,6 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Seul un administrateur peut modifier ou supprimer un compte administrateur';
+$_lang["sort_select_group_msg"] = 'Maj+clic, ou sur un écran tactile un balayage latéral (ou un appui long) puis un glissement sur les éléments, pour sélectionner plusieurs éléments voisins et les déplacer ensemble. Ctrl+clic ajoute ou retire des éléments isolés : faites glisser l\'un d\'eux et les autres le rejoignent en un seul bloc, dans leur ordre.';
 
 return $_lang;

@@ -30,6 +30,8 @@ final class FileManagerAclSourceTest extends TestCase
     public function testClassicManagerChecksTheResolvedPathOfEveryNamedEntry(): void
     {
         $source = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
+        // the delete actions of the page and of a selection share these
+        $helpers = (string) file_get_contents(dirname(__DIR__, 4) . '/core/functions/actions/files.php');
 
         // a bare prefix test admits a sibling such as alice-private next to the root alice
         self::assertDoesNotMatchRegularExpression('/strpos\(\$\w+, \$filemanager_path\)/', $source);
@@ -38,13 +40,14 @@ final class FileManagerAclSourceTest extends TestCase
         // the raw request is not what the ACL is keyed by: own/../private names private
         self::assertStringNotContainsString('fileManagerCanModifyExistingPath($requested_', $source);
         self::assertStringNotContainsString('$fileGroupsMap) || !is_writable', $source);
-        foreach (['$folderTarget', '$fileTarget', '$dirTarget'] as $target) {
+        foreach (['$fileTarget', '$dirTarget'] as $target) {
             self::assertStringContainsString("fileManagerCanModifyExistingPath({$target}['relative'], \$userGroups)", $source);
         }
+        self::assertStringContainsString("fileManagerCanModifyExistingPath(\$folderTarget['relative'], \$userGroups)", $helpers);
         self::assertStringContainsString("fileManagerIsAccessible(\$viewTarget['relative'], \$userGroups)", $source);
         self::assertStringContainsString("\$groupsTargetPath = \$groupsTarget['relative'];", $source);
 
-        self::assertStringContainsString("fileManagerHasInaccessibleDescendants(\$folderTarget['relative'])", $source);
+        self::assertStringContainsString("fileManagerHasInaccessibleDescendants(\$folderTarget['relative'])", $helpers);
         self::assertStringContainsString("fileManagerIsAccessible(\$zipTarget['relative'], \$userGroups)", $source);
         self::assertStringContainsString('$subtreeGroupsMap = fileManagerSubtreeRestrictionMap($relative_path);', $source);
         self::assertStringContainsString("'allDocGroups', 'userGroups')), EXTR_OVERWRITE);", $source);
@@ -92,7 +95,7 @@ final class FileManagerAclSourceTest extends TestCase
 
         // rows follow the entry whoever renames or deletes it, not only group managers
         self::assertSame(2, substr_count($classic, 'FileManagerAccess::moveRestrictions('));
-        self::assertStringContainsString("FileManagerAccess::forgetRestrictions(fileManagerAclKey(\$folderTarget['relative']));", $classic);
+        self::assertStringContainsString("FileManagerAccess::forgetRestrictions(fileManagerAclKey(\$folderTarget['relative']));", $helpers);
         self::assertStringContainsString('FileManagerAccess::forgetRestrictions(fileManagerAclKey($fileRel));', $helpers);
         self::assertStringNotContainsString("orWhere('file', 'like'", $classic);
 

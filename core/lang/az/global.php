@@ -167,6 +167,9 @@ $_lang["files_link_broken"] = 'qırıq keçid';
 $_lang["files_link_hidden"] = 'fayl menecerindən kənarda və ya əlçatan deyil';
 $_lang["files_link_delete"] = 'Keçidi sil';
 $_lang["files_link_confirm_delete"] = 'Bu keçid silinsin? Yalnız keçid silinir; onun apardığı yer qalır.';
+$_lang["files_delete_selected"] = 'Seçilmiş elementləri sil';
+$_lang["files_confirm_delete_selected"] = 'Seçilmiş %s elementi silmək istədiyinizə əminsiniz?\n\nQovluqlar içindəkilərin hamısı ilə birlikdə silinir.';
+$_lang["files_select_hint"] = 'Bir neçə elementi seçmək üçün Shift+klik edin və ya toxunub saxlayın, sonra sürüşdürün. Ctrl+klik ayrı-ayrı elementləri əlavə edir və ya çıxarır. Ctrl+A bu qovluqdakı hər şeyi seçir, Del seçilmişləri silir.';
 $_lang["files_link_deleted"] = 'Keçid silindi.';
 $_lang["files_link_not_deleted"] = 'Keçidi silmək mümkün olmadı.';
 $_lang["files_folder_copy_links"] = 'Keçidlər kopyalanmır (fayl meneceri keçid yaratmır):';
@@ -1252,6 +1255,7 @@ $_lang['sort_updating'] = 'Yenilənir...';
 $_lang['sort_updated'] = 'Yeniləndi!';
 $_lang['sort_nochildren'] = 'Valideynin heç bir övladı yoxdur';
 $_lang["sort_elements_msg"] = 'Elementləri yenidən sıralamaq üçün sürükləyin.';
+$_lang["sort_select_group_msg"] = 'Bir neçə qonşu elementi seçib birlikdə sürükləmək üçün Shift+klik edin və ya toxunma ekranında yana sürüşdürün (yaxud toxunub saxlayın) və onların üzərindən keçin. Ctrl+klik ayrı-ayrı elementləri əlavə edir və ya çıxarır: onlardan birini sürükləyin, digərləri öz sıraları ilə ona bir blok kimi qoşulacaq.';
 
 $_lang["source"] = 'Mənbə';
 $_lang["stay"] = 'Redaktəyə davam et';

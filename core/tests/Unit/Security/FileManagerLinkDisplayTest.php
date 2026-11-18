@@ -217,12 +217,14 @@ it('removes only the link itself, judged by its own path, in both managers', fun
     $browser = (string) file_get_contents($root . '/manager/media/browser/mcpuk/core/browser.php');
     $functions = (string) file_get_contents($root . '/core/functions/actions/files.php');
     $files = (string) file_get_contents($root . '/manager/media/browser/mcpuk/js/browser/files.js');
-    $mode = substr($classic, strpos($classic, "mode') == 'deletelink'"), 2200);
+    $branch = substr($classic, strpos($classic, "mode') == 'deletelink'"), 600);
+    $mode = substr($functions, strpos($functions, 'function fileManagerDeleteLink('), 2600);
     $act = substr($browser, strpos($browser, 'function act_deleteLink'), 2600);
     $canModify = substr($browser, strpos($browser, 'function canModifyLink'), 1400);
 
-    expect($mode)->toContain('$token_check')
-        ->toContain("strpbrk(\$linkName, '/\\\\') !== false")
+    expect($branch)->toContain('if ($token_check)')
+        ->toContain('fileManagerDeleteLink($startpath, $relative_path, ');
+    expect($mode)->toContain("strpbrk(\$linkName, '/\\\\') !== false")
         ->toContain('fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)')
         ->toContain('fileManagerCanModifyExistingPath($linkRelative, $userGroups)')
         ->toContain('fileManagerPathIsProtected($linkPath, $protected_path, false)')
@@ -243,7 +245,7 @@ it('removes only the link itself, judged by its own path, in both managers', fun
         ->toContain('fileManagerPathIsProtected($lexical, $this->protectedPaths, false)')
         ->toContain('fileManagerCanModifyExistingPath(substr($lexical, strlen($root) + 1))')
         ->not->toContain('realpath($absPath)');
-    expect($functions)->toContain("'<a href=\"javascript:deleteLink(\\'' . urlencode(\$file) . '\\');\">");
+    expect($functions)->toContain("'<a class=\"fm-delete\" href=\"javascript:deleteLink(\\'' . urlencode(\$file) . '\\');\">");
     expect($files)->toContain("url: browser.baseGetData('deleteLink')")
         ->toContain("\$('#files .file-link').rightClick(");
 });

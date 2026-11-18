@@ -332,6 +332,9 @@ $_lang["files_link_broken"] = 'broten lenke';
 $_lang["files_link_hidden"] = 'utanfor filhandteringa eller ikkje tilgjengeleg';
 $_lang["files_link_delete"] = 'Slett lenke';
 $_lang["files_link_confirm_delete"] = 'Slette denne lenka? Berre lenka vert fjerna; det ho viser til, vert verande.';
+$_lang["files_delete_selected"] = 'Slett dei valde oppføringane';
+$_lang["files_confirm_delete_selected"] = 'Er du sikker på at du vil slette dei %s valde oppføringane?\n\nMapper vert sletta med alt innhaldet sitt.';
+$_lang["files_select_hint"] = 'Shift+klikk, eller trykk og hald og dra deretter, for å velje fleire oppføringar. Ctrl+klikk legg til eller fjernar enkeltoppføringar. Ctrl+A vel alt i denne mappa, Del slettar dei valde.';
 $_lang["files_link_deleted"] = 'Lenka er sletta.';
 $_lang["files_link_not_deleted"] = 'Lenka kunne ikkje slettast.';
 $_lang["files_folder_copy_links"] = 'Lenker vert ikkje kopierte (filhandteringa lagar ikkje lenker):';
@@ -1332,5 +1335,6 @@ $_lang['time_unit_hour_short'] = 't';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Berre ein administrator kan endre eller slette ein administratorkonto';
+$_lang["sort_select_group_msg"] = 'Shift+klikk, eller sveip sidelengs på ein berøringsskjerm (eller trykk og hald) og dra over dei, for å velje fleire element som står ved sida av kvarandre og dra dei saman. Ctrl+klikk legg til eller fjernar enkeltelement: dra eitt av dei, så følgjer dei andre med som éin blokk, i si rekkjefølgje.';
 
 return $_lang;

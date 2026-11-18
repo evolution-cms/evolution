@@ -107,10 +107,16 @@ it('refuses deleting and renaming code in the classic file manager', function ()
     $page = file_get_contents($root . '/manager/actions/files.dynamic.php');
     $helpers = file_get_contents($root . '/core/functions/actions/files.php');
 
-    foreach (['deletefolder' => '$folder', 'deletelink' => '$linkPath', 'renameFolder' => '$dirname', 'renameFile' => '$filename'] as $mode => $subject) {
-        $start = strpos($page, "get_by_key(\$_REQUEST, 'mode') == '$mode'");
+    $branches = [
+        'deletefolder' => [$helpers, 'function fileManagerDeleteFolder(', '$folder'],
+        'deletelink' => [$helpers, 'function fileManagerDeleteLink(', '$linkPath'],
+        'renameFolder' => [$page, "get_by_key(\$_REQUEST, 'mode') == 'renameFolder'", '$dirname'],
+        'renameFile' => [$page, "get_by_key(\$_REQUEST, 'mode') == 'renameFile'", '$filename'],
+    ];
+    foreach ($branches as $mode => [$source, $marker, $subject]) {
+        $start = strpos($source, $marker);
         expect($start)->not->toBeFalse($mode);
-        $branch = substr($page, $start, 2500);
+        $branch = substr($source, $start, 2500);
         $guard = strpos($branch, "fileManagerCodeRemovalDenied($subject, ");
         expect($guard)->not->toBeFalse($mode);
         // before the file system is changed
