@@ -167,7 +167,16 @@
                                     @endif
                                     @php
                                         $style = evo()->getConfig('settings_version') !== evo()->getVersionData('version') ? 'style="color:#ffff8a;"' : '';
-                                        echo '<li><span class="dropdown-item" title="' . evo()->getPhpCompat()->entities(evo()->getConfig('site_name')) . ' &ndash; ' . evo()->getVersionData('full_appname') . '" ' . $style . '>' . evo()->getVersionData('branch') . ' ' . evo()->getConfig('settings_version') . '</span></li>';
+                                        // a release shows its number; a site on a branch (make:site notes ref and commit) shows the
+                                        // branch and commit instead, as the number in its version file belongs to the next release
+                                        // getVersionData('ref') answers a missing key with the whole array, so read the array
+                                        $versionData = (array) evo()->getVersionData();
+                                        $versionRef = is_string($versionData['ref'] ?? null) ? $versionData['ref'] : '';
+                                        $versionCommit = is_string($versionData['commit'] ?? null) ? $versionData['commit'] : '';
+                                        $versionLabel = $versionRef !== '' && preg_match('/^[0-9a-f]{40}$/D', $versionCommit)
+                                            ? evo()->getPhpCompat()->entities($versionRef) . ' @' . substr($versionCommit, 0, 7)
+                                            : evo()->getConfig('settings_version');
+                                        echo '<li><span class="dropdown-item" title="' . evo()->getPhpCompat()->entities(evo()->getConfig('site_name')) . ' &ndash; ' . evo()->getVersionData('full_appname') . '" ' . $style . '>' . evo()->getVersionData('branch') . ' ' . $versionLabel . '</span></li>';
                                     @endphp
                                 </ul>
                             </li>
