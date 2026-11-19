@@ -39,7 +39,7 @@
 .sidebar-closed #main::after { content: ""; position: absolute; z-index: 1; left: 0; top: 6rem; bottom: 0; width: 1rem; }
 #main { left: 0 !important; }
 #main::before { content: ""; position: absolute; z-index: 9999; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0); }
-.sidebar-closed #mainMenu:not(.show) + #tree + #main::before { display: none }
+.sidebar-closed #mainMenu:not(.show) ~ #main::before { display: none }
 }
 @media (max-width: 480px) {
 #frameset { --manager-menu-height: 4.4rem; }
