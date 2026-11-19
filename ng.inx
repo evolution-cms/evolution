@@ -157,9 +157,17 @@ server {
     # Never serve a directory index anywhere on the site.
     autoindex off;
 
-    # Let's Encrypt / domain verification. `^~` stops regex evaluation, so this
-    # must stay above the dotfile rule that would otherwise swallow it.
-    location ^~ /.well-known/ { allow all; }
+    # Well-known URIs (RFC 8615) are static files of the site: ACME challenges,
+    # security.txt, assetlinks.json, apple-app-site-association, change-password
+    # and the like, from the root (the public folder outside the web root).
+    # `^~` keeps the dotfile rule below from swallowing them, and with it every
+    # other regex, so the ones that matter here are repeated inside: no PHP
+    # source, no dump, no dotfile below it.
+    location ^~ /.well-known/ {
+        allow all;
+        location ~ (^/\.well-known/(.*/)?\.|\.(php\d?|phtml|phar|inc)$) { access_log off; return 404; }
+        location ~* \.(sql|sqlite|db|log|bak|old|orig|save|swp|swo|tpl|ini|env|dist|example|yml|yaml|lock|tar)(\.(gz|bz2|xz|zip|tgz))?$ { access_log off; return 404; }
+    }
 
     # Dotfiles and dotfolders at any level (.git, .env, .htaccess, .idea, ...).
     location ~ (^|/)\. { access_log off; return 404; }
