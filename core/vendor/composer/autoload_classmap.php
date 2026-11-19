@@ -1479,6 +1479,7 @@ return array(
     'EvolutionCMS\\Support\\TemplateFileGuard' => $baseDir . '/src/Support/TemplateFileGuard.php',
     'EvolutionCMS\\Support\\TvBindingArguments' => $baseDir . '/src/Support/TvBindingArguments.php',
     'EvolutionCMS\\Support\\TvBindingGuard' => $baseDir . '/src/Support/TvBindingGuard.php',
+    'EvolutionCMS\\Support\\UpdateRollback' => $baseDir . '/src/Support/UpdateRollback.php',
     'EvolutionCMS\\Support\\UploadLimits' => $baseDir . '/src/Support/UploadLimits.php',
     'EvolutionCMS\\Support\\UserGroupGuard' => $baseDir . '/src/Support/UserGroupGuard.php',
     'EvolutionCMS\\TemplateProcessor' => $baseDir . '/src/TemplateProcessor.php',
