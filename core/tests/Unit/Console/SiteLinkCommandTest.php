@@ -32,12 +32,17 @@ afterEach(function () {
 });
 
 /** Runs site:link against the test's site, its manager renamed to admin/. */
-function siteLink(object $test, array $input): array
+function siteLink(object $test, array $input, bool $linksFail = false): array
 {
-    $command = new class($test->site) extends SiteLinkCommand {
-        public function __construct(private string $site)
+    $command = new class($test->site, $linksFail) extends SiteLinkCommand {
+        public function __construct(private string $site, private bool $linksFail)
         {
             parent::__construct();
+        }
+
+        protected function createLink(string $value, string $link): bool
+        {
+            return !$this->linksFail && parent::createLink($value, $link);
         }
 
         protected function basePath(): string
@@ -130,6 +135,18 @@ test('a link elsewhere is replaced only with --force', function () {
         ->and(readlink($this->public . '/assets'))->toBe('../evolution/assets');
 });
 
+test('a replacement that cannot be made leaves the old link in place', function () {
+    mkdir($this->home . '/old-release/assets', 0777, true);
+    symlink('../old-release/assets', $this->public . '/assets');
+
+    [$exitCode, $output] = siteLink($this, ['path' => $this->public, '--force' => true], true);
+
+    expect($exitCode)->toBe(1)
+        ->and(readlink($this->public . '/assets'))->toBe('../old-release/assets')
+        ->and($output)->toContain('Could not replace the link assets -> ../evolution/assets; it still links to ../old-release/assets.')
+        ->and(glob($this->public . '/.assets.site-link-*'))->toBe([]);
+});
+
 test('a public folder inside the site, or around it, is refused', function () {
     mkdir($this->site . '/public');
 
@@ -165,6 +182,7 @@ test('ng.inx carries the lines for a site outside the web root', function () {
     expect($nginx)->toContain('php core/artisan site:link /home/user/public_html')
         ->and($nginx)->toContain('    # root /{public_path};')
         ->and($nginx)->toContain('    # location ~ ^/(manager|install)/.*\.php$ { access_log off; return 404; }')
-        ->and($nginx)->toContain('    # location ^~ /.well-known/acme-challenge/ { root /{public_path}; }')
+        ->and($nginx)->toContain("    # Outside the web root: replaces the location above, comment that one out;\n    # two locations of one prefix are a configuration error.\n    # location ^~ /.well-known/acme-challenge/ { root /{public_path}; }")
+        ->and($nginx)->toContain("    # Outside the web root: replaces the line above, comment that one out.\n    # root /{public_path};")
         ->and($nginx)->toContain('-e "s|{public_path}|${PUBLIC_PATH}|g"');
 });

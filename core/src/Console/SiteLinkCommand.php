@@ -105,8 +105,8 @@ class SiteLinkCommand extends Command
 
                 return false;
             }
-            if (!@unlink($link) && !@rmdir($link)) {
-                $this->error('Could not remove the link ' . $name . '.');
+            if (!$this->replaceLink($value, $link)) {
+                $this->error('Could not replace the link ' . $name . ' -> ' . $value . '; it still links to ' . $current . '.');
 
                 return false;
             }
@@ -114,9 +114,7 @@ class SiteLinkCommand extends Command
             $this->error($name . ' is a ' . (is_dir($link) ? 'folder' : 'file') . ' of the public folder; move it away first, nothing was changed.');
 
             return false;
-        }
-
-        if (!@symlink($value, $link)) {
+        } elseif (!$this->createLink($value, $link)) {
             $this->error('Could not create the link ' . $name . ' -> ' . $value
                 . (DIRECTORY_SEPARATOR === '\\' ? ' (Windows needs Developer Mode or administrator rights for links).' : '.'));
 
@@ -125,6 +123,35 @@ class SiteLinkCommand extends Command
         $this->line($name . ' -> ' . $value . (file_exists($target) ? '' : ' (waits for ' . basename($target) . ')'));
 
         return true;
+    }
+
+    /**
+     * Swap a link for a new one without a moment in which the entry point is missing.
+     *
+     * The new link is made beside the old one and renamed over it; when either step fails, the
+     * old link is left as it was.
+     */
+    protected function replaceLink(string $value, string $link): bool
+    {
+        $staged = dirname($link) . '/.' . basename($link) . '.site-link-' . getmypid();
+        if (is_link($staged)) {
+            @unlink($staged);
+        }
+        if (!$this->createLink($value, $staged)) {
+            return false;
+        }
+        if (!@rename($staged, $link)) {
+            @unlink($staged);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function createLink(string $value, string $link): bool
+    {
+        return @symlink($value, $link);
     }
 
     /**
