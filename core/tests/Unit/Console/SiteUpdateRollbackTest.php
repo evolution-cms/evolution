@@ -22,6 +22,9 @@ beforeEach(function () {
     file_put_contents($this->site . '/core/composer.lock', 'old lock');
     file_put_contents($this->site . '/core/vendor/autoload.php', 'old autoload');
     file_put_contents($this->site . '/core/vendor/composer/autoload_classmap.php', 'old classmap');
+    // A folder file_for_delete.txt names, with an empty folder inside.
+    mkdir($this->site . '/core/src/Services/Users/Empty', 0777, true);
+    file_put_contents($this->site . '/core/src/Services/Users/UserService.php', 'old service');
 
     foreach (['/core/src/Support', '/manager', '/install'] as $folder) {
         mkdir($this->archive . $folder, 0777, true);
@@ -120,6 +123,7 @@ function rollbackFlowSteps(SiteUpdateCommand $command, UpdateRollback $rollback,
     return function () use ($command, $rollback, $archive, $site) {
         $command->protect($rollback);
         SiteUpdateCommand::moveFiles($archive, $site, $site . '/manager', $rollback);
+        $rollback->remove($site . '/core/src/Services/Users');
         updateFlowInvoke($command, 'installComposerDependencies');
     };
 }

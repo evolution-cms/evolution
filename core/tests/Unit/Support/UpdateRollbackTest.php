@@ -210,3 +210,65 @@ test('the journal mirrors the layout of the site', function () {
     expect(file_get_contents($this->journal . '/files/core/src/Old/Gone.php'))->toBe('old class')
         ->and($this->rollback->journalPath())->toBe($this->journal);
 });
+
+test('a folder that is a link is restored at its target, and the link stays', function () {
+    $shared = $this->root . '/shared-vendor';
+    mkdir($shared . '/acme', 0777, true);
+    file_put_contents($shared . '/autoload.php', 'old autoload');
+    file_put_contents($shared . '/acme/Lib.php', 'old lib');
+    rollbackTestRemove($this->site . '/core/vendor');
+    if (!@symlink($shared, $this->site . '/core/vendor')) {
+        $this->markTestSkipped('This file system does not let the test create a symlink.');
+    }
+    $before = rollbackTestTree($shared);
+    $this->rollback->snapshotDirectory($this->site . '/core/vendor');
+
+    // Composer writes through the link into the shared folder.
+    file_put_contents($this->site . '/core/vendor/autoload.php', 'new autoload');
+    unlink($this->site . '/core/vendor/acme/Lib.php');
+    mkdir($this->site . '/core/vendor/next');
+
+    expect($this->rollback->restore())->toBe([])
+        ->and(is_link($this->site . '/core/vendor'))->toBeTrue()
+        ->and(readlink($this->site . '/core/vendor'))->toBe($shared)
+        ->and(rollbackTestTree($shared))->toBe($before)
+        ->and(glob($this->root . '/shared-vendor.update-failed-*'))->toBe([]);
+});
+
+test('a copied folder comes back with the modes of its folders', function () {
+    if (DIRECTORY_SEPARATOR === '\\') {
+        $this->markTestSkipped('Windows has no POSIX folder modes.');
+    }
+    mkdir($this->site . '/core/storage/bootstrap/cache', 0777, true);
+    file_put_contents($this->site . '/core/storage/bootstrap/cache/packages.php', 'old manifest');
+    chmod($this->site . '/core/storage/bootstrap', 02775);
+    chmod($this->site . '/core/storage/bootstrap/cache', 0770);
+    $this->rollback->snapshotDirectory($this->site . '/core/storage/bootstrap');
+
+    file_put_contents($this->site . '/core/storage/bootstrap/cache/packages.php', 'new manifest');
+
+    expect($this->rollback->restore())->toBe([]);
+    clearstatcache();
+    expect(fileperms($this->site . '/core/storage/bootstrap') & 07777)->toBe(02775)
+        ->and(fileperms($this->site . '/core/storage/bootstrap/cache') & 07777)->toBe(0770)
+        ->and(file_get_contents($this->site . '/core/storage/bootstrap/cache/packages.php'))->toBe('old manifest');
+});
+
+test('a removed tree comes back with its empty folders and their modes', function () {
+    mkdir($this->site . '/core/src/Services/Users/Empty', 0777, true);
+    file_put_contents($this->site . '/core/src/Services/Users/UserService.php', 'old service');
+    if (DIRECTORY_SEPARATOR !== '\\') {
+        chmod($this->site . '/core/src/Services/Users/Empty', 0750);
+    }
+    $before = rollbackTestTree($this->site);
+
+    $this->rollback->remove($this->site . '/core/src/Services/Users');
+
+    expect(is_dir($this->site . '/core/src/Services/Users'))->toBeFalse()
+        ->and($this->rollback->restore())->toBe([])
+        ->and(rollbackTestTree($this->site))->toBe($before);
+    if (DIRECTORY_SEPARATOR !== '\\') {
+        clearstatcache();
+        expect(fileperms($this->site . '/core/src/Services/Users/Empty') & 07777)->toBe(0750);
+    }
+});

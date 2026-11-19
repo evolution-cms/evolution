@@ -30,6 +30,9 @@ final class UpdateRollback
     /** @var array<int, string> Folders the update created, in the order it created them. */
     private array $createdDirectories = [];
 
+    /** @var array<string, int> Folders the update removed, parents first => their mode. */
+    private array $removedDirectories = [];
+
     /** @var array<string, string|null> Snapshot folders: original path => copy (null when it did not exist). */
     private array $directories = [];
 
@@ -87,6 +90,8 @@ final class UpdateRollback
             return;
         }
         if (is_dir($path) && !is_link($path)) {
+            // Noted before its contents, so restore() makes it again even when it held nothing.
+            $this->removedDirectories[$path] ??= fileperms($path) & 07777;
             foreach (scandir($path) ?: [] as $entry) {
                 if ($entry !== '.' && $entry !== '..') {
                     $this->remove($path . '/' . $entry);
@@ -129,11 +134,16 @@ final class UpdateRollback
     /**
      * Copy a whole folder that something other than the overlay rewrites in place (core/vendor).
      *
-     * Links are copied as links, so a path repository installed as a symlink stays one.
+     * Links inside are copied as links, so a path repository installed as a symlink stays one.
+     * A folder that is itself a link (core/vendor on shared storage) is copied and restored at
+     * its target, and the link stays as it is.
      */
     public function snapshotDirectory(string $path): void
     {
         $path = self::normalize($path);
+        if (is_link($path) && is_dir($path)) {
+            $path = self::normalize((string) realpath($path));
+        }
         if (array_key_exists($path, $this->directories)) {
             return;
         }
@@ -201,6 +211,14 @@ final class UpdateRollback
             }
         }
 
+        foreach ($this->removedDirectories as $path => $mode) {
+            if (!is_dir($path) && !@mkdir($path, $mode) && !is_dir($path)) {
+                $failed[] = $path;
+                continue;
+            }
+            @chmod($path, $mode);
+        }
+
         foreach (array_reverse($this->kept, true) as $path => $copy) {
             if (!file_exists($copy) && !is_link($copy)) {
                 // The folder snapshot above already brought it back.
@@ -239,6 +257,7 @@ final class UpdateRollback
         $this->kept = [];
         $this->createdFiles = [];
         $this->createdDirectories = [];
+        $this->removedDirectories = [];
         $this->directories = [];
         $this->files = [];
     }
@@ -294,6 +313,8 @@ final class UpdateRollback
                 @chmod($to, fileperms($from) & 0777);
             }
         }
+        // Last, so a folder without write permission still took its contents; setgid kept.
+        @chmod($target, fileperms($source) & 07777);
     }
 
     private static function removeTree(string $path): void
