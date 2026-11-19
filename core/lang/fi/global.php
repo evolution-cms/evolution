@@ -332,6 +332,11 @@ $_lang["files_link_broken"] = 'rikkinäinen linkki';
 $_lang["files_link_hidden"] = 'tiedostonhallinnan ulkopuolella tai ei käytettävissä';
 $_lang["files_link_delete"] = 'Poista linkki';
 $_lang["files_link_confirm_delete"] = 'Poistetaanko tämä linkki? Vain linkki poistetaan; se, mihin se osoittaa, säilyy.';
+$_lang["files_delete_selected"] = 'Poista valitut kohteet';
+$_lang["files_confirm_delete_selected"] = 'Haluatko varmasti poistaa %s valittua kohdetta?\n\nKansiot poistetaan kaikkine sisältöineen.';
+$_lang["files_selection_incomplete"] = 'Valinta ei saapunut kokonaan, joten mitään ei poistettu. Lataa kansio uudelleen ja yritä uudestaan.';
+$_lang["files_selection_too_large"] = 'Valitse poistettavaksi enintään %s kohdetta kerrallaan.';
+$_lang["files_select_hint"] = 'Valitse useita kohteita Shift+napsautuksella tai koskettamalla pitkään ja liu\'uttamalla. Ctrl+napsautus lisää tai poistaa yksittäisiä kohteita. Ctrl+A valitsee kaiken tästä kansiosta, Del poistaa valitut.';
 $_lang["files_link_deleted"] = 'Linkki poistettu.';
 $_lang["files_link_not_deleted"] = 'Linkkiä ei voitu poistaa.';
 $_lang["files_folder_copy_links"] = 'Linkkejä ei kopioida (tiedostonhallinta ei luo linkkejä):';
@@ -1364,5 +1369,6 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Vain ylläpitäjä voi muuttaa tai poistaa ylläpitäjän tilin';
+$_lang["sort_select_group_msg"] = 'Valitse useita vierekkäisiä elementtejä ja vedä ne yhdessä Shift+napsautuksella, tai kosketusnäytöllä pyyhkäisemällä sivulle (tai koskettamalla pitkään) ja liu\'uttamalla niiden yli. Ctrl+napsautus lisää tai poistaa yksittäisiä elementtejä: vedä yhtä niistä, niin muut liittyvät siihen yhtenä lohkona omassa järjestyksessään.';
 
 return $_lang;

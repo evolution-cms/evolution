@@ -333,6 +333,11 @@ $_lang["files_link_broken"] = '失效链接';
 $_lang["files_link_hidden"] = '位于文件管理器之外或无法访问';
 $_lang["files_link_delete"] = '删除链接';
 $_lang["files_link_confirm_delete"] = '删除此链接？只会删除链接本身，其指向的内容保持不变。';
+$_lang["files_delete_selected"] = '删除所选项目';
+$_lang["files_confirm_delete_selected"] = '确定删除所选的 %s 个项目？\n\n文件夹将连同其中的所有内容一起删除。';
+$_lang["files_selection_incomplete"] = '所选内容未完整送达，因此未删除任何内容。请重新加载文件夹后重试。';
+$_lang["files_selection_too_large"] = '每次最多选择 %s 个项目进行删除。';
+$_lang["files_select_hint"] = 'Shift+单击，或长按后滑动，可选择多个项目。Ctrl+单击可添加或移除单个项目。Ctrl+A 选择此文件夹中的所有内容，Del 删除所选项目。';
 $_lang["files_link_deleted"] = '链接已删除。';
 $_lang["files_link_not_deleted"] = '无法删除该链接。';
 $_lang["files_folder_copy_links"] = '链接不会被复制（文件管理器不会创建链接）：';
@@ -1366,5 +1371,6 @@ $_lang['time_unit_hour_short'] = '时';
 $_lang['time_unit_minute_short'] = '分';
 $_lang['time_unit_second_short'] = '秒';
 $_lang['admin_account_protected'] = '只有管理员才能更改或删除管理员账户';
+$_lang["sort_select_group_msg"] = 'Shift+单击，或在触摸屏上横向滑动（或长按）后划过它们，可选择多个相邻元素并一起拖动。Ctrl+单击可添加或移除单个元素：拖动其中一个，其余元素会按原有顺序作为一个整体随之移动。';
 
 return $_lang;

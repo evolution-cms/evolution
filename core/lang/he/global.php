@@ -333,6 +333,11 @@ $_lang["files_link_broken"] = 'קישור שבור';
 $_lang["files_link_hidden"] = 'מחוץ למנהל הקבצים או לא נגיש';
 $_lang["files_link_delete"] = 'מחק קישור';
 $_lang["files_link_confirm_delete"] = 'למחוק קישור זה? רק הקישור יוסר; היעד שאליו הוא מוביל יישאר.';
+$_lang["files_delete_selected"] = 'מחק את הפריטים שנבחרו';
+$_lang["files_confirm_delete_selected"] = 'האם אתה בטוח שברצונך למחוק את %s הפריטים שנבחרו?\n\nתיקיות נמחקות יחד עם כל התוכן שבהן.';
+$_lang["files_selection_incomplete"] = 'הבחירה לא התקבלה במלואה, ולכן דבר לא נמחק. טען מחדש את התיקייה ונסה שוב.';
+$_lang["files_selection_too_large"] = 'ניתן לבחור למחיקה לכל היותר %s פריטים בכל פעם.';
+$_lang["files_select_hint"] = 'Shift+לחיצה, או נגיעה ממושכת ולאחר מכן החלקה, לבחירת מספר פריטים. Ctrl+לחיצה מוסיפה או מסירה פריטים בודדים. Ctrl+A בוחר את כל מה שבתיקייה זו, Del מוחק את הפריטים שנבחרו.';
 $_lang["files_link_deleted"] = 'הקישור נמחק.';
 $_lang["files_link_not_deleted"] = 'לא ניתן היה למחוק את הקישור.';
 $_lang["files_folder_copy_links"] = 'קישורים אינם מועתקים (מנהל הקבצים אינו יוצר קישורים):';
@@ -1366,5 +1371,6 @@ $_lang['time_unit_hour_short'] = 'ש׳';
 $_lang['time_unit_minute_short'] = 'דק׳';
 $_lang['time_unit_second_short'] = 'שנ׳';
 $_lang['admin_account_protected'] = 'רק מנהל מערכת יכול לשנות או למחוק חשבון מנהל מערכת';
+$_lang["sort_select_group_msg"] = 'Shift+לחיצה, או במסך מגע החלקה הצידה (או נגיעה ממושכת) והעברה עליהם, לבחירת מספר רכיבים סמוכים וגרירתם יחד. Ctrl+לחיצה מוסיפה או מסירה רכיבים בודדים: גררו אחד מהם והאחרים יצטרפו אליו כגוש אחד, לפי הסדר שלהם.';
 
 return $_lang;

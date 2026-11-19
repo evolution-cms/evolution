@@ -332,6 +332,11 @@ $_lang["files_link_broken"] = 'nefunkční odkaz';
 $_lang["files_link_hidden"] = 'mimo správce souborů nebo nepřístupné';
 $_lang["files_link_delete"] = 'Smazat odkaz';
 $_lang["files_link_confirm_delete"] = 'Smazat tento odkaz? Odstraní se pouze odkaz; to, na co vede, zůstane.';
+$_lang["files_delete_selected"] = 'Smazat vybrané položky';
+$_lang["files_confirm_delete_selected"] = 'Opravdu chcete smazat vybrané položky (%s)?\n\nSložky se smažou včetně veškerého obsahu.';
+$_lang["files_selection_incomplete"] = 'Výběr nedorazil celý, proto nebylo nic smazáno. Obnovte složku a zkuste to znovu.';
+$_lang["files_selection_too_large"] = 'Najednou můžete ke smazání vybrat nejvýše %s položek.';
+$_lang["files_select_hint"] = 'Shift+kliknutím, nebo dotykem a podržením a následným posunutím, vyberete více položek. Ctrl+kliknutím přidáte nebo odeberete jednotlivé položky. Ctrl+A vybere vše v této složce, Del smaže vybrané položky.';
 $_lang["files_link_deleted"] = 'Odkaz byl smazán.';
 $_lang["files_link_not_deleted"] = 'Odkaz se nepodařilo smazat.';
 $_lang["files_folder_copy_links"] = 'Odkazy se nekopírují (správce souborů odkazy nevytváří):';
@@ -1369,5 +1374,6 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Účet správce může změnit nebo smazat pouze správce';
+$_lang["sort_select_group_msg"] = 'Shift+kliknutím, nebo na dotykové obrazovce přejetím do strany (či dotykem a podržením) a posunutím přes ně, vyberete několik sousedních prvků a přetáhnete je společně. Ctrl+kliknutí přidá nebo odebere jednotlivé prvky: přetáhněte jeden z nich a ostatní se k němu připojí jako jeden blok ve svém pořadí.';
 
 return $_lang;

@@ -332,6 +332,11 @@ $_lang["files_link_broken"] = 'ligação quebrada';
 $_lang["files_link_hidden"] = 'fora do gestor de ficheiros ou inacessível';
 $_lang["files_link_delete"] = 'Eliminar ligação';
 $_lang["files_link_confirm_delete"] = 'Eliminar esta ligação? Apenas a ligação é removida; aquilo para que aponta permanece.';
+$_lang["files_delete_selected"] = 'Apagar os itens selecionados';
+$_lang["files_confirm_delete_selected"] = 'De certeza que deseja apagar os %s itens selecionados?\n\nAs pastas são apagadas com todo o seu conteúdo.';
+$_lang["files_selection_incomplete"] = 'A seleção não chegou completa, por isso nada foi apagado. Recarregue a pasta e tente novamente.';
+$_lang["files_selection_too_large"] = 'Selecione no máximo %s itens para apagar de cada vez.';
+$_lang["files_select_hint"] = 'Shift+clique, ou toque e mantenha premido e depois deslize, para selecionar vários itens. Ctrl+clique adiciona ou remove itens individuais. Ctrl+A seleciona tudo nesta pasta, Del apaga os itens selecionados.';
 $_lang["files_link_deleted"] = 'Ligação eliminada.';
 $_lang["files_link_not_deleted"] = 'Não foi possível eliminar a ligação.';
 $_lang["files_folder_copy_links"] = 'As ligações não são copiadas (o gestor de ficheiros não cria ligações):';
@@ -1365,5 +1370,6 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Apenas um administrador pode alterar ou eliminar uma conta de administrador';
+$_lang["sort_select_group_msg"] = 'Shift+clique, ou num ecrã tátil deslize para o lado (ou toque e mantenha premido) e passe por cima deles, para selecionar vários elementos vizinhos e arrastá-los em conjunto. Ctrl+clique adiciona ou remove elementos individuais: arraste um deles e os restantes juntam-se a ele num único bloco, pela sua ordem.';
 
 return $_lang;

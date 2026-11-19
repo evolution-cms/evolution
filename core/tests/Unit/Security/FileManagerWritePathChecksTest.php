@@ -6,8 +6,26 @@
  */
 function runFileManagerWrite(string $site, string $function, array $request, array $permissions = [], string $uploadFiles = 'txt,zip'): string
 {
+    $script = fileManagerWriteHarness($site, $request, $permissions, $uploadFiles)
+        . ' echo strip_tags(' . (str_contains($function, '(') ? $function : $function . '()') . ');';
+
+    $tmp = tempnam(sys_get_temp_dir(), 'evo-fm-');
+    file_put_contents($tmp, $script);
+    try {
+        $output = evoRunPhp($tmp);
+    } finally {
+        unlink($tmp);
+    }
+
+    return $output;
+}
+
+/** The stubbed file manager, up to the call under test; a null $request keeps what PHP parsed. */
+function fileManagerWriteHarness(string $site, ?array $request, array $permissions = [], string $uploadFiles = 'txt,zip'): string
+{
     $core = dirname(__DIR__, 3);
-    $script = '<?php'
+
+    return '<?php'
         . ' define("EVO_BASE_PATH", ' . var_export($site . '/', true) . ');'
         . ' define("EVO_MANAGER_PATH", ' . var_export($site . '/manager/', true) . ');'
         . ' define("EVO_CORE_PATH", ' . var_export($site . '/core/', true) . ');'
@@ -31,22 +49,13 @@ function runFileManagerWrite(string $site, string $function, array $request, arr
         // no file groups here: keeps delete_file() away from the database
         . ' function fileManagerAclKey($relativePath) { return null; }'
         . ' $_lang = ["files_access_denied" => "ACCESS_DENIED", "file_saved" => "SAVED", "file_not_saved" => "NOT_SAVED",'
-        . '   "deleting_file" => "Deleting %s: ", "file_deleted" => "DELETED", "file_not_deleted" => "NOT_DELETED"];'
-        . ' $_POST = ' . var_export($request, true) . ';'
-        . ' $_REQUEST = $_POST;'
-        . ' $_FILES = ["userfile" => ["name" => [], "tmp_name" => [], "error" => [], "type" => []]];'
-        . ' require ' . var_export($core . '/functions/actions/files.php', true) . ';'
-        . ' echo strip_tags(' . (str_contains($function, '(') ? $function : $function . '()') . ');';
-
-    $tmp = tempnam(sys_get_temp_dir(), 'evo-fm-');
-    file_put_contents($tmp, $script);
-    try {
-        $output = evoRunPhp($tmp);
-    } finally {
-        unlink($tmp);
-    }
-
-    return $output;
+        . '   "deleting_file" => "Deleting %s: ", "file_deleted" => "DELETED", "file_not_deleted" => "NOT_DELETED",'
+        . '   "file_folder_deleted" => "FOLDER_DELETED", "file_folder_not_deleted" => "FOLDER_NOT_DELETED",'
+        . '   "files_selection_incomplete" => "INCOMPLETE_SELECTION"];'
+        . ($request === null ? '' : ' $_POST = ' . var_export($request, true) . ';'
+            . ' $_REQUEST = $_POST;'
+            . ' $_FILES = ["userfile" => ["name" => [], "tmp_name" => [], "error" => [], "type" => []]];')
+        . ' require ' . var_export($core . '/functions/actions/files.php', true) . ';';
 }
 
 beforeEach(function () {
@@ -307,4 +316,140 @@ it('escapes what a client sent before it reaches the event log', function () {
     $output = runFileManagerWrite($this->site, 'fileManagerLogDenied("save", "<img src=x onerror=alert(1)>\\nfake", "")', [], []);
 
     expect($output)->not->toContain('<img')->and($output)->toContain('LOG[2|File manager|');
+});
+
+/** fileManagerDeleteEntries() for the entries of one folder, as the listing's selection posts them. */
+function fileManagerDeleteSelection(string $folder, array $names): string
+{
+    return 'fileManagerDeleteEntries(rtrim(EVO_BASE_PATH, "/"), rtrim(EVO_BASE_PATH . ' . var_export($folder, true) . ', "/"), '
+        . var_export($folder, true) . ', ' . var_export($names, true) . ', [], fileManagerProtectedPaths())';
+}
+
+it('deletes a selection of files and folders of one folder', function () {
+    mkdir($this->site . '/assets/files/batch/sub', 0777, true);
+    foreach (['a.txt', 'b.txt', 'c.txt', 'sub/inner.txt'] as $name) {
+        file_put_contents($this->site . '/assets/files/batch/' . $name, 'x');
+    }
+
+    $output = runFileManagerWrite($this->site, fileManagerDeleteSelection('assets/files/batch', ['a.txt', 'sub', 'c.txt']), []);
+
+    expect($output)->toContain('Deleting assets/files/batch/a.txt: DELETED')
+        ->and($output)->toContain('Deleting assets/files/batch/c.txt: DELETED')
+        ->and($output)->toContain('sub: FOLDER_DELETED')
+        ->and(is_file($this->site . '/assets/files/batch/a.txt'))->toBeFalse()
+        ->and(is_file($this->site . '/assets/files/batch/c.txt'))->toBeFalse()
+        ->and(is_dir($this->site . '/assets/files/batch/sub'))->toBeFalse()
+        ->and(is_file($this->site . '/assets/files/batch/b.txt'))->toBeTrue();
+});
+
+it('holds every selected entry to its own delete action, not to the first one', function () {
+    $output = runFileManagerWrite($this->site, fileManagerDeleteSelection('', ['notes..txt', 'manager', 'temp']), ['empty_cache']);
+
+    // manager/ needs a permission that runs code, temp/backup inside temp/ needs bk_manager
+    expect($output)->toContain('DELETED')
+        ->and(substr_count($output, 'ACCESS_DENIED'))->toBe(2)
+        ->and(is_file($this->site . '/notes..txt'))->toBeFalse()
+        ->and(is_file($this->site . '/manager/index.php'))->toBeTrue()
+        ->and(is_file($this->site . '/temp/backup/dump.sql'))->toBeTrue();
+});
+
+it('refuses selected names that leave the folder', function () {
+    $output = runFileManagerWrite($this->site, fileManagerDeleteSelection('assets', ['../notes..txt', '..', 'plugins/demo/plugin.php', '']), ['save_plugin']);
+
+    expect(substr_count($output, 'Invalid path'))->toBe(4)
+        ->and(is_file($this->site . '/notes..txt'))->toBeTrue()
+        ->and(is_file($this->site . '/assets/plugins/demo/plugin.php'))->toBeTrue();
+});
+
+it('refuses a selection that is not a list of names', function () {
+    $output = runFileManagerWrite($this->site, 'fileManagerDeleteEntries(rtrim(EVO_BASE_PATH, "/"), rtrim(EVO_BASE_PATH, "/"), "", "notes..txt", [], [])', []);
+
+    expect($output)->toContain('Invalid path')
+        ->and(is_file($this->site . '/notes..txt'))->toBeTrue();
+});
+
+it('takes a selection only as one complete list of names', function () {
+    require_once dirname(__DIR__, 3) . '/functions/actions/files.php';
+
+    $post = static fn (array $names, $count = null): array => ['names' => json_encode($names), 'count' => (string) ($count ?? count($names))];
+
+    expect(fileManagerSelectionFromRequest($post(['a.txt', 'sub'])))->toBe(['a.txt', 'sub'])
+        // a count that does not match is a selection that did not arrive whole
+        ->and(fileManagerSelectionFromRequest($post(['a.txt', 'sub'], 3)))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => json_encode(['a.txt'])]))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['count' => '1']))->toBeNull()
+        // the shape of one field per name, which PHP can cut short
+        ->and(fileManagerSelectionFromRequest(['names' => ['a.txt', 'b.txt'], 'count' => '2']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => '["a.txt"', 'count' => '1']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => '{"0":"a.txt"}', 'count' => '1']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => '[["a.txt"]]', 'count' => '1']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => '[1]', 'count' => '1']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => '[]', 'count' => '0']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest(['names' => '["a.txt"]', 'count' => '1.0']))->toBeNull()
+        ->and(fileManagerSelectionFromRequest($post(array_fill(0, FILE_MANAGER_SELECTION_LIMIT + 1, 'a.txt'))))->toBeNull();
+});
+
+it('deletes nothing when PHP drops part of a selection request, and all of one that arrives whole', function () {
+    mkdir($this->site . '/assets/files/bulk', 0777, true);
+    $names = [];
+    for ($i = 0; $i < 30; $i++) {
+        $names[] = "file-$i.txt";
+        file_put_contents($this->site . "/assets/files/bulk/file-$i.txt", 'x');
+    }
+    $router = $this->base . '/router.php';
+    file_put_contents($router, fileManagerWriteHarness($this->site, null)
+        . ' echo strip_tags(fileManagerDeleteSelectionRequest($_POST, rtrim(EVO_BASE_PATH, "/"),'
+        . ' EVO_BASE_PATH . "assets/files/bulk", "assets/files/bulk", [], fileManagerProtectedPaths()));');
+
+    $socket = stream_socket_server('tcp://127.0.0.1:0');
+    $address = stream_socket_get_name($socket, false);
+    fclose($socket);
+    // a limit of 20 input variables, the default 1000 scaled down
+    $server = new Symfony\Component\Process\Process(
+        [PHP_BINARY, '-d', 'max_input_vars=20', '-d', 'opcache.enable=0', '-S', $address, $router],
+        $this->base
+    );
+    $server->start();
+    for ($attempt = 0; $attempt < 100; $attempt++) {
+        $connection = @fsockopen('127.0.0.1', (int) substr(strrchr($address, ':'), 1), $code, $message, 0.1);
+        if ($connection !== false) {
+            fclose($connection);
+            break;
+        }
+        usleep(50000);
+    }
+    $post = static function (string $body) use ($address): string {
+        return (string) @file_get_contents("http://$address/", false, stream_context_create(['http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/x-www-form-urlencoded\r\n",
+            'content' => $body,
+            'ignore_errors' => true,
+        ]]));
+    };
+    $left = fn (): int => count(glob($this->site . '/assets/files/bulk/*.txt'));
+
+    try {
+        // one field per name: PHP keeps the first 20 variables, so the names after them never arrive
+        $perName = $post(http_build_query(['mode' => 'deletemany', 'count' => '30', 'names' => $names]));
+        expect($perName)->toContain('INCOMPLETE_SELECTION')
+            ->and($perName)->not->toContain('DELETED')
+            ->and($left())->toBe(30);
+
+        // fields ahead of the selection that push its count and names past the limit
+        $padding = [];
+        for ($i = 0; $i < 25; $i++) {
+            $padding["pad$i"] = 'x';
+        }
+        $pushedOut = $post(http_build_query($padding + ['count' => '30', 'names' => json_encode($names)]));
+        expect($pushedOut)->toContain('INCOMPLETE_SELECTION')
+            ->and($left())->toBe(30);
+
+        // the listing's request: one field for all 30 names, far below the limit
+        $whole = $post(http_build_query(['mode' => 'deletemany', 'count' => '30', 'names' => json_encode($names)]));
+        expect(substr_count($whole, ': DELETED'))->toBe(30)
+            ->and($whole)->not->toContain('INCOMPLETE_SELECTION')
+            ->and($left())->toBe(0);
+    } finally {
+        $server->stop(0);
+    }
 });

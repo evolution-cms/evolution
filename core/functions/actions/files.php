@@ -1828,18 +1828,29 @@ if(!function_exists('markRow')) {
      */
     function markRow($file, $selFile, $mode)
     {
-        $classNames = [
-            'default' => '',
-            'edit'    => 'editRow',
-            'view'    => 'viewRow'
-        ];
         if ($file == $selFile) {
-            $class = isset($classNames[$mode]) ? $classNames[$mode] : $classNames['default'];
-
-            return ' class="' . $class . '"';
+            return ' class="' . markRowClass($file, $selFile, $mode) . '"';
         }
 
         return '';
+    }
+}
+
+if(!function_exists('markRowClass')) {
+    /**
+     * @param string $file
+     * @param string $selFile
+     * @param string $mode
+     * @return string
+     */
+    function markRowClass($file, $selFile, $mode)
+    {
+        $classNames = [
+            'edit' => 'editRow',
+            'view' => 'viewRow'
+        ];
+
+        return $file == $selFile ? ($classNames[$mode] ?? '') : '';
     }
 }
 
@@ -1910,7 +1921,7 @@ if(!function_exists('ls')) {
                         'name' => $file,
                         'stats' => $linkStats,
                         'delete' => $canDeleteLink
-                            ? '<a href="javascript:deleteLink(\'' . urlencode($file) . '\');"><i class="' . $_style['icon_trash']
+                            ? '<a class="fm-delete" href="javascript:deleteLink(\'' . urlencode($file) . '\');"><i class="' . $_style['icon_trash']
                                 . '" title="' . e($_lang['files_link_delete']) . '"></i></a>'
                             : '',
                         'text' => '<span class="FilesLink"><i class="' . ($_style['icon_link'] ?? 'evo-icon evo-icon-link') . '"></i> '
@@ -1934,6 +1945,7 @@ if(!function_exists('ls')) {
                 : ' <small class="text-muted">- ' . htmlspecialchars(implode(', ', $effectiveGroupNames), ENT_QUOTES, 'UTF-8') . '</small>';
             if (is_dir($newpath)) {
                 $dirs_array[$dircounter]['dir'] = $newpath;
+                $dirs_array[$dircounter]['name'] = $file;
                 $dirs_array[$dircounter]['stats'] = lstat($newpath);
                 if ($file === '..' || $file === '.') {
                     continue;
@@ -1957,7 +1969,7 @@ if(!function_exists('ls')) {
                         && fileManagerCanModifyExistingPath($rel_newpath, $userGroups ?? [], $fileGroupsMap ?? [])
                         && is_writable($newpath);
 
-                    $dirs_array[$dircounter]['delete'] = $canModifyDir ? '<a href="javascript: deleteFolder(\''
+                    $dirs_array[$dircounter]['delete'] = $canModifyDir ? '<a class="fm-delete" href="javascript: deleteFolder(\''
                         . urlencode($file) . '\',\'' . $file_exists . '\');"><i class="' . $_style['icon_trash']
                         . '" title="' . $_lang['file_delete_folder'] . '"></i></a>' : '';
                     // a copy lands beside the original: what counts is that this folder takes new entries
@@ -1970,7 +1982,7 @@ if(!function_exists('ls')) {
                         . ' FilesDeletedFolder"></i> ' . htmlspecialchars($file, ENT_QUOTES, 'UTF-8')
                         . $groupSuffix
                         . '</span>';
-                    $dirs_array[$dircounter]['delete'] = $currentDirWritable ? '<span class="disabled"><i class="'
+                    $dirs_array[$dircounter]['delete'] = $currentDirWritable ? '<span class="disabled fm-delete"><i class="'
                         . $_style['icon_trash'] . '" title="' . $_lang['file_delete_folder'] . '"></i></span>' : '';
                 }
 
@@ -1991,6 +2003,7 @@ if(!function_exists('ls')) {
             } else {
                 $type = getExtension($newpath);
                 $files_array[$filecounter]['file'] = $rel_newpath;
+                $files_array[$filecounter]['name'] = $file;
                 $files_array[$filecounter]['stats'] = lstat($newpath);
                 $files_array[$filecounter]['text'] = determineIcon($rel_newpath, get_by_key($_REQUEST, 'path', ''),
                         get_by_key($_REQUEST, 'mode', '')) . ' ' . $linkMark . htmlspecialchars($file, ENT_QUOTES,
@@ -2032,9 +2045,9 @@ if(!function_exists('ls')) {
                     : '<span class="disabled"><i class="' . $_style['icon_i_cursor'] . '" align="absmiddle" title="'
                     . $_lang['rename'] . '"></i></span>';
                 $files_array[$filecounter]['delete'] = $canModifyFile
-                    ? '<a href="javascript:deleteFile(\'' . urlencode($file) . '\');"><i class="'
+                    ? '<a class="fm-delete" href="javascript:deleteFile(\'' . urlencode($file) . '\');"><i class="'
                     . $_style['icon_trash'] . '" title="' . $_lang['file_delete_file'] . '"></i></a>'
-                    : '<span class="disabled"><i class="' . $_style['icon_trash'] . '" title="'
+                    : '<span class="disabled fm-delete"><i class="' . $_style['icon_trash'] . '" title="'
                     . $_lang['file_delete_file'] . '"></i></span>';
 
                 $files_array[$filecounter]['groups'] = ($showFileGroups ?? false)
@@ -2053,7 +2066,7 @@ if(!function_exists('ls')) {
         sort($dirs_array); // sorting the array alphabetically (Thanks pxl8r!)
         for ($i = 0; $i < $folders; $i++) {
             $filesizes += $dirs_array[$i]['stats']['7'];
-            echo '<tr>';
+            echo '<tr class="fm-entry" data-kind="dir" data-name="' . htmlspecialchars($dirs_array[$i]['name'], ENT_QUOTES, 'UTF-8') . '">';
             echo '<td>' . $dirs_array[$i]['text'] . '</td>';
             echo '<td class="text-nowrap">' . evolutionCMS()->toDateFormat($dirs_array[$i]['stats']['9']) . '</td>';
             echo '<td class="text-right">' . niceSize($dirs_array[$i]['stats']['7']) . '</td>';
@@ -2075,7 +2088,8 @@ if(!function_exists('ls')) {
         sort($files_array); // sorting the array alphabetically (Thanks pxl8r!)
         for ($i = 0; $i < $files; $i++) {
             $filesizes += $files_array[$i]['stats']['7'];
-            echo '<tr ' . markRow($files_array[$i]['file'], get_by_key($_REQUEST, 'path'), get_by_key($_REQUEST, 'mode')) . '>';
+            $rowClass = trim('fm-entry ' . markRowClass($files_array[$i]['file'], get_by_key($_REQUEST, 'path'), get_by_key($_REQUEST, 'mode')));
+            echo '<tr class="' . $rowClass . '" data-kind="file" data-name="' . htmlspecialchars($files_array[$i]['name'], ENT_QUOTES, 'UTF-8') . '">';
             echo '<td>' . $files_array[$i]['text'] . '</td>';
             echo '<td class="text-nowrap">' . evo()->toDateFormat($files_array[$i]['stats']['9']) . '</td>';
             echo '<td class="text-right">' . niceSize($files_array[$i]['stats']['7']) . '</td>';
@@ -2095,7 +2109,7 @@ if(!function_exists('ls')) {
         $links = count($links_array);
         usort($links_array, static fn ($a, $b) => strcmp($a['name'], $b['name']));
         foreach ($links_array as $link) {
-            echo '<tr>';
+            echo '<tr class="fm-entry" data-kind="link" data-name="' . htmlspecialchars($link['name'], ENT_QUOTES, 'UTF-8') . '">';
             echo '<td>' . $link['text'] . '</td>';
             echo '<td class="text-nowrap">' . evo()->toDateFormat($link['stats'][9]) . '</td>';
             echo '<td class="text-right" title="' . e($_lang['files_link']) . '">' . e($_lang['files_link']) . '</td>';
@@ -2552,11 +2566,24 @@ if(!function_exists('delete_file')) {
      */
     function delete_file()
     {
+        return fileManagerDeleteFile((string) ($_REQUEST['path'] ?? ''));
+    }
+}
+
+if(!function_exists('fileManagerDeleteFile')) {
+    /**
+     * Deletes one file named by its path below the file manager root.
+     *
+     * @param string $requestedPath
+     * @return string
+     */
+    function fileManagerDeleteFile($requestedPath)
+    {
         global $_lang;
 
         $filemanager_path = rtrim((string) fileManagerCanonicalPath(evolutionCMS()
             ->getConfig('filemanager_path', EVO_BASE_PATH)), '/');
-        $requested_path = ltrim($_REQUEST['path'] ?? '', '/');
+        $requested_path = ltrim((string) $requestedPath, '/');
         $requested = $filemanager_path . '/' . $requested_path;
         if (fileManagerPathContainsLink($filemanager_path, $requested)) {
             return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
@@ -2592,6 +2619,206 @@ if(!function_exists('delete_file')) {
         logFileChange('delete', $file);
 
         return $msg;
+    }
+}
+
+if(!function_exists('fileManagerDeleteFolder')) {
+    /**
+     * Deletes one folder, with everything in it, named by its path below the file manager root.
+     *
+     * @param string $filemanager_path
+     * @param string $folderPath
+     * @param array $userGroups
+     * @param array $protected_path
+     * @return string
+     */
+    function fileManagerDeleteFolder($filemanager_path, $folderPath, array $userGroups, array $protected_path)
+    {
+        global $_lang;
+
+        $folderTarget = fileManagerResolvePath($filemanager_path, (string) $folderPath);
+        $folder = $folderTarget['path'] ?? '';
+        $wasLink = $folder !== '' && fileManagerIsLink($folder);
+        if ($folderTarget === null || !is_dir($folder)) {
+            return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+        }
+        if (!fileManagerCanModifyExistingPath($folderTarget['relative'], $userGroups)
+            || fileManagerSharedTypeRootAt($folder) !== null
+            || fileManagerPathTouchesProtected($folder, $protected_path)
+            || fileManagerHasInaccessibleDescendants($folderTarget['relative'])
+            || !is_writable($folder)) {
+            return fileManagerDenied();
+        }
+        if (($denied = fileManagerCodeRemovalDenied($folder, $folderTarget['relative'])) !== null) {
+            // whoever may not write code may not delete it either
+            return $denied;
+        }
+        if (!@rrmdir($folder)) {
+            return '<span class="warning"><b>' . $_lang['file_folder_not_deleted'] . '</b></span><br /><br />';
+        }
+        // a linked folder goes as a link: its content and groups stay for the link's return
+        if (!$wasLink) {
+            \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($folderTarget['relative']));
+        }
+
+        return '<span class="success"><b>' . $_lang['file_folder_deleted'] . '</b></span><br /><br />';
+    }
+}
+
+if(!function_exists('fileManagerDeleteLink')) {
+    /**
+     * Deletes a link the file manager does not pass: the link itself, never what it leads to.
+     *
+     * @param string $startpath the folder that holds the link
+     * @param string $relative_path that folder below the file manager root
+     * @param string $linkName
+     * @param array $userGroups
+     * @param array $protected_path
+     * @return string
+     */
+    function fileManagerDeleteLink($startpath, $relative_path, $linkName, array $userGroups, array $protected_path)
+    {
+        global $_lang;
+
+        $linkName = (string) $linkName;
+        $linkPath = $startpath . '/' . $linkName;
+        // its own path, never resolved: resolving would judge the target
+        $linkRelative = ltrim(($relative_path !== '' ? $relative_path . '/' : '') . $linkName, '/');
+        if ($linkName === '' || $linkName === '.' || $linkName === '..' || strpbrk($linkName, '/\\') !== false
+            || fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)) {
+            return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+        }
+        if (!fileManagerCanModifyExistingPath($linkRelative, $userGroups)
+            || fileManagerPathIsProtected($linkPath, $protected_path, false)) {
+            return fileManagerDenied('file group, top level or protected folder');
+        }
+        if (fileManagerSharedTypeRootAt($linkPath) !== null) {
+            return fileManagerDenied('shared type folder');
+        }
+        if (($denied = fileManagerCodeRemovalDenied($linkPath, $linkRelative)) !== null) {
+            // a link named .htaccess is read by the web server like the file
+            return $denied;
+        }
+        if (!fileManagerIsLink($linkPath) || !fileManagerRemoveLink($linkPath)) {
+            return '<span class="warning"><b>' . $_lang['files_link_not_deleted'] . '</b></span><br /><br />';
+        }
+
+        // the target keeps its groups: they are stored under its own key
+        return '<span class="success"><b>' . $_lang['files_link_deleted'] . '</b></span><br /><br />';
+    }
+}
+
+if(!function_exists('fileManagerDeleteEntries')) {
+    /**
+     * Deletes several entries of one folder (a selection of the listing), each through the same
+     * checks as its own delete action: a folder as a folder, a link the manager does not pass as a
+     * link, anything else as a file.
+     *
+     * @param string $filemanager_path
+     * @param string $startpath
+     * @param string $relative_path
+     * @param mixed $names entry names inside $startpath
+     * @param array $userGroups
+     * @param array $protected_path
+     * @return string
+     */
+    function fileManagerDeleteEntries($filemanager_path, $startpath, $relative_path, $names, array $userGroups, array $protected_path)
+    {
+        if (!is_array($names)) {
+            return '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+        }
+        $output = '';
+        foreach (array_values(array_unique(array_filter($names, 'is_string'))) as $name) {
+            $label = '<b>' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '</b>: ';
+            $relative = ($relative_path !== '' ? $relative_path . '/' : '') . $name;
+            if ($name === '' || $name === '.' || $name === '..' || strpbrk($name, '/\\') !== false
+                || fileManagerRefuseReservedName($name)) {
+                $output .= $label . '<span class="warning"><b>Invalid path.</b></span><br /><br />';
+                continue;
+            }
+            $path = $startpath . '/' . $name;
+            if (fileManagerIsLink($path) && fileManagerPathContainsLink($filemanager_path, $path)) {
+                $output .= $label . fileManagerDeleteLink($startpath, $relative_path, $name, $userGroups, $protected_path);
+            } elseif (is_dir($path)) {
+                $output .= $label . fileManagerDeleteFolder($filemanager_path, $relative, $userGroups, $protected_path);
+            } else {
+                // names the file itself
+                $output .= fileManagerDeleteFile($relative);
+            }
+        }
+
+        return $output;
+    }
+}
+
+if (!defined('FILE_MANAGER_SELECTION_LIMIT')) {
+    /** The most entries one selection delete takes. */
+    define('FILE_MANAGER_SELECTION_LIMIT', 5000);
+}
+
+if (!function_exists('fileManagerSelectionFromRequest')) {
+    /**
+     * The entry names of a selection delete, or null when the request does not hold the whole selection.
+     * The names arrive as one JSON field next to their count: PHP drops input variables past
+     * max_input_vars without telling the script, so one field per name could arrive cut short and
+     * delete only part of what the manager confirmed.
+     *
+     * @param array $post
+     * @return string[]|null
+     */
+    function fileManagerSelectionFromRequest(array $post)
+    {
+        $json = $post['names'] ?? null;
+        $count = $post['count'] ?? null;
+        if (!is_string($json) || !is_string($count) || !ctype_digit($count)
+            || strlen($json) > FILE_MANAGER_SELECTION_LIMIT * 1024) {
+            return null;
+        }
+        try {
+            // objects stay objects, so only a JSON array is a list of names
+            $names = json_decode($json, false, 2, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            return null;
+        }
+        if (!is_array($names) || !array_is_list($names) || count($names) !== (int) $count
+            || $names === [] || count($names) > FILE_MANAGER_SELECTION_LIMIT) {
+            return null;
+        }
+        foreach ($names as $name) {
+            if (!is_string($name)) {
+                return null;
+            }
+        }
+
+        return $names;
+    }
+}
+
+if (!function_exists('fileManagerDeleteSelectionRequest')) {
+    /**
+     * A selection delete as the listing posts it: nothing at all unless the whole selection arrived,
+     * then every entry through its own delete action's checks.
+     *
+     * @param array $post
+     * @param string $filemanager_path
+     * @param string $startpath
+     * @param string $relative_path
+     * @param array $userGroups
+     * @param array $protected_path
+     * @return string
+     */
+    function fileManagerDeleteSelectionRequest(array $post, $filemanager_path, $startpath, $relative_path, array $userGroups, array $protected_path)
+    {
+        global $_lang;
+
+        $names = fileManagerSelectionFromRequest($post);
+        if ($names === null) {
+            $message = $_lang['files_selection_incomplete'] ?? 'The selection did not arrive complete, so nothing was deleted.';
+
+            return '<span class="warning"><b>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</b></span><br /><br />';
+        }
+
+        return fileManagerDeleteEntries($filemanager_path, $startpath, $relative_path, $names, $userGroups, $protected_path);
     }
 }
 

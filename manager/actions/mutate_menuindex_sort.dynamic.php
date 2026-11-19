@@ -138,6 +138,7 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
     }
 
     var sortdir = 'asc';
+    var sortSelection = null;
 
     function sort() {
         var els = document.querySelectorAll('.sortableList > li');
@@ -158,6 +159,9 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
             sortdir = 'asc';
         }
         var ul = document.getElementById('sortlist');
+        if (sortSelection) {
+            sortSelection.clear();
+        }
         var list = '';
         for (var i = 0; i < els.length; i++) {
             ul.appendChild(els[i]);
@@ -191,7 +195,7 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
         <?php
         if ($resourcelist) {
             ?>
-            <p><?= $_lang["sort_elements_msg"] ?></p>
+            <p><?= $_lang["sort_elements_msg"] ?><br><small class="text-muted"><?= e($_lang['sort_select_group_msg']) ?></small></p>
             <p>
                 <a class="btn btn-secondary" href="javascript:;" onclick="sort();return false;"><i
                             class="<?= $_style['icon_sort'] ?>"></i> <?= $_lang['sort_alphabetically'] ?></a>
@@ -215,10 +219,14 @@ $pagetitle = empty($id) ? evo()->getConfig('site_name') : $pagetitle;
     <input type="hidden" id="list" name="list" value=""/>
 </form>
 
+<script src="media/script/range-select.js?v=<?= e(evo()->getVersionData('version')) ?>"></script>
 <script type="text/javascript">
-    evo.sortable('.sortableList > li', {
-        complete: function () {
-            renderList();
-        }
-    });
+    // a run of neighbours selected with Shift+click (or a swipe) is dragged as one block
+    if (document.getElementById('sortlist')) {
+        sortSelection = evoRangeSelect.sortable(document.getElementById('sortlist'), {
+            complete: function () {
+                renderList();
+            }
+        });
+    }
 </script>

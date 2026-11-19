@@ -135,8 +135,10 @@ it('removes a linked folder as a link, never what it leads to', function (string
 
 it('refuses deleting, renaming or unlinking the shared type folder in the classic manager', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
+    // deleting a folder or a link is shared with the deletion of a selection
+    $helpers = (string) file_get_contents(dirname(__DIR__, 4) . '/core/functions/actions/files.php');
 
-    expect(substr_count($source, 'fileManagerSharedTypeRootAt($folder) !== null'))->toBe(1)
+    expect(substr_count($helpers, 'fileManagerSharedTypeRootAt($folder) !== null'))->toBe(1)
         ->and(substr_count($source, 'fileManagerSharedTypeRootAt($dirname) !== null'))->toBe(1)
-        ->and(substr_count($source, 'fileManagerSharedTypeRootAt($linkPath) !== null'))->toBe(1);
+        ->and(substr_count($helpers, 'fileManagerSharedTypeRootAt($linkPath) !== null'))->toBe(1);
 });

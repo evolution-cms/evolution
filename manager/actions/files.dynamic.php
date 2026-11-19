@@ -351,6 +351,15 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 } else {
                     echo $tokenRefusedMessage;
                 }
+            } elseif (get_by_key($_POST, 'mode') == 'deletemany') {
+                // the entries selected in the listing, each through its own delete action's checks
+                if (!$token_check) {
+                    echo $tokenRefusedMessage;
+                } elseif (!$currentPathWritable) {
+                    echo fileManagerDenied();
+                } else {
+                    echo fileManagerDeleteSelectionRequest($_POST, $filemanager_path, $startpath, $relative_path, $userGroups, $protected_path);
+                }
             } elseif (get_by_key($_POST, 'mode') == 'savegroups') {
                 if ($token_check) {
                     if ($showFileGroups) {
@@ -534,29 +543,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
             // Delete Folder
             if (get_by_key($_REQUEST, 'mode') == 'deletefolder') {
                 if ($token_check) {
-                    $folderTarget = fileManagerResolvePath($filemanager_path, $_REQUEST['folderpath'] ?? '');
-                    $folder = $folderTarget['path'] ?? '';
-                    $wasLink = $folder !== '' && fileManagerIsLink($folder);
-                    if ($folderTarget === null || !is_dir($folder)) {
-                        echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
-                    } elseif (!fileManagerCanModifyExistingPath($folderTarget['relative'], $userGroups)
-                        || fileManagerSharedTypeRootAt($folder) !== null
-                        || fileManagerPathTouchesProtected($folder, $protected_path)
-                        || fileManagerHasInaccessibleDescendants($folderTarget['relative'])
-                        || !is_writable($folder)) {
-                        echo fileManagerDenied();
-                    } elseif (($denied = fileManagerCodeRemovalDenied($folder, $folderTarget['relative'])) !== null) {
-                        // whoever may not write code may not delete it either
-                        echo $denied;
-                    } elseif (!@rrmdir($folder)) {
-                        echo '<span class="warning"><b>' . $_lang['file_folder_not_deleted'] . '</b></span><br /><br />';
-                    } else {
-                        echo '<span class="success"><b>' . $_lang['file_folder_deleted'] . '</b></span><br /><br />';
-                        // a linked folder goes as a link: its content and groups stay for the link's return
-                        if (!$wasLink) {
-                            \EvolutionCMS\Support\FileManagerAccess::forgetRestrictions(fileManagerAclKey($folderTarget['relative']));
-                        }
-                    }
+                    echo fileManagerDeleteFolder($filemanager_path, (string) ($_REQUEST['folderpath'] ?? ''), $userGroups, $protected_path);
                 } else {
                     echo $tokenRefusedMessage;
                 }
@@ -730,27 +717,7 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
             // Delete a link here: the link itself, never what it leads to
             if (get_by_key($_REQUEST, 'mode') == 'deletelink') {
                 if ($token_check) {
-                    $linkName = (string) ($_REQUEST['name'] ?? '');
-                    $linkPath = $startpath . '/' . $linkName;
-                    // its own path, never resolved: resolving would judge the target
-                    $linkRelative = ltrim(($relative_path !== '' ? $relative_path . '/' : '') . $linkName, '/');
-                    if ($linkName === '' || $linkName === '.' || $linkName === '..' || strpbrk($linkName, '/\\') !== false
-                        || fileManagerRefuseReservedName($linkName) || !fileManagerIsLink($linkPath)) {
-                        echo '<span class="warning"><b>Invalid path.</b></span><br /><br />';
-                    } elseif (!fileManagerCanModifyExistingPath($linkRelative, $userGroups)
-                        || fileManagerPathIsProtected($linkPath, $protected_path, false)) {
-                        echo fileManagerDenied('file group, top level or protected folder');
-                    } elseif (fileManagerSharedTypeRootAt($linkPath) !== null) {
-                        echo fileManagerDenied('shared type folder');
-                    } elseif (($denied = fileManagerCodeRemovalDenied($linkPath, $linkRelative)) !== null) {
-                        // a link named .htaccess is read by the web server like the file
-                        echo $denied;
-                    } elseif (!fileManagerIsLink($linkPath) || !fileManagerRemoveLink($linkPath)) {
-                        echo '<span class="warning"><b>' . $_lang['files_link_not_deleted'] . '</b></span><br /><br />';
-                    } else {
-                        // the target keeps its groups: they are stored under its own key
-                        echo '<span class="success"><b>' . $_lang['files_link_deleted'] . '</b></span><br /><br />';
-                    }
+                    echo fileManagerDeleteLink($startpath, $relative_path, (string) ($_REQUEST['name'] ?? ''), $userGroups, $protected_path);
                 } else {
                     echo $tokenRefusedMessage;
                 }
@@ -858,7 +825,109 @@ if (get_by_key($_REQUEST, 'mode') == 'deletezip') {
                 ?>
             </table>
         </div>
+        <?php if ($currentPathWritable) { ?>
+            <form name="fileManagerDeleteMany" action="index.php" method="post" style="display:none">
+                <?= csrf_field() ?>
+                <input type="hidden" name="a" value="31">
+                <input type="hidden" name="mode" value="deletemany">
+                <input type="hidden" name="path" value="<?= entities($relative_path, evo()->getConfig('modx_charset')) ?>">
+                <input type="hidden" name="token" value="<?= $newToken ?>">
+                <input type="hidden" name="count" value="">
+                <input type="hidden" name="names" value="">
+            </form>
+        <?php } ?>
+        <script src="media/script/range-select.js?v=<?= e(evo()->getVersionData('version')) ?>"></script>
+        <script>
+            // Shift+click, a held touch or Ctrl+A selects a run of entries; Del or the one trash icon of
+            // the run deletes them, each through its own delete action's checks
+            (function () {
+                var table = document.getElementById('FilesTable');
+                var body = table && table.tBodies[0];
+                if (!body || !window.evoRangeSelect) {
+                    return;
+                }
+                var form = document.forms.fileManagerDeleteMany;
+                var lang = <?= js_json([
+                    'delete' => $_lang['files_delete_selected'],
+                    'confirm' => $_lang['files_confirm_delete_selected'],
+                    'tooMany' => sprintf($_lang['files_selection_too_large'], FILE_MANAGER_SELECTION_LIMIT),
+                ]) ?>;
+                var limit = <?= (int) FILE_MANAGER_SELECTION_LIMIT ?>;
+                var trashIcon = <?= js_json((string) $_style['icon_trash']) ?>;
+
+                function deletable(row) {
+                    var icon = row.querySelector('.fm-delete');
+                    return !!icon && icon.tagName === 'A';
+                }
+
+                function deleteRows(rows) {
+                    if (rows.length === 1) {
+                        // the same as a click on the row's own trash icon
+                        var own = rows[0].querySelector('a.fm-delete');
+                        if (own) {
+                            own.click();
+                        }
+                        return;
+                    }
+                    if (!form || !rows.every(deletable)) {
+                        return;
+                    }
+                    if (rows.length > limit) {
+                        alert(lang.tooMany);
+                        return;
+                    }
+                    if (!confirm(lang.confirm.replace(/\\n/g, '\n').replace('%s', String(rows.length)))) {
+                        return;
+                    }
+                    // one field for every name: PHP would silently drop fields past max_input_vars
+                    form.elements.names.value = JSON.stringify(rows.map(function (row) {
+                        return row.getAttribute('data-name');
+                    }));
+                    form.elements.count.value = String(rows.length);
+                    window.documentDirty = false;
+                    form.submit();
+                }
+
+                var selection = evoRangeSelect.attach(body, {
+                    items: function () {
+                        return body.querySelectorAll('tr.fm-entry');
+                    },
+                    ignore: 'a, button, input, select, textarea, label, td.actions',
+                    keyboard: true,
+                    onDelete: deleteRows,
+                    onChange: function (rows) {
+                        var old = body.querySelector('.fm-group-delete');
+                        if (old) {
+                            old.parentNode.removeChild(old);
+                        }
+                        var cell = rows.length > 1 ? rows[0].querySelector('td.actions') : null;
+                        if (!cell) {
+                            return;
+                        }
+                        // in the place of the top row's own trash icon; the other icons of the run are hidden
+                        var enabled = !!form && rows.every(deletable);
+                        var icon = document.createElement(enabled ? 'a' : 'span');
+                        icon.className = 'fm-group-delete' + (enabled ? '' : ' disabled');
+                        if (enabled) {
+                            icon.href = 'javascript:;';
+                            icon.addEventListener('click', function (e) {
+                                e.preventDefault();
+                                deleteRows(selection.selected());
+                            });
+                        }
+                        var i = document.createElement('i');
+                        i.className = trashIcon;
+                        i.title = lang.delete + ' (' + rows.length + ')';
+                        icon.appendChild(i);
+                        cell.appendChild(icon);
+                    }
+                });
+            })();
+        </script>
         <div class="container">
+            <?php if ($currentPathWritable && ($folders + $files + (int) ($links ?? 0)) > 0) { ?>
+                <p class="text-muted"><small><?= e($_lang['files_select_hint']) ?></small></p>
+            <?php } ?>
             <p>
                 <?php echo $_lang['files_directories'] . ': <b>' . $folders . '</b> ';
                 echo $_lang['files_files'] . ': <b>' . $files . '</b> ';

@@ -236,7 +236,7 @@ it('checks protected folders in every file manager write before anything runs', 
     $functions = file_get_contents(dirname(__DIR__, 3) . '/functions/actions/files.php');
     $dynamic = file_get_contents(dirname(__DIR__, 4) . '/manager/actions/files.dynamic.php');
 
-    foreach (['function fileupload', 'function textsave', 'function delete_file'] as $function) {
+    foreach (['function fileupload', 'function textsave', 'function fileManagerDeleteFile'] as $function) {
         $body = substr($functions, strpos($functions, $function), 2500);
         expect($body)->toContain('fileManagerProtectedPaths()');
     }
@@ -245,8 +245,9 @@ it('checks protected folders in every file manager write before anything runs', 
     expect($gate)->not->toBeFalse()
         ->and($gate)->toBeLessThan(strpos($dynamic, 'echo textsave();'))
         ->and($gate)->toBeLessThan(strpos($dynamic, '$information = fileupload();'))
+        ->and($gate)->toBeLessThan(strpos($dynamic, 'echo fileManagerDeleteSelectionRequest('))
         ->and($dynamic)->toContain('$protected_path = fileManagerProtectedPaths();')
-        ->and($dynamic)->toContain('fileManagerPathTouchesProtected($folder, $protected_path)')
+        ->and($functions)->toContain('fileManagerPathTouchesProtected($folder, $protected_path)')
         ->and($dynamic)->toContain('fileManagerPathTouchesProtected($dirname, $protected_path)')
         ->and($dynamic)->toContain('$protected_path,')
         ->and($dynamic)->toContain('fileManagerZipWriteGuard($filemanager_path, $startpath)')
