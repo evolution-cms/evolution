@@ -359,33 +359,56 @@ EXAMPLES;
      * This process still runs the code it started with, against the vendor Composer has just
      * replaced: a class it loads from now on may need one that only the new autoloader knows,
      * and the update dies halfway (from 3.5 to 3.6, in the update seeders). "make:site finish"
-     * starts on the new code. A release from before it answers without FINISH_MARKER, and its
-     * update then ends here, as it always did.
+     * starts on the new code. Only a release whose make:site has no "finish" (newCodeCanFinish())
+     * ends its update here, as it always did; any other answer without FINISH_MARKER is a failure
+     * of the new code, reported with its output, and the old code does not take over.
      *
      * @since 3.5.10
      * @return bool False when the new code could not finish the update.
      */
     protected function finishWithNewCode(): bool
     {
-        $output = [];
-        $exitCode = $this->execCoreShellCommand($this->phpBinaryCommand() . ' artisan make:site finish --no-ansi', $output);
-        if (!in_array(self::FINISH_MARKER, array_map('trim', $output), true)) {
+        if (!$this->newCodeCanFinish()) {
             $this->runFinishSteps();
 
             return true;
         }
 
+        $output = [];
+        $exitCode = $this->execCoreShellCommand($this->phpBinaryCommand() . ' artisan make:site finish --no-ansi', $output);
         foreach ($output as $line) {
             $this->line((string) $line);
         }
-        if ($exitCode !== 0) {
-            $this->error('The new code could not finish the update. Run "php artisan make:site finish" in '
+        if ($exitCode !== 0 || !in_array(self::FINISH_MARKER, array_map('trim', $output), true)) {
+            $this->error('The new code could not finish the update (exit code ' . $exitCode . '). Run "php artisan make:site finish" in '
                 . EVO_CORE_PATH . ' once the cause is fixed.');
 
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Whether the make:site just laid over the site has the "finish" action.
+     *
+     * @since 3.5.10
+     * @return bool
+     */
+    protected function newCodeCanFinish(): bool
+    {
+        $source = @file_get_contents($this->newSiteUpdateCommandFile());
+
+        return is_string($source) && str_contains($source, "case 'finish':");
+    }
+
+    /**
+     * @since 3.5.10
+     * @return string
+     */
+    protected function newSiteUpdateCommandFile(): string
+    {
+        return EVO_CORE_PATH . 'src/Console/SiteUpdateCommand.php';
     }
 
     /**
