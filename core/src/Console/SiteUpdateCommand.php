@@ -35,6 +35,13 @@ class SiteUpdateCommand extends Command
     protected const ROLLBACK_PREFIX = '.update-rollback-';
 
     /**
+     * First line of "make:site finish", by which the updating process knows the new code has it.
+     *
+     * @since 3.5.10
+     */
+    protected const FINISH_MARKER = 'Finish the update with the new code';
+
+    /**
      * Commit the downloaded archive was made from, empty when it did not say.
      *
      * @since 3.5.9
@@ -47,7 +54,7 @@ class SiteUpdateCommand extends Command
      * @var string
      */
     protected $signature = 'make:site
-                            {command_site=update : Update action to run. Keep "update" for normal core updates}
+                            {command_site=update : Update action to run. Keep "update" for normal core updates; "finish" completes one with the new code, migrations included}
                             {version=null : Optional Release (3.5.8), branch (3.5.x), tag (nightly-3.5.x), commit hash (922ece660) or GitHub URL (https://github.com/owner/evolution/tree/branch). Omit it to stay on the current line}
                             {--repository= : Optional GitHub repository slug for a plain version. Example: middleDuckAi/evolution}
                             {--update-custom-packages : Let Composer move packages of core/custom/composer.json (and what they need) to other versions when the ones the site runs do not fit}';
@@ -170,6 +177,12 @@ EXAMPLES;
 
                 case 'update':
                     return $this->startUpdate() === false ? self::FAILURE : self::SUCCESS;
+
+                case 'finish':
+                    $this->line(self::FINISH_MARKER);
+                    $this->runFinishSteps();
+
+                    return self::SUCCESS;
             }
         } catch (\InvalidArgumentException $exception) {
             $this->error($exception->getMessage());
@@ -326,14 +339,9 @@ EXAMPLES;
                 return false;
             }
 
-            $this->runCoreMigrations();
-            $this->runUpdateSeeders();
-            $this->clearCompiledViews();
-            $this->updateBundledExtrasModule();
-            $this->syncSettingsVersion();
-
-            $this->line('<fg=green>Remove Install Directory</>');
-            self::rmdirs(EVO_BASE_PATH . 'install');
+            if (!$this->finishWithNewCode()) {
+                return false;
+            }
 
             $this->line('<fg=yellow;bg=blue>Now You use ' . $this->describeInstalledVersion() . '</>');
         } else {
@@ -341,6 +349,59 @@ EXAMPLES;
         }
 
         return true;
+    }
+
+    /**
+     * Hand the rest of the update to the new code, in a process of its own.
+     *
+     * This process still runs the code it started with, against the vendor Composer has just
+     * replaced: a class it loads from now on may need one that only the new autoloader knows,
+     * and the update dies halfway (from 3.5 to 3.6, in the update seeders). "make:site finish"
+     * starts on the new code. A release from before it answers without FINISH_MARKER, and its
+     * update then ends here, as it always did.
+     *
+     * @since 3.5.10
+     * @return bool False when the new code could not finish the update.
+     */
+    protected function finishWithNewCode(): bool
+    {
+        $output = [];
+        $exitCode = $this->execCoreShellCommand($this->phpBinaryCommand() . ' artisan make:site finish --no-ansi', $output);
+        if (!in_array(self::FINISH_MARKER, array_map('trim', $output), true)) {
+            $this->runFinishSteps();
+
+            return true;
+        }
+
+        foreach ($output as $line) {
+            $this->line((string) $line);
+        }
+        if ($exitCode !== 0) {
+            $this->error('The new code could not finish the update. Run "php artisan make:site finish" in '
+                . EVO_CORE_PATH . ' once the cause is fixed.');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Migrations, update seeders, caches and the bundled Extras module of the new version.
+     *
+     * @since 3.5.10
+     * @return void
+     */
+    protected function runFinishSteps(): void
+    {
+        $this->runCoreMigrations();
+        $this->runUpdateSeeders();
+        $this->clearCompiledViews();
+        $this->updateBundledExtrasModule();
+        $this->syncSettingsVersion();
+
+        $this->line('<fg=green>Remove Install Directory</>');
+        self::rmdirs(EVO_BASE_PATH . 'install');
     }
 
     /**
