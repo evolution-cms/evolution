@@ -5,14 +5,17 @@ namespace EvolutionCMS\Support;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 
 /**
- * Migration log that counts what the other side of the site already ran.
+ * Migration log that can tell what the other side of the site already ran.
  *
  * The installer records migrations in `migrations_install`, artisan in `migrations`
  * (core/config/database/migrations.php), and both run the migrations of every package. A package
  * migration recorded on one side ran again on the other: `make:site` after a web install, or the
  * installer's upgrade mode after `make:site`, created the sGallery table a second time and stopped
- * with "table already exists". A migration is applied once, wherever it was recorded. Each side
- * still writes, rolls back and reports batches in its own table.
+ * with "table already exists".
+ *
+ * getRan() and everything else keep to this side's own table, so reset, rollback and batches stay
+ * what Laravel expects. ranElsewhere() lists the other side's migrations: SharedMigrator leaves
+ * them out of the pending ones, and migrate:status shows them as run, with their table.
  *
  * @since 3.5.10
  */
@@ -22,25 +25,27 @@ class SharedMigrationRepository extends DatabaseMigrationRepository
     public const TABLES = ['migrations', 'migrations_install'];
 
     /**
-     * Migrations recorded in this side's table, then those only the other side recorded.
+     * Migrations only the other side recorded, with their batch there.
      *
-     * @return array<int, string>
+     * @return array<string, int>
      */
-    public function getRan()
+    public function ranElsewhere(): array
     {
-        $ran = parent::getRan();
         $other = $this->counterpartTable();
         if ($other === null || !$this->getConnection()->getSchemaBuilder()->hasTable($other)) {
-            return $ran;
+            return [];
         }
 
-        $elsewhere = $this->getConnection()->table($other)
-            ->orderBy('batch')
-            ->orderBy('migration')
-            ->pluck('migration')
-            ->all();
+        $own = array_flip($this->getRan());
+        $elsewhere = [];
+        $rows = $this->getConnection()->table($other)->orderBy('batch')->orderBy('migration')->get(['migration', 'batch']);
+        foreach ($rows as $row) {
+            if (!isset($own[$row->migration])) {
+                $elsewhere[(string) $row->migration] = (int) $row->batch;
+            }
+        }
 
-        return array_values(array_unique(array_merge($ran, $elsewhere)));
+        return $elsewhere;
     }
 
     /**
