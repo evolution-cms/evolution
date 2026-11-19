@@ -18,7 +18,7 @@ use Illuminate\Cache\Console\ClearCommand as CacheClearCommand;
 use Illuminate\Cache\Console\ForgetCommand as CacheForgetCommand;
 use Illuminate\Database\Console\Migrations\FreshCommand as MigrateFreshCommand;
 use Illuminate\Database\Console\Migrations\ResetCommand as MigrateResetCommand;
-use Illuminate\Database\Console\Migrations\StatusCommand as MigrateStatusCommand;
+use EvolutionCMS\Console\MigrateStatusCommand;
 use Illuminate\Database\Console\Migrations\InstallCommand as MigrateInstallCommand;
 use Illuminate\Database\Console\Migrations\RefreshCommand as MigrateRefreshCommand;
 use Illuminate\Database\Console\Migrations\RollbackCommand as MigrateRollbackCommand;
