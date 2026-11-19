@@ -9,17 +9,30 @@ use EvolutionCMS\Console\SiteUpdateCommand;
  * The new code finishes the update in a process of its own ("make:site finish").
  */
 
-/** A make:site whose "make:site finish" child answers as given. */
-function finishCommand(int $exitCode, array $output): SiteUpdateCommand
+/** A make:site whose new code is the given source, and whose "make:site finish" child answers as given. */
+function finishCommand(string $newSource, int $exitCode, array $output): SiteUpdateCommand
 {
-    return new class($exitCode, $output) extends SiteUpdateCommand {
+    $file = tempnam(sys_get_temp_dir(), 'evo-finish-');
+    file_put_contents($file, $newSource);
+
+    return new class($file, $exitCode, $output) extends SiteUpdateCommand {
         public array $commands = [];
         public array $lines = [];
         public int $stepsHere = 0;
 
-        public function __construct(private int $exitCode, private array $answer)
+        public function __construct(private string $file, private int $exitCode, private array $answer)
         {
             parent::__construct();
+        }
+
+        public function __destruct()
+        {
+            @unlink($this->file);
+        }
+
+        protected function newSiteUpdateCommandFile(): string
+        {
+            return $this->file;
         }
 
         protected function execCoreShellCommand(string $command, ?array &$output = null): int
@@ -52,8 +65,11 @@ function finishInvoke(SiteUpdateCommand $command): bool
     return (new ReflectionMethod($command, 'finishWithNewCode'))->invoke($command);
 }
 
+const FINISHING_SOURCE = "switch (\$action) {\n    case 'update':\n    case 'finish':\n}";
+const LEGACY_SOURCE = "switch (\$action) {\n    case 'pizdato':\n    case 'update':\n}";
+
 test('the new code finishes the update in its own process', function () {
-    $command = finishCommand(0, ['Finish the update with the new code', 'Run Core Migrations', 'Apply update seeders', 'Remove Install Directory']);
+    $command = finishCommand(FINISHING_SOURCE, 0, ['Finish the update with the new code', 'Run Core Migrations', 'Apply update seeders', 'Remove Install Directory']);
 
     expect(finishInvoke($command))->toBeTrue()
         ->and($command->commands)->toHaveCount(1)
@@ -64,21 +80,45 @@ test('the new code finishes the update in its own process', function () {
         ->and($command->lines)->toContain('Remove Install Directory');
 });
 
-test('a release without make:site finish ends its update here, as before', function () {
-    // Its make:site answers an unknown action with exit code 1 and not a word.
-    $command = finishCommand(1, []);
+test('a release whose make:site has no finish ends its update here, as before', function () {
+    $command = finishCommand(LEGACY_SOURCE, 1, []);
+
+    expect(finishInvoke($command))->toBeTrue()
+        ->and($command->commands)->toBe([])
+        ->and($command->stepsHere)->toBe(1);
+});
+
+test('a new code that fails before it announces itself is reported, not replaced by the old one', function () {
+    // A fatal error while artisan boots: no marker, exit code 255.
+    $command = finishCommand(FINISHING_SOURCE, 255, ['PHP Fatal error:  Uncaught Error: Class "Foo" not found in core/src/Bar.php:12']);
+
+    expect(finishInvoke($command))->toBeFalse()
+        ->and($command->stepsHere)->toBe(0)
+        ->and($command->lines)->toContain('PHP Fatal error:  Uncaught Error: Class "Foo" not found in core/src/Bar.php:12')
+        ->and(implode("\n", $command->lines))->toContain('ERROR The new code could not finish the update (exit code 255). Run "php artisan make:site finish"');
+});
+
+test('a failure of the new code after it announced itself is reported, not repeated', function () {
+    $command = finishCommand(FINISHING_SOURCE, 1, ['Finish the update with the new code', 'Run Core Migrations', 'SQLSTATE[HY000]: General error']);
+
+    expect(finishInvoke($command))->toBeFalse()
+        ->and($command->stepsHere)->toBe(0)
+        ->and($command->lines)->toContain('SQLSTATE[HY000]: General error')
+        ->and(implode("\n", $command->lines))->toContain('ERROR The new code could not finish the update (exit code 1).');
+});
+
+test('a missing make:site counts as a release without finish', function () {
+    $command = finishCommand('', 1, []);
+    unlink((new ReflectionMethod($command, 'newSiteUpdateCommandFile'))->invoke($command));
 
     expect(finishInvoke($command))->toBeTrue()
         ->and($command->stepsHere)->toBe(1);
 });
 
-test('a failure of the new code is reported, not repeated with the old one', function () {
-    $command = finishCommand(1, ['Finish the update with the new code', 'Run Core Migrations', 'SQLSTATE[HY000]: General error']);
+test('this make:site has finish, so a later update recognises it', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
-    expect(finishInvoke($command))->toBeFalse()
-        ->and($command->stepsHere)->toBe(0)
-        ->and($command->lines)->toContain('SQLSTATE[HY000]: General error')
-        ->and(implode("\n", $command->lines))->toContain('ERROR The new code could not finish the update. Run "php artisan make:site finish"');
+    expect($source)->toContain("case 'finish':");
 });
 
 test('make:site finish announces itself before any step and runs every step after Composer', function () {
@@ -97,7 +137,7 @@ test('make:site finish announces itself before any step and runs every step afte
         ->and($steps)->toContain('$this->updateBundledExtrasModule();')
         ->and($steps)->toContain('$this->syncSettingsVersion();')
         ->and($steps)->toContain("self::rmdirs(EVO_BASE_PATH . 'install');")
-        // Nothing of it runs in the updating process any more, except through the fallback.
+        // Nothing of it runs in the updating process any more, except for a release without finish.
         ->and($update)->not->toContain('$this->runCoreMigrations();')
         ->and($update)->not->toContain('$this->runUpdateSeeders();')
         ->and(strpos($update, '$applied = $this->withRollback('))->toBeLessThan(strpos($update, '$this->finishWithNewCode()'));
