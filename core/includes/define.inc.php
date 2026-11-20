@@ -94,16 +94,11 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     $base_url = rtrim(implode($separator, $items), '/') . '/';
     unset($separator);
 
-    reset($items);
-    $items = explode(MGR_DIR, str_replace('\\', '/', dirname(__DIR__, 2)));
-    if (count($items) > 1) {
-        array_pop($items);
-    }
+    unset($items);
 
-    $base_path = rtrim(
-        str_replace('\\', '/', implode(MGR_DIR, $items))
-        , '/'
-    ) . '/';
+    // The folder above core/. It used to be cut at the first MGR_DIR in the path, from when this
+    // file lived under manager/: a manager renamed to "admin" in /home/admin/evolution made it /home/.
+    $base_path = rtrim(str_replace('\\', '/', dirname(__DIR__, 2)), '/') . '/';
 }
 
 if (!defined('EVO_CORE_PATH')) { define('EVO_CORE_PATH', $config['core'] . '/'); }
