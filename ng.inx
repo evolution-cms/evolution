@@ -224,6 +224,11 @@ server {
     # edit: PHP entry points, rewritten manager URLs, manager static assets
     # and the installer. It answers 404 rather than 403, so a blocked
     # address cannot tell a protected manager from a site that has none.
+    #
+    # A manager renamed with MGR_DIR (core/custom/.env or core/custom/define.php,
+    # with its folder renamed to match) is served under that name: replace
+    # /manager in the three manager locations below (PHP entry points, static
+    # files, the rewrite), or its URLs answer 404.
     # =====================================================================
 
     # Manager PHP entry points. Everything else under /manager that ends in
