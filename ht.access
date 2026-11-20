@@ -108,7 +108,8 @@ RewriteRule \.(sql|sqlite|db|log|bak|old|orig|save|swp|swo|tpl|inc|ini|env|dist|
 # No PHP execution under assets - uploads live here.
 RewriteRule ^assets/.*\.php$ - [F,L,NC]
 
-# Exclude /assets and /manager directories and images from rewrite rules
+# Exclude /assets and /manager directories and images from rewrite rules.
+# A manager renamed with MGR_DIR goes in place of "manager" here.
 RewriteRule ^(manager|assets|js|css|images|img)/.*$ - [L]
 RewriteRule \.(jpg|jpeg|png|gif|ico)$ - [L]
 
