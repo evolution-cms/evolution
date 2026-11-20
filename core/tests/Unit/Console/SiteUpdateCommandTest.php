@@ -89,12 +89,15 @@ test('site updater removes update placeholder files before composer repair', fun
         $pairs
     );
 
-    expect($source)->toContain('$this->cleanupUpdatePlaceholderFiles();');
+    $files = substr($source, strpos($source, 'protected function applyNewFiles('));
+    $files = substr($files, 0, strpos($files, "\n    }\n"));
+
+    // applyNewFiles() runs right before the Composer repair, inside the rollback.
+    expect($source)->toContain("\$this->applyNewFiles(\$targetRef, \$updateRepository, \$rollback);\n                \$this->installComposerDependencies(");
+    expect($files)->toContain('$this->cleanupUpdatePlaceholderFiles($rollback);');
     expect($source)->toContain("[EVO_BASE_PATH . 'composer.json', EVO_BASE_PATH . 'config.php.example']");
-    expect($source)->toContain('$this->synchronizeComposerVersion();');
-    expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
-    expect(strpos($source, '$this->cleanupUpdatePlaceholderFiles();'))->toBeLessThan(strpos($source, '$this->synchronizeComposerVersion();'));
-    expect(strpos($source, '$this->synchronizeComposerVersion();'))->toBeLessThan(strpos($source, '$this->installComposerDependencies('));
+    expect($files)->toContain('$this->synchronizeComposerVersion();');
+    expect(strpos($files, '$this->cleanupUpdatePlaceholderFiles($rollback);'))->toBeLessThan(strpos($files, '$this->synchronizeComposerVersion();'));
     expect($normalizedPairs)->toHaveCount(3);
     expect($normalizedPairs[0][0])->toEndWith('/ht.access');
     expect($normalizedPairs[0][1])->toEndWith('/.htaccess');
@@ -758,7 +761,7 @@ test('only a release rewrites the version file from release metadata', function 
 
     // The nightly release is tagged nightly-3.5.x, which composer.json cannot carry
     // as a version: written to the version file it broke the update halfway.
-    expect($block)->toContain("if (\$this->isSemanticVersionTag(\$targetRef)) {\n                \$releases = \$this->fetchRepositoryMetadata(\$updateRepository, 'releases');")
+    expect($block)->toContain("if (\$this->isSemanticVersionTag(\$targetRef)) {\n            \$releases = \$this->fetchRepositoryMetadata(\$updateRepository, 'releases');")
         ->and($block)->toContain('$this->recordInstallSource($targetRef, $updateRepository);');
 });
 
