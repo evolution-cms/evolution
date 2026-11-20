@@ -129,5 +129,5 @@ test('two-argument moveFiles keeps the ordinary archive layout', function () {
 test('updater passes the configured Manager path into the archive overlay', function () {
     $source = file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
-    expect($source)->toContain("self::moveFiles(\$temp_dir . '/' . \$dir, EVO_BASE_PATH, EVO_MANAGER_PATH);");
+    expect($source)->toContain("self::moveFiles(\$temp_dir . '/' . \$dir, EVO_BASE_PATH, EVO_MANAGER_PATH, \$rollback);");
 });
