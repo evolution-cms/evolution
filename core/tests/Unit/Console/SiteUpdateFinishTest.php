@@ -65,8 +65,8 @@ function finishInvoke(SiteUpdateCommand $command): bool
     return (new ReflectionMethod($command, 'finishWithNewCode'))->invoke($command);
 }
 
-const FINISHING_SOURCE = "switch (\$action) {\n    case 'update':\n    case 'finish':\n}";
-const LEGACY_SOURCE = "switch (\$action) {\n    case 'pizdato':\n    case 'update':\n}";
+const FINISHING_SOURCE = "class SiteUpdateCommand extends Command\n{\n    switch (\$action) {\n        case 'update':\n        case 'finish':\n    }\n}";
+const LEGACY_SOURCE = "class SiteUpdateCommand extends Command\n{\n    switch (\$action) {\n        case 'pizdato':\n        case 'update':\n    }\n}";
 
 test('the new code finishes the update in its own process', function () {
     $command = finishCommand(FINISHING_SOURCE, 0, ['Finish the update with the new code', 'Run Core Migrations', 'Apply update seeders', 'Remove Install Directory']);
@@ -107,18 +107,34 @@ test('a failure of the new code after it announced itself is reported, not repea
         ->and(implode("\n", $command->lines))->toContain('ERROR The new code could not finish the update (exit code 1).');
 });
 
-test('a missing make:site counts as a release without finish', function () {
+test('a make:site that cannot be read is a failure, and the old code runs nothing', function (string $case) {
     $command = finishCommand('', 1, []);
-    unlink((new ReflectionMethod($command, 'newSiteUpdateCommandFile'))->invoke($command));
+    $file = (new ReflectionMethod($command, 'newSiteUpdateCommandFile'))->invoke($command);
+    unlink($file);
+    if ($case === 'unreadable') {
+        // A folder in its place: no read gives contents, as root or not.
+        mkdir($file);
+    } elseif ($case === 'truncated') {
+        file_put_contents($file, "<?php\nnamespace EvolutionCMS\\Console;\n");
+    }
 
-    expect(finishInvoke($command))->toBeTrue()
-        ->and($command->stepsHere)->toBe(1);
-});
+    try {
+        expect(finishInvoke($command))->toBeFalse()
+            ->and($command->stepsHere)->toBe(0)
+            ->and($command->commands)->toBe([])
+            ->and(implode("\n", $command->lines))->toContain('ERROR Could not read ' . $file);
+    } finally {
+        if (is_dir($file)) {
+            rmdir($file);
+        }
+    }
+})->with(['missing', 'unreadable', 'truncated']);
 
 test('this make:site has finish, so a later update recognises it', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
 
-    expect($source)->toContain("case 'finish':");
+    expect($source)->toContain('class SiteUpdateCommand')
+        ->and($source)->toContain("case 'finish':");
 });
 
 test('make:site finish announces itself before any step and runs every step after Composer', function () {

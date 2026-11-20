@@ -359,16 +359,23 @@ EXAMPLES;
      * This process still runs the code it started with, against the vendor Composer has just
      * replaced: a class it loads from now on may need one that only the new autoloader knows,
      * and the update dies halfway (from 3.5 to 3.6, in the update seeders). "make:site finish"
-     * starts on the new code. Only a release whose make:site has no "finish" (newCodeCanFinish())
-     * ends its update here, as it always did; any other answer without FINISH_MARKER is a failure
-     * of the new code, reported with its output, and the old code does not take over.
+     * starts on the new code. Only a release whose make:site is read and has no "finish"
+     * (newCodeCanFinish()) ends its update here, as it always did. A make:site that cannot be read,
+     * and any answer without FINISH_MARKER, is a failure, reported, and the old code does not take over.
      *
      * @since 3.5.10
      * @return bool False when the new code could not finish the update.
      */
     protected function finishWithNewCode(): bool
     {
-        if (!$this->newCodeCanFinish()) {
+        $canFinish = $this->newCodeCanFinish();
+        if ($canFinish === null) {
+            $this->error('Could not read ' . $this->newSiteUpdateCommandFile() . ', so it is not known whether the new code can finish the update.'
+                . ' Nothing more was run. Make it readable and run "php artisan make:site finish" in ' . EVO_CORE_PATH . '.');
+
+            return false;
+        }
+        if (!$canFinish) {
             $this->runFinishSteps();
 
             return true;
@@ -393,13 +400,16 @@ EXAMPLES;
      * Whether the make:site just laid over the site has the "finish" action.
      *
      * @since 3.5.10
-     * @return bool
+     * @return bool|null Null when the file cannot be read as a make:site command (missing, unreadable, truncated).
      */
-    protected function newCodeCanFinish(): bool
+    protected function newCodeCanFinish(): ?bool
     {
         $source = @file_get_contents($this->newSiteUpdateCommandFile());
+        if (!is_string($source) || !str_contains($source, 'class SiteUpdateCommand')) {
+            return null;
+        }
 
-        return is_string($source) && str_contains($source, "case 'finish':");
+        return str_contains($source, "case 'finish':");
     }
 
     /**
