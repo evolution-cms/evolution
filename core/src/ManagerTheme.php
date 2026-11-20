@@ -934,36 +934,34 @@ class ManagerTheme implements ManagerThemeInterface
 
         $minCssPath = $this->getThemeDir() . $minCssName;
         $sources = $this->getCssFiles();
-        if (\EvolutionCMS\Support\Formatter\CSSMinify::isStale($minCssPath, $sources)
+        if (!empty($sources)) {
+            $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
+                'files' => $sources,
+                'source' => 'manager',
+                'theme' => $this->getTheme()
+            ]);
+            switch (true) {
+                case empty($evtOut):
+                case \is_array($evtOut) && count($evtOut) === 0:
+                    break;
+                case \is_array($evtOut) && count($evtOut) === 1:
+                    $sources = $evtOut[0];
+                    break;
+                default:
+                    $this->getCore()->webAlertAndQuit(
+                        sprintf($this->getLexicon('invalid_event_response'), 'OnBeforeMinifyManagerCss')
+                    );
+            }
+        }
+
+        if (!empty($sources)
+            && \EvolutionCMS\Support\Formatter\CSSMinify::isStale($minCssPath, $sources)
             && is_writable($this->getThemeDir() . 'css')
         ) {
-            $files = $sources;
-            if (!empty($files)) {
-                $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
-                    'files' => $files,
-                    'source' => 'manager',
-                    'theme' => $this->getTheme()
-                ]);
-                switch (true) {
-                    case empty($evtOut):
-                    case \is_array($evtOut) && count($evtOut) === 0:
-                        break;
-                    case \is_array($evtOut) && count($evtOut) === 1:
-                        $files = $evtOut[0];
-                        break;
-                    default:
-                        $this->getCore()->webAlertAndQuit(
-                            sprintf($this->getLexicon('invalid_event_response'), 'OnBeforeMinifyManagerCss')
-                        );
-                }
-            }
-
-            if (!empty($files)) {
-                $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($files);
-                $css = $minifier->minify($minCssPath);
-                file_put_contents($minCssPath, $css);
-                clearstatcache(true, $minCssPath);
-            }
+            $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($sources);
+            $css = $minifier->minify($minCssPath);
+            file_put_contents($minCssPath, $css);
+            clearstatcache(true, $minCssPath);
         }
         $revision = '';
         if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($minCssPath)) {

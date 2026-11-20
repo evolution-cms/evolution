@@ -14,23 +14,35 @@ class CSSMinify
     }
 
     /**
-     * True when the bundle is missing or older than one of its sources, so a changed
-     * theme stylesheet reaches sites whose bundle was built before an update.
+     * Archive extraction and portable copies may preserve or reverse mtimes.
+     * Compare the actual ordered sources, including their URL-rebasing paths.
      */
     public static function isStale(string $target, array $files): bool
     {
         if (!is_file($target)) {
             return true;
         }
+        $handle = @fopen($target, 'rb');
+        if ($handle === false) {
+            return true;
+        }
+        $marker = fgets($handle);
+        $fingerprint = fgets($handle);
+        fclose($handle);
 
-        $built = filemtime($target);
+        return trim((string) $marker) !== self::REBASED_CACHE_MARKER
+            || trim((string) $fingerprint) !== self::sourceMarker($files);
+    }
+
+    private static function sourceMarker(array $files): string
+    {
+        $digest = hash_init('sha256');
         foreach ($files as $file) {
-            if (is_string($file) && is_file($file) && filemtime($file) > $built) {
-                return true;
+            if (is_string($file) && is_file($file)) {
+                hash_update($digest, $file . "\0" . hash_file('sha256', $file) . "\n");
             }
         }
-
-        return false;
+        return '/* Source SHA-256: ' . hash_final($digest) . ' */';
     }
 
     public function addFile($cssFilePath)
@@ -45,6 +57,8 @@ class CSSMinify
             echo "No CSS was added";
             exit;
         }
+
+        $sourceMarker = $outputFile === null ? '' : self::sourceMarker($this->cssPath);
 
         foreach ($this->cssPath as $css) {
             $bits = explode(".", $css);
@@ -66,7 +80,8 @@ class CSSMinify
             $allCss[] = '/* ' . $filename . ' */' . "\n" . $css;
         }
 
-        $prefix = $outputFile === null ? '' : self::REBASED_CACHE_MARKER . "\n";
+        $prefix = $outputFile === null ? '' : self::REBASED_CACHE_MARKER . "\n"
+            . $sourceMarker . "\n";
 
         return $prefix . implode("\n", $allCss);
     }
@@ -74,6 +89,9 @@ class CSSMinify
     /** Rebuild old bundles, including bundles that still contain icon font definitions. */
     public static function isCacheCurrent(string $file): bool
     {
+        if (!is_file($file)) {
+            return false;
+        }
         $handle = @fopen($file, 'rb');
         if ($handle === false) {
             return false;

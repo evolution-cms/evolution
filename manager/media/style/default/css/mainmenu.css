@@ -8,8 +8,8 @@
 #mainMenu.show {
     overflow: visible;
 }
-#mainMenu + #tree::before,
-#mainMenu + #tree + #main::before {
+#mainMenu ~ #tree::before,
+#mainMenu ~ #main::before {
     content: "";
     position: absolute;
     z-index: 9999;
@@ -23,8 +23,8 @@
     -webkit-transition: opacity 0.15s, visibility 0.15s;
     transition: opacity 0.15s, visibility 0.15s;
 }
-#mainMenu.show + #tree::before,
-#mainMenu.show + #tree + #main::before {
+#mainMenu.show ~ #tree::before,
+#mainMenu.show ~ #main::before {
     opacity: 1;
     visibility: visible;
 }
