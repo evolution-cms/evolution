@@ -32,10 +32,10 @@ afterEach(function () {
 });
 
 /** Runs site:link against the test's site, its manager renamed to admin/. */
-function siteLink(object $test, array $input, bool $linksFail = false): array
+function siteLink(object $test, array $input, bool $linksFail = false, string $manager = 'admin'): array
 {
-    $command = new class($test->site, $linksFail) extends SiteLinkCommand {
-        public function __construct(private string $site, private bool $linksFail)
+    $command = new class($test->site, $linksFail, $manager) extends SiteLinkCommand {
+        public function __construct(private string $site, private bool $linksFail, private string $manager)
         {
             parent::__construct();
         }
@@ -52,7 +52,7 @@ function siteLink(object $test, array $input, bool $linksFail = false): array
 
         protected function managerPath(): string
         {
-            return $this->site . '/admin/';
+            return $this->site . '/' . $this->manager . '/';
         }
     };
     $command->setLaravel(new class extends Container {
@@ -145,6 +145,38 @@ test('a replacement that cannot be made leaves the old link in place', function 
         ->and(readlink($this->public . '/assets'))->toBe('../old-release/assets')
         ->and($output)->toContain('Could not replace the link assets -> ../evolution/assets; it still links to ../old-release/assets.')
         ->and(glob($this->public . '/.assets.site-link-*'))->toBe([]);
+});
+
+test('a renamed manager gets its link, and the old one goes', function () {
+    siteLink($this, ['path' => $this->public]);
+    rename($this->site . '/admin', $this->site . '/panel');
+
+    [$exitCode, $output] = siteLink($this, ['path' => $this->public], false, 'panel');
+
+    expect($exitCode)->toBe(0)
+        ->and(readlink($this->public . '/panel'))->toBe('../evolution/panel')
+        ->and(is_link($this->public . '/admin'))->toBeFalse()
+        ->and($output)->toContain('admin -> ../evolution/admin removed: the site has no admin any more')
+        // install/ and update.php lead nowhere too, but they are entry points
+        ->and(is_link($this->public . '/install'))->toBeTrue();
+});
+
+test('only a dead link into the top of the site is removed', function () {
+    mkdir($this->home . '/elsewhere');
+    symlink('../evolution/gone', $this->public . '/old-manager');
+    symlink($this->site . '/also-gone', $this->public . '/old-absolute');
+    symlink('../evolution/assets/gone', $this->public . '/deeper');
+    symlink('../elsewhere/gone', $this->public . '/outside');
+    symlink('../elsewhere', $this->public . '/working');
+
+    siteLink($this, ['path' => $this->public]);
+
+    expect(is_link($this->public . '/old-manager'))->toBeFalse()
+        ->and(is_link($this->public . '/old-absolute'))->toBeFalse()
+        ->and(is_link($this->public . '/deeper'))->toBeTrue()
+        ->and(is_link($this->public . '/outside'))->toBeTrue()
+        ->and(is_link($this->public . '/working'))->toBeTrue()
+        ->and(file_get_contents($this->public . '/hello.php'))->toBe('own script');
 });
 
 test('a public folder inside the site, or around it, is refused', function () {

@@ -45,9 +45,11 @@ class SiteLinkCommand extends Command
         }
 
         $failed = 0;
-        foreach ($this->entries((bool) $this->option('htaccess')) as $name => $target) {
+        $entries = $this->entries((bool) $this->option('htaccess'));
+        foreach ($entries as $name => $target) {
             $failed += $this->linkEntry($public . '/' . $name, $target, $public) ? 0 : 1;
         }
+        $this->removeStaleLinks($public, $base, array_keys($entries));
 
         if ($failed > 0) {
             $this->error($failed . ' links were not made, see above.');
@@ -171,6 +173,55 @@ class SiteLinkCommand extends Command
         }
 
         return str_repeat('../', count($from) - $common) . implode('/', array_slice($to, $common));
+    }
+
+    /**
+     * Remove the links this command made to entry points the site no longer has.
+     *
+     * A manager renamed with MGR_DIR leaves its old link behind, leading to a folder of the site
+     * that is gone. Only such a link goes: one that leads nowhere, into the top of the site, under
+     * a name that is not an entry point now. Links elsewhere, and links that work, stay.
+     *
+     * @param array<int, string> $names Entry points linked now.
+     */
+    protected function removeStaleLinks(string $public, string $base, array $names): void
+    {
+        foreach (scandir($public) ?: [] as $name) {
+            $link = $public . '/' . $name;
+            if (in_array($name, $names, true) || !is_link($link) || file_exists($link)) {
+                continue;
+            }
+            $current = (string) readlink($link);
+            $absolute = str_starts_with($current, '/') || preg_match('~^[A-Za-z]:~', $current) === 1;
+            if (dirname(self::collapsePath($absolute ? $current : $public . '/' . $current)) !== $base) {
+                continue;
+            }
+            if (@unlink($link) || @rmdir($link)) {
+                $this->line($name . ' -> ' . $current . ' removed: the site has no ' . basename($current) . ' any more');
+            }
+        }
+    }
+
+    /**
+     * A path with its "." and ".." resolved by name, for a target that does not exist.
+     */
+    private static function collapsePath(string $path): string
+    {
+        $path = str_replace('\\', '/', $path);
+        $prefix = preg_match('~^([A-Za-z]:)?/~', $path, $match) === 1 ? $match[0] : '';
+        $parts = [];
+        foreach (explode('/', substr($path, strlen($prefix))) as $part) {
+            if ($part === '' || $part === '.') {
+                continue;
+            }
+            if ($part === '..') {
+                array_pop($parts);
+                continue;
+            }
+            $parts[] = $part;
+        }
+
+        return $prefix . implode('/', $parts);
     }
 
     private static function sameTarget(string $link, string $current, string $target): bool
