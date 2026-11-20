@@ -181,18 +181,9 @@ final class UpdateRollback
         $failed = [];
 
         foreach (array_reverse($this->directories, true) as $path => $copy) {
-            $broken = $path . '.update-failed-' . getmypid();
-            if (is_dir($path) && !@rename($path, $broken)) {
+            if (!$this->restoreDirectory($path, $copy)) {
                 $failed[] = $path;
-                continue;
             }
-            if ($copy !== null && !@rename($copy, $path) && !$this->copyBack($copy, $path)) {
-                self::removeTree($path);
-                @rename($broken, $path);
-                $failed[] = $path;
-                continue;
-            }
-            self::removeTree($broken);
         }
 
         foreach (array_reverse($this->files, true) as $path => $contents) {
@@ -272,6 +263,57 @@ final class UpdateRollback
         }
 
         return $this->journal . '/outside/' . md5(dirname($path)) . '/' . basename($path);
+    }
+
+    /**
+     * Put a snapshot folder back: the live one is moved aside and the copy takes its place.
+     */
+    private function restoreDirectory(string $path, ?string $copy): bool
+    {
+        $broken = $path . '.update-failed-' . getmypid();
+        if (is_dir($path) && !@rename($path, $broken)) {
+            // A mount point (core/vendor as a volume of its own) cannot be moved.
+            return $this->restoreInPlace($path, $copy);
+        }
+        if ($copy !== null && !@rename($copy, $path) && !$this->copyBack($copy, $path)) {
+            self::removeTree($path);
+            @rename($broken, $path);
+
+            return false;
+        }
+        self::removeTree($broken);
+
+        return true;
+    }
+
+    /**
+     * Empty a folder that stays where it is and copy the snapshot into it.
+     *
+     * The snapshot is only deleted once it is all back, so a failure leaves it in the journal.
+     */
+    private function restoreInPlace(string $path, ?string $copy): bool
+    {
+        foreach (scandir($path) ?: [] as $entry) {
+            if ($entry !== '.' && $entry !== '..') {
+                self::removeTree($path . '/' . $entry);
+            }
+        }
+        if ((scandir($path) ?: []) !== ['.', '..']) {
+            return false;
+        }
+        if ($copy === null) {
+            @rmdir($path);
+
+            return true;
+        }
+        try {
+            $this->copyTree($copy, $path);
+        } catch (\RuntimeException $exception) {
+            return false;
+        }
+        self::removeTree($copy);
+
+        return true;
     }
 
     /**

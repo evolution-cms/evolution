@@ -272,3 +272,30 @@ test('a removed tree comes back with its empty folders and their modes', functio
         expect(fileperms($this->site . '/core/src/Services/Users/Empty') & 07777)->toBe(0750);
     }
 });
+
+test('a folder that cannot be moved aside, a mount point, gets its contents back in place', function () {
+    $vendor = $this->site . '/core/vendor';
+    if (DIRECTORY_SEPARATOR !== '\\') {
+        chmod($vendor, 02775);
+    }
+    $before = rollbackTestTree($vendor);
+    $this->rollback->snapshotDirectory($vendor);
+
+    file_put_contents($vendor . '/autoload.php', 'new autoload');
+    unlink($vendor . '/acme/lib/Lib.php');
+    mkdir($vendor . '/acme/next');
+    file_put_contents($vendor . '/acme/next/Next.php', 'new package');
+    // A mount point refuses rename() with EBUSY; a full folder at the aside name refuses it the same way.
+    $aside = $vendor . '.update-failed-' . getmypid();
+    mkdir($aside);
+    file_put_contents($aside . '/keep.txt', 'not ours');
+
+    expect($this->rollback->restore())->toBe([])
+        ->and(rollbackTestTree($vendor))->toBe($before)
+        ->and(file_get_contents($aside . '/keep.txt'))->toBe('not ours')
+        ->and(is_dir($this->journal))->toBeFalse();
+    if (DIRECTORY_SEPARATOR !== '\\') {
+        clearstatcache();
+        expect(fileperms($vendor) & 07777)->toBe(02775);
+    }
+});
