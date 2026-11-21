@@ -4,7 +4,7 @@ Evolution CMS is a community-maintained fork of MODX Evolution, rebuilt on Larav
 It is a PHP CMS and application framework with a tree-based document/resource model,
 a template variable (TV) system, plugins, snippets, chunks, and a modular extras ecosystem.
 
-**PHP requirement:** >= 8.4.1 (8.5 supported; 8.6 RC tested) · **License:** GPL-3.0-or-later
+**PHP requirement:** >= 8.4.1 (8.5 and 8.6 supported) · **License:** GPL-3.0-or-later
 
 ---
 

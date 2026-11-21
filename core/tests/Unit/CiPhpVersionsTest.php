@@ -2,8 +2,8 @@
 
 /**
  * CI takes its PHP versions from .github/scripts/php-versions.sh, by the CMS version of the tree:
- * 8.3 stays on the 3.5 line and goes from 3.6 on, the 8.6 RC check runs from 3.6 on only,
- * whichever branch the workflows were merged to.
+ * 8.3 stays on the 3.5 line and goes from 3.6 on, 8.6 comes with 3.6, whichever branch the
+ * workflows were merged to. The Docker images are built only on versions salo2 has runtimes for.
  */
 function ciPhpVersionsScript(): string
 {
@@ -43,24 +43,30 @@ function ciPhpVersionsFor(string $versionFile, ?int &$exitCode = null): string
     }
 }
 
-test('the CMS version decides whether CI runs PHP 8.3 or the 8.6 RC', function (string $version, string $versions, string $lowest, string $rc) {
+test('the CMS version decides whether CI runs PHP 8.3 or 8.6', function (string $version, string $versions, string $lowest, string $runtimes) {
     $output = ciPhpVersionsFor("<?php return [\n    'version' => '$version',\n    'release_date' => 'Oct 21, 2026',\n];\n", $exitCode);
 
     expect($exitCode)->toBe(0)
-        ->and($output)->toContain("versions=$versions\nlowest=$lowest\nrc=$rc\n");
+        ->and($output)->toContain("versions=$versions\nlowest=$lowest\nruntimes=$runtimes\n");
 })->with([
-    '3.5 line' => ['3.5.9', '["8.3","8.4","8.5"]', '8.3', ''],
-    'two-digit 3.5 patch' => ['3.5.10', '["8.3","8.4","8.5"]', '8.3', ''],
-    '3.6' => ['3.6.0', '["8.4","8.5"]', '8.4', '8.6'],
-    'two-digit minor' => ['3.10.1', '["8.4","8.5"]', '8.4', '8.6'],
-    'next major' => ['4.0.0', '["8.4","8.5"]', '8.4', '8.6'],
+    '3.5 line' => ['3.5.9', '["8.3","8.4","8.5"]', '8.3', '["8.3","8.4","8.5"]'],
+    'two-digit 3.5 patch' => ['3.5.10', '["8.3","8.4","8.5"]', '8.3', '["8.3","8.4","8.5"]'],
+    '3.6' => ['3.6.0', '["8.4","8.5","8.6"]', '8.4', '["8.4","8.5"]'],
+    'two-digit minor' => ['3.10.1', '["8.4","8.5","8.6"]', '8.4', '["8.4","8.5"]'],
+    'next major' => ['4.0.0', '["8.4","8.5","8.6"]', '8.4', '["8.4","8.5"]'],
 ]);
 
-test('the 8.6 RC job runs only where the script asks for it', function () {
+test('CI tests every version and builds images only on Salo runtimes', function () {
     ciPhpVersionsScript();
-    $ci = (string) file_get_contents(dirname(__DIR__, 3) . '/.github/workflows/ci.yml');
+    $root = dirname(__DIR__, 3);
+    $ci = (string) file_get_contents($root . '/.github/workflows/ci.yml');
+    $build = (string) file_get_contents($root . '/.github/workflows/build.yml');
 
-    expect($ci)->toContain("    name: PHP 8.6 RC compatibility (Docker)\n    needs: php\n    if: needs.php.outputs.rc == '8.6'\n");
+    expect(substr_count($ci, 'php: ${{ fromJSON(needs.php.outputs.versions) }}'))->toBe(2)
+        ->and($ci)->not->toContain('outputs.rc')
+        ->and($build)->toContain('runtimes: ${{ steps.php.outputs.runtimes }}')
+        ->and($build)->toContain('php: ${{ fromJSON(needs.php.outputs.runtimes) }}')
+        ->and($build)->not->toContain('fromJSON(needs.php.outputs.versions)');
 });
 
 test('the checked out release metadata and CI agree on the supported PHP line', function () {
