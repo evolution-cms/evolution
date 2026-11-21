@@ -1,3 +1,6 @@
+includes:
+    - core/tests/phpstan/redis-extension.php
+
 parameters:
     level: 0
     paths:

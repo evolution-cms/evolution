@@ -72,6 +72,11 @@ jobs:
       - name: Install root dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      # phpredis can lag behind a new PHP release; PHPStan then leaves out the Redis constants (core/tests/phpstan/redis-extension.php).
+      - name: Check ext-redis
+        run: |
+          php -r 'exit(extension_loaded("redis") ? 0 : 1);' || echo "::warning title=No ext-redis on PHP ${{ matrix.php }}::PHPStan does not check the Redis constants of RedisSessionHandler"
+
       - name: Run PHPStan
         run: composer analyze
 
@@ -116,6 +121,10 @@ jobs:
       - name: Install core dependencies
         working-directory: core
         run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Check ext-redis
+        run: |
+          php -r 'exit(extension_loaded("redis") ? 0 : 1);' || echo "::warning title=No ext-redis on PHP ${{ matrix.php }}::the Redis tests are skipped"
 
       - name: Run Pest
         working-directory: core
