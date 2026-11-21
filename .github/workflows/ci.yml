@@ -24,7 +24,6 @@ jobs:
     outputs:
       versions: ${{ steps.php.outputs.versions }}
       lowest: ${{ steps.php.outputs.lowest }}
-      rc: ${{ steps.php.outputs.rc }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,7 +31,7 @@ jobs:
             .github/scripts
             core/factory
 
-      # 8.3 below CMS 3.6 only, 8.6 RC from 3.6 only, see the script
+      # 8.3 below CMS 3.6 only, 8.6 from 3.6 only, see the script
       - id: php
         run: sh .github/scripts/php-versions.sh
 
@@ -123,27 +122,6 @@ jobs:
         # env:
         #   EVO_TEST_REDIS: 127.0.0.1:6379
         run: composer test -- --compact --fail-on-warning --fail-on-risky --fail-on-deprecation
-
-  php86-rc:
-    name: PHP 8.6 RC compatibility (Docker)
-    needs: php
-    if: needs.php.outputs.rc == '8.6'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      # Locked dependencies support PHP 8.6: exercise the actual platform
-      # requirements and fail the job if the runtime or the suite fails.
-      - name: Build the PHP 8.6 RC image
-        run: docker build --build-arg PHP_VERSION=8.6-rc -f .github/docker/ci/Dockerfile -t evo-ci-php:8.6-rc .
-
-      - name: Verify the PHP 8.6 RC runtime
-        run: >-
-          docker run --rm --entrypoint php evo-ci-php:8.6-rc
-          -r 'if (PHP_VERSION_ID < 80600 || PHP_VERSION_ID >= 80700 || !str_contains(PHP_VERSION, "RC")) { fwrite(STDERR, PHP_VERSION . PHP_EOL); exit(1); } echo PHP_VERSION, PHP_EOL;'
-
-      - name: Run Pest on PHP 8.6 RC
-        run: docker run --rm --entrypoint sh evo-ci-php:8.6-rc -c 'cd core && php vendor/bin/pest --compact --fail-on-warning --fail-on-risky --fail-on-deprecation'
 
   install:
     name: Install on ${{ matrix.db }}
