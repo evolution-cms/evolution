@@ -47,7 +47,9 @@ $managerTitle = evo()->getConfig('site_name') . ' - (Evolution CMS Manager)';
     <meta name="theme-color" content="{{ ManagerTheme::getThemeColor() }}" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <link rel="stylesheet" type="text/css" href="{{$css}}" />
+    @foreach ($stylesheets as $stylesheet)
+        <link rel="stylesheet" type="text/css" href="{{ $stylesheet }}" />
+    @endforeach
     @includeWhen($showLegacyPicker, 'manager::frame.color-picker-styles')
     <link rel="icon" type="image/ico" href="{{ManagerTheme::getStyle('favicon')}}" />
     <style>
