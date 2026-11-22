@@ -9,6 +9,7 @@ use EvolutionCMS\Services\ComposerVersionSynchronizer;
 use EvolutionCMS\Services\CustomComposerPackages;
 use EvolutionCMS\Services\Store\RemoteTransportService;
 use EvolutionCMS\Support\HtaccessRules;
+use EvolutionCMS\Support\UpdateRollback;
 use EvolutionCMS\Traits\RunsComposerShell;
 use Illuminate\Console\Command;
 
@@ -28,6 +29,13 @@ class SiteUpdateCommand extends Command
      * Default GitHub repository used for core updates when no custom repository is configured.
      */
     protected const DEFAULT_UPGRADE_REPOSITORY = 'evolution-cms/evolution';
+
+    /**
+     * Name prefix of an update's rollback journal in core/.
+     *
+     * @since 3.5.10
+     */
+    protected const ROLLBACK_PREFIX = '.update-rollback-';
 
     /**
      * Commit the downloaded archive was made from, empty when it did not say.
@@ -191,7 +199,8 @@ EXAMPLES;
      * always comes from the configured repository, which is how a site switches back.
      *
      * @since 3.5.9 Accepts GitHub URLs and answers false when an error stopped the update.
-     * @return bool False when the update failed before the site was changed.
+     * @since 3.5.10 Also answers false when the update failed after the overlay and put the site back.
+     * @return bool False when the update failed and left the site as it was.
      */
     public function startUpdate()
     {
@@ -209,11 +218,12 @@ EXAMPLES;
      * Called by startUpdate() so the archive preflight and the later dependency restore
      * inherit identical authentication, with the caller's environment restored afterwards.
      *
-     * @return bool False when the update was refused before files were replaced.
+     * @return bool False when the update was refused, or failed and put the files back.
      * @since 3.6.0
      */
     protected function applyUpdate()
     {
+        $this->warnAboutInterruptedUpdates();
         $evo = evo();
         $currentVersion = $evo->getVersionData();
         $currentVersion = is_array($currentVersion) ? $currentVersion : [];
@@ -299,51 +309,25 @@ EXAMPLES;
                 return false;
             }
 
-            self::moveFiles($temp_dir . '/' . $dir, EVO_BASE_PATH, EVO_MANAGER_PATH);
-            self::rmdirs($temp_dir);
+            // Until the new code has its dependencies and boots, every change goes through the
+            // journal: a failure in between would leave the new code on the old vendor, a site
+            // that neither serves nor runs artisan to finish the update.
+            $rollback = $this->createUpdateRollback();
+            $applied = $this->withRollback($rollback, function () use (
+                $rollback, $temp_dir, $dir, $targetRef, $updateRepository, $customPackageUpdate, $customPackageNames
+            ) {
+                $this->protectUpdateState($rollback);
+                self::moveFiles($temp_dir . '/' . $dir, EVO_BASE_PATH, EVO_MANAGER_PATH, $rollback);
+                self::rmdirs($temp_dir);
+                $this->applyNewFiles($targetRef, $updateRepository, $rollback);
+                $this->installComposerDependencies($customPackageUpdate, $customPackageNames);
+            });
+            if (!$applied) {
+                self::rmdirs($temp_dir);
 
-            // Only a release carries a version number of its own. Any other ref (a
-            // branch, the moving nightly-3.5.x tag, a commit) keeps the version file
-            // of its archive and records the ref, so the next update stays on it.
-            if ($this->isSemanticVersionTag($targetRef)) {
-                $releases = $this->fetchRepositoryMetadata($updateRepository, 'releases');
-                if (substr($releases, 0, 1) == "[") {
-                    $releases = json_decode($releases, true);
-                    foreach ($releases as $release) {
-                        if ($targetRef == $release["tag_name"]) {
-                            $factoryDate = date("M j, Y", strtotime($release["published_at"]));
-                            $factoryVersion = self::buildVersionFile([
-                                'version' => (string)$release["tag_name"],
-                                'release_date' => $factoryDate,
-                                'branch' => 'Evolution CMS',
-                                'full_appname' => $release["name"] . ' (' . $factoryDate . ')',
-                            ]);
-                            file_put_contents(EVO_CORE_PATH . "factory/version.php", $factoryVersion);
-                            break;
-                        }
-                    }
-                }
+                return false;
             }
-            $this->recordInstallSource($targetRef, $updateRepository);
 
-            $delete_file = EVO_BASE_PATH . 'install/stubs/file_for_delete.txt';
-            if (file_exists($delete_file)) {
-                $files = explode("\n", file_get_contents($delete_file));
-                foreach ($files as $file) {
-                    $file = str_replace('{core}', EVO_CORE_PATH, $file);
-                    if (file_exists($file)) {
-                        if (is_dir($file)) {
-                            self::rmdirs($file);
-                        } else {
-                            unlink($file);
-                        }
-                    }
-                }
-            }
-            $this->cleanupUpdatePlaceholderFiles();
-            $this->warnAboutHtaccess();
-            $this->synchronizeComposerVersion();
-            $this->installComposerDependencies($customPackageUpdate, $customPackageNames);
             $this->runCoreMigrations();
             $this->runUpdateSeeders();
             $this->clearCompiledViews();
@@ -359,6 +343,143 @@ EXAMPLES;
         }
 
         return true;
+    }
+
+    /**
+     * Version note, removed files and Composer metadata of the files moveFiles() just laid.
+     *
+     * @since 3.5.10
+     * @param string $targetRef Ref the update installs.
+     * @param string $updateRepository Repository it came from.
+     * @param UpdateRollback $rollback Journal of the update, which keeps every file removed here.
+     * @return void
+     */
+    protected function applyNewFiles(string $targetRef, string $updateRepository, UpdateRollback $rollback): void
+    {
+        // Only a release carries a version number of its own. Any other ref (a
+        // branch, the moving nightly-3.5.x tag, a commit) keeps the version file
+        // of its archive and records the ref, so the next update stays on it.
+        if ($this->isSemanticVersionTag($targetRef)) {
+            $releases = $this->fetchRepositoryMetadata($updateRepository, 'releases');
+            if (substr($releases, 0, 1) == "[") {
+                $releases = json_decode($releases, true);
+                foreach ($releases as $release) {
+                    if ($targetRef == $release["tag_name"]) {
+                        $factoryDate = date("M j, Y", strtotime($release["published_at"]));
+                        $factoryVersion = self::buildVersionFile([
+                            'version' => (string)$release["tag_name"],
+                            'release_date' => $factoryDate,
+                            'branch' => 'Evolution CMS',
+                            'full_appname' => $release["name"] . ' (' . $factoryDate . ')',
+                        ]);
+                        file_put_contents(EVO_CORE_PATH . "factory/version.php", $factoryVersion);
+                        break;
+                    }
+                }
+            }
+        }
+        $this->recordInstallSource($targetRef, $updateRepository);
+
+        $delete_file = EVO_BASE_PATH . 'install/stubs/file_for_delete.txt';
+        if (file_exists($delete_file)) {
+            $files = explode("\n", file_get_contents($delete_file));
+            foreach ($files as $file) {
+                $file = trim(str_replace('{core}', EVO_CORE_PATH, $file));
+                if ($file !== '') {
+                    $rollback->remove($file);
+                }
+            }
+        }
+        $this->cleanupUpdatePlaceholderFiles($rollback);
+        $this->warnAboutHtaccess();
+        $this->synchronizeComposerVersion();
+    }
+
+    /**
+     * The journal of this update, kept under core/, out of the web root.
+     *
+     * @since 3.5.10
+     * @return UpdateRollback
+     */
+    protected function createUpdateRollback(): UpdateRollback
+    {
+        return new UpdateRollback(EVO_BASE_PATH, EVO_CORE_PATH . self::ROLLBACK_PREFIX . date('Ymd-His') . '-' . getmypid());
+    }
+
+    /**
+     * Copy what the update rewrites in place instead of replacing it: core/vendor, which
+     * Composer changes package by package, the bootstrap cache package:discover writes, the
+     * note of custom package versions and the version file.
+     *
+     * @since 3.5.10
+     * @param UpdateRollback $rollback
+     * @return void
+     */
+    protected function protectUpdateState(UpdateRollback $rollback): void
+    {
+        $this->line('<fg=green>Keep a copy of the current dependencies for a rollback</>');
+        $rollback->snapshotFile($this->versionFilePath());
+        $rollback->snapshotFile(EVO_CORE_PATH . CustomComposerPackages::RECORD_FILE);
+        $rollback->snapshotDirectory(rtrim($this->bootstrapCachePath(), '/\\'));
+        $rollback->snapshotDirectory(EVO_CORE_PATH . 'vendor');
+    }
+
+    /**
+     * Run the steps that change the site's files; any failure puts them all back.
+     *
+     * @since 3.5.10
+     * @param UpdateRollback $rollback Journal the steps write through.
+     * @param callable $steps
+     * @return bool True when the steps went through and the journal was dropped.
+     */
+    protected function withRollback(UpdateRollback $rollback, callable $steps): bool
+    {
+        try {
+            $steps();
+        } catch (\Throwable $exception) {
+            return $this->rollBackUpdate($rollback, $exception);
+        }
+        $rollback->discard();
+
+        return true;
+    }
+
+    /**
+     * Put the site back after a failed update and say how that went.
+     *
+     * @since 3.5.10
+     * @param UpdateRollback $rollback
+     * @param \Throwable $exception What stopped the update.
+     * @return bool Always false: the update did not happen.
+     */
+    protected function rollBackUpdate(UpdateRollback $rollback, \Throwable $exception): bool
+    {
+        $this->error('The update failed: ' . $exception->getMessage());
+        $this->line('<fg=yellow>Putting back the files the site had before the update...</>');
+        $failed = $rollback->restore();
+        if ($failed === []) {
+            $this->error('The site was put back as it was. Nothing was changed.');
+
+            return false;
+        }
+
+        $this->error('Could not put back ' . count($failed) . ' files, the first: ' . $failed[0]);
+        $this->error('The previous files are kept in ' . $rollback->journalPath() . ', below files/ in the layout of the site.');
+
+        return false;
+    }
+
+    /**
+     * A journal still on disk is an update that stopped without finishing or rolling back.
+     *
+     * @since 3.5.10
+     * @return void
+     */
+    protected function warnAboutInterruptedUpdates(): void
+    {
+        foreach (glob(EVO_CORE_PATH . self::ROLLBACK_PREFIX . '*', GLOB_ONLYDIR) ?: [] as $journal) {
+            $this->warn('An earlier update stopped halfway; the files it replaced are kept in ' . $journal . '.');
+        }
     }
 
     /**
@@ -634,19 +755,34 @@ EXAMPLES;
      * @since 3.5.7
      * @return void
      */
-    protected function cleanupUpdatePlaceholderFiles(): void
+    protected function cleanupUpdatePlaceholderFiles(?UpdateRollback $rollback = null): void
     {
+        $remove = static function (string $file) use ($rollback): void {
+            $rollback === null ? unlink($file) : $rollback->remove($file);
+        };
+
         foreach ($this->updatePlaceholderFilePairs() as [$placeholder, $localFile]) {
             if (is_file($placeholder) && is_file($localFile)) {
-                unlink($placeholder);
+                $remove($placeholder);
             }
         }
 
-        foreach ([EVO_BASE_PATH . 'composer.json', EVO_BASE_PATH . 'config.php.example'] as $file) {
+        foreach ($this->updateDistributionFiles() as $file) {
             if (is_file($file)) {
-                unlink($file);
+                $remove($file);
             }
         }
+    }
+
+    /**
+     * Files of the repository root that a site does not keep.
+     *
+     * @since 3.5.10
+     * @return array<int, string>
+     */
+    protected function updateDistributionFiles(): array
+    {
+        return [EVO_BASE_PATH . 'composer.json', EVO_BASE_PATH . 'config.php.example'];
     }
 
     /**
@@ -1552,7 +1688,7 @@ EXAMPLES;
      * @param string|null $managerPath Existing configured Manager directory, or null for an unchanged archive layout.
      * @return void
      */
-    static public function moveFiles($src, $dest, ?string $managerPath = null)
+    static public function moveFiles($src, $dest, ?string $managerPath = null, ?UpdateRollback $rollback = null)
     {
         $path = realpath($src);
         $dest = realpath($dest);
@@ -1593,13 +1729,17 @@ EXAMPLES;
             }
 
             if ($object->isDir()) {
-                self::mmkDir($target);
+                $rollback === null ? self::mmkDir($target) : $rollback->makeDirectory($target);
                 continue;
             }
 
             if ($object->isFile()) {
-                self::mmkDir(dirname($target));
-                if (!is_writable(dirname($target)) || !rename((string) $name, $target)) {
+                $rollback === null ? self::mmkDir(dirname($target)) : $rollback->makeDirectory(dirname($target));
+                if (!is_writable(dirname($target))) {
+                    throw new \RuntimeException('Could not replace an update file: ' . $relative);
+                }
+                $rollback?->replace($target);
+                if (!rename((string) $name, $target)) {
                     throw new \RuntimeException('Could not replace an update file: ' . $relative);
                 }
             }
