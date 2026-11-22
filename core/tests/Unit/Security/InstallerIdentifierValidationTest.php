@@ -67,6 +67,26 @@ describe('validateDbName()', function () {
     ]);
 });
 
+describe('sqliteDbNameToPath()', function () {
+
+    test('places a SQLite name below core/database', function () {
+        expect(sqliteDbNameToPath('sites/evolution'))
+            ->toBe(EVO_CORE_PATH . 'database' . DIRECTORY_SEPARATOR . 'sites/evolution.sqlite');
+    });
+
+    // Every installer opens its database through this join, so it refuses a path to the
+    // database of another site on the host whichever caller forgot to validate.
+    test('never reaches a file outside core/database', function (string $name) {
+        expect(fn () => sqliteDbNameToPath($name))->toThrow(InvalidArgumentException::class, 'below core/database');
+    })->with([
+        'absolute' => ['/var/www/other/core/database/site'],
+        'parent' => ['../../../other/core/database/site'],
+        'parent inside' => ['a/../../site'],
+        'windows drive' => ['C:/sites/other/site'],
+        'backslash' => ['..\\other\\site'],
+    ]);
+});
+
 describe('validateDbHost()', function () {
 
     test('accepts addresses, hostnames and Docker service names', function (string $host) {
