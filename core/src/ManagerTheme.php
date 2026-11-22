@@ -9,6 +9,7 @@ use EvolutionCMS\Exceptions\ServiceValidationException;
 use EvolutionCMS\Interfaces\ManagerThemeInterface;
 use EvolutionCMS\Interfaces\CoreInterface;
 use EvolutionCMS\Models\UserAttribute;
+use EvolutionCMS\Support\Formatter\CSSMinify;
 use EvolutionCMS\Support\ManagerLanguage;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
@@ -20,6 +21,9 @@ use View;
 
 class ManagerTheme implements ManagerThemeInterface
 {
+    public const CSS_BUNDLE = 'css/styles.min.css';
+    public const EVENT_CSS_BUNDLE = 'css/styles.event.min.css';
+
     /**
      * @var CoreInterface
      */
@@ -929,12 +933,24 @@ class ManagerTheme implements ManagerThemeInterface
 
     public function css()
     {
-        $css = $this->getThemeUrl() . 'style.css';
-        $minCssName = 'css/styles.min.css';
+        $stylesheets = $this->stylesheets();
 
-        $minCssPath = $this->getThemeDir() . $minCssName;
+        return count($stylesheets) === 1 ? $stylesheets[0] : $this->getThemeUrl() . 'style.css?v=' . $this->getCore()->getVersionData('version');
+    }
+
+    /** @return list<string> Authoritative stylesheet URLs in cascade order. */
+    public function stylesheets(string $fallback = 'style.css', string $revisionSuffix = '', bool $useEvent = true): array
+    {
+        $revision = '?v=' . $this->getCore()->getVersionData('version') . $revisionSuffix;
+        $themeUrl = $this->getThemeUrl();
+        $themeDir = $this->getThemeDir();
+        $minCssName = self::CSS_BUNDLE;
+        if (!$useEvent && !is_file($themeDir . 'CSSMinify.php')) {
+            return [$themeUrl . $fallback . $revision];
+        }
+
         $sources = $this->getCssFiles();
-        if (!empty($sources)) {
+        if ($useEvent && !empty($sources)) {
             $evtOut = $this->getCore()->invokeEvent('OnBeforeMinifyCss', [
                 'files' => $sources,
                 'source' => 'manager',
@@ -945,6 +961,11 @@ class ManagerTheme implements ManagerThemeInterface
                 case \is_array($evtOut) && count($evtOut) === 0:
                     break;
                 case \is_array($evtOut) && count($evtOut) === 1:
+                    if ($evtOut[0] !== $sources) {
+                        // The frame uses the manifest without the plugin event. Keep its
+                        // canonical bundle separate if this header uses different sources.
+                        $minCssName = self::EVENT_CSS_BUNDLE;
+                    }
                     $sources = $evtOut[0];
                     break;
                 default:
@@ -954,22 +975,39 @@ class ManagerTheme implements ManagerThemeInterface
             }
         }
 
-        if (!empty($sources)
-            && \EvolutionCMS\Support\Formatter\CSSMinify::isStale($minCssPath, $sources)
-            && is_writable($this->getThemeDir() . 'css')
-        ) {
-            $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify($sources);
-            $css = $minifier->minify($minCssPath);
-            file_put_contents($minCssPath, $css);
-            clearstatcache(true, $minCssPath);
-        }
-        $revision = '';
-        if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($minCssPath)) {
-            $css = $this->getThemeUrl() . $minCssName;
-            $revision = '.' . filemtime($minCssPath);
+        $minCssPath = $themeDir . $minCssName;
+        if (empty($sources)) {
+            // No source list to compare for custom themes; preserve the legacy selection.
+            return CSSMinify::isCacheCurrent($minCssPath)
+                ? [$themeUrl . $minCssName . $revision . '.' . filemtime($minCssPath)]
+                : [$themeUrl . $fallback . $revision];
         }
 
-        return $css . '?v=' . $this->getCore()->getVersionData('version') . $revision;
+        $stale = CSSMinify::isStale($minCssPath, $sources);
+        if ($stale && is_writable(dirname($minCssPath))
+            && !is_link($minCssPath)
+            && (!file_exists($minCssPath) || is_writable($minCssPath))
+        ) {
+            $stale = !(new CSSMinify($sources))->writeBundle($minCssPath);
+        }
+
+        if (!$stale) {
+            return [$themeUrl . $minCssName . $revision . '.' . filemtime($minCssPath)];
+        }
+
+        // Never mix a stale bundle and individual sources. Each stylesheet retains its
+        // own base URL; the browser resolves its relative assets in the original location.
+        return CSSMinify::publicSourceUrls($sources, $this->stylesheetAssetRoots(), $revision)
+            ?? [$themeUrl . $fallback . $revision];
+    }
+
+    /** @return array<string, string> Browser-visible filesystem roots and their public URLs. */
+    protected function stylesheetAssetRoots(): array
+    {
+        return [
+            EVO_MANAGER_PATH => EVO_MANAGER_URL,
+            EVO_BASE_PATH . 'assets/' => EVO_BASE_URL . 'assets/',
+        ];
     }
 
     public function getMainFrameHeaderHTMLBlock(): string

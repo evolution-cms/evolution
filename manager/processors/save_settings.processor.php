@@ -39,9 +39,12 @@ if ($data['friendly_urls'] === '1' && strpos($_SERVER['SERVER_SOFTWARE'], 'IIS')
     }
 }
 
-$themeCssCache = \EvolutionCMS\Facades\ManagerTheme::getThemeDir() . 'css/styles.min.css';
-if (file_exists($themeCssCache)) {
-    unlink($themeCssCache);
+$themeDir = \EvolutionCMS\Facades\ManagerTheme::getThemeDir();
+foreach ([\EvolutionCMS\ManagerTheme::CSS_BUNDLE, \EvolutionCMS\ManagerTheme::EVENT_CSS_BUNDLE] as $bundle) {
+    $themeCssCache = $themeDir . $bundle;
+    if (file_exists($themeCssCache)) {
+        unlink($themeCssCache);
+    }
 }
 
 $data['filemanager_path'] = str_replace('[(base_path)]', EVO_BASE_PATH, $data['filemanager_path']);

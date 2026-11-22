@@ -192,29 +192,13 @@ class Frame extends AbstractController implements ManagerTheme\PageControllerInt
 
     protected function registerCss(): string
     {
-        $this->parameters['css'] = $this->managerTheme->getThemeDir(false) . 'css/page.css?v=' . evo()->getVersionData('version') . '.' . EVO_INSTALL_TIME;
-
-        $themeDir = $this->managerTheme->getThemeDir();
-
-        if (file_exists($themeDir . 'CSSMinify.php')) {
-            $minCssPath = $themeDir . 'css/styles.min.css';
-            $cssFiles = include $themeDir . 'CSSMinify.php';
-            $cssFiles = is_array($cssFiles) ? $cssFiles : [];
-            if (\EvolutionCMS\Support\Formatter\CSSMinify::isStale($minCssPath, $cssFiles) && is_writable($themeDir . 'css')) {
-                if (count($cssFiles)) {
-                    $minifier = new \EvolutionCMS\Support\Formatter\CSSMinify();
-                    foreach ($cssFiles as $item) {
-                        $minifier->addFile($item);
-                    }
-                    file_put_contents($minCssPath, $minifier->minify($themeDir . 'css/styles.min.css'));
-                    clearstatcache(true, $minCssPath);
-                }
-            }
-
-            if (\EvolutionCMS\Support\Formatter\CSSMinify::isCacheCurrent($minCssPath)) {
-                $this->parameters['css'] = $this->managerTheme->getThemeDir(false) . 'css/styles.min.css?v=' . evo()->getVersionData('version') . '.' . EVO_INSTALL_TIME . '.' . filemtime($minCssPath);
-            }
-        }
+        $revision = '.' . EVO_INSTALL_TIME;
+        $stylesheets = $this->managerTheme->stylesheets('css/page.css', $revision, useEvent: false);
+        $this->parameters['stylesheets'] = $stylesheets;
+        // Keep the single URL available for third-party frame templates.
+        $this->parameters['css'] = count($stylesheets) === 1
+            ? $stylesheets[0]
+            : $this->managerTheme->getThemeUrl() . 'css/page.css?v=' . evo()->getVersionData('version') . $revision;
 
         return $this->parameters['css'];
     }

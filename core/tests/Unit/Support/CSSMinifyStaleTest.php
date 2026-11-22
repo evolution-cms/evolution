@@ -59,3 +59,27 @@ test('a bundle without source identity is stale even with a newer timestamp', fu
     touch($this->source, time() - 60);
     expect(CSSMinify::isStale($this->bundle, [$this->source]))->toBeTrue();
 });
+
+
+test('an atomic rebuild keeps file permissions and writes the full current bundle', function () {
+    file_put_contents($this->bundle, (new CSSMinify([$this->source]))->minify($this->bundle));
+    chmod($this->bundle, 0640);
+    file_put_contents($this->source, '.a { color: blue; }');
+
+    expect((new CSSMinify([$this->source]))->writeBundle($this->bundle))->toBeTrue()
+        ->and(CSSMinify::isStale($this->bundle, [$this->source]))->toBeFalse()
+        ->and(file_get_contents($this->bundle))->toContain('.a{color:blue}')
+        ->and(fileperms($this->bundle) & 0777)->toBe(0640)
+        ->and(glob($this->dir . '/.evo-css-*'))->toBe([]);
+});
+
+test('a failed atomic publish does not leave staging files', function () {
+    mkdir($this->bundle);
+    try {
+        expect((new CSSMinify([$this->source]))->writeBundle($this->bundle))->toBeFalse()
+            ->and(is_dir($this->bundle))->toBeTrue()
+            ->and(glob($this->dir . '/.evo-css-*'))->toBe([]);
+    } finally {
+        rmdir($this->bundle);
+    }
+});

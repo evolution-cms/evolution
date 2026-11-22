@@ -24,7 +24,9 @@
             }
         })();
     </script>
-    <link rel="stylesheet" type="text/css" href="{{ManagerTheme::css()}}"/>
+    @foreach (ManagerTheme::stylesheets() as $stylesheet)
+        <link rel="stylesheet" type="text/css" href="{{ $stylesheet }}"/>
+    @endforeach
     <script type="text/javascript" src="media/script/tabpane.js"></script>
     <script type="text/javascript" src="{{evo()->getConfig('mgr_jquery_path')}}"></script>
     @if (evo()->getConfig('show_picker') === true)

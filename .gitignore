@@ -31,6 +31,7 @@
 # Manager
 /manager/includes/config.inc.php
 /manager/media/style/default/css/styles.min.css
+/manager/media/style/default/css/styles.event.min.css
 
 # Installer lock
 /install.session.php
