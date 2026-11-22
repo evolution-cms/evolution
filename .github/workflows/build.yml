@@ -50,6 +50,7 @@ jobs:
     outputs:
       versions: ${{ steps.php.outputs.versions }}
       lowest: ${{ steps.php.outputs.lowest }}
+      runtimes: ${{ steps.php.outputs.runtimes }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -206,8 +207,9 @@ jobs:
       fail-fast: false
       matrix:
         # The lowest of them is the one the vendor tree in the zip is built on,
-        # so the others prove the archive is portable upwards.
-        php: ${{ fromJSON(needs.php.outputs.versions) }}
+        # so the others prove the archive is portable upwards. Only versions
+        # salo2 has runtimes for, see the script.
+        php: ${{ fromJSON(needs.php.outputs.runtimes) }}
         # Three different PHP SAPIs, not three front ends over one PHP: apache
         # runs mod_php, nginx talks FastCGI to php-fpm, and FrankenPHP embeds
         # PHP inside Caddy. They cannot share a base image, so each is a build.

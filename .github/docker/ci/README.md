@@ -87,15 +87,12 @@ being investigated.
 One PHP version, every database: what the job proves is the installer's database
 paths, which do not vary with the PHP minor, and it runs on the lowest one
 `.github/scripts/php-versions.sh` lists. The analysis and unit test jobs cover
-all of them: 8.4 and 8.5, plus 8.3 while the CMS version is below 3.6. The
-sqlite leg starts no container.
+all of them: 8.4 and 8.5, plus 8.3 while the CMS version is below 3.6 and 8.6
+from 3.6 on. The sqlite leg starts no container.
 
-The same workflow also builds this image from the official `php:8.6-rc-cli`
-image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6
-release candidate. The image includes SQLite and mbstring support and installs
-locked dependencies with standalone Composer. No platform requirements are
-ignored: a failed build, runtime check or test fails the compatibility job.
-PHP 8.6 remains a prerelease platform until its general release.
+The image builds on any of them, `--build-arg PHP_VERSION=8.6` included, and
+also carries the development dependencies, so it runs Pest as well:
+`docker run --rm --entrypoint sh evo-ci-php:8.6 -c 'cd core && php vendor/bin/pest'`.
 
 Running the CMS on more than one server - two nodes behind a balancer, one
 database, sessions in Redis, shared upload and cache folders - is checked by

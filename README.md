@@ -57,9 +57,9 @@ Evolution CMS **3.6.x** requires **PHP 8.4.1 or later within PHP 8.x** (`^8.4.1`
 | --- | --- | --- |
 | **8.4** | Supported; minimum required version | **Recommended for production and new installations** |
 | **8.5** | Supported | Check installed extras and custom code before upgrading |
-| **8.6 RC** | Experimental compatibility checks only | Not recommended for production |
+| **8.6** | Supported | Check installed extras and custom code before upgrading |
 
-The [CI workflow](.github/workflows/ci.yml) runs static analysis and unit tests on PHP **8.4 and 8.5**. PHP **8.6 RC** has a separate experimental compatibility job and is not recommended for production.
+The [CI workflow](.github/workflows/ci.yml) runs static analysis and unit tests on PHP **8.4, 8.5 and 8.6**.
 
 Use the latest patch release of your chosen PHP version. See the [PHP support lifecycle](https://www.php.net/supported-versions.php) for maintenance and security support dates.
 
