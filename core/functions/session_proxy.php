@@ -467,11 +467,21 @@ class EvoSessionProxy
     }
 
     /**
+     * The keys Illuminate\Session\Store writes and ages itself (CSRF token, flash bags, old
+     * input, previous URL): a copy of them in $_SESSION is stale by the time it would be synced
+     * back. Any other key that starts with "_" belongs to native session code (Phalcon's flash
+     * keeps "_flashMessages", Symfony's "_sf2_attributes") and is synced like any other key:
+     * init() puts such keys into the store, so skipping them here kept a removed or changed
+     * value there, and the next init() handed the old one back.
+     */
+    private const LARAVEL_KEYS = ['_token', '_flash', '_previous', '_old_input'];
+
+    /**
      * @param string $key
      * @return bool
      */
     private static function isInternalKey(string $key): bool
     {
-        return str_starts_with($key, '_');
+        return in_array($key, self::LARAVEL_KEYS, true);
     }
 }
