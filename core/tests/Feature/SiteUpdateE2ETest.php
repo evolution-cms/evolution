@@ -319,6 +319,26 @@ test('update from version N to N+1 applies migrations, update seeders and refres
     expect($db->table('system_settings')->where('setting_name', 'site_id')->value('setting_value'))->toBe($siteId)
         ->and($db->table('system_settings')->where('setting_name', 'manager_theme')->value('setting_value'))->toBe('custom');
 
+    // A site that never chose an editor gets the bundled dTui.editor, unless it still runs the
+    // TinyMCE4 plugin that the old factory default named; a chosen editor is kept.
+    $editor = fn () => $db->table('system_settings')->where('setting_name', 'which_editor')->value('setting_value');
+    expect($editor())->toBe('dTuiEditor');
+
+    $db->table('system_settings')->where('setting_name', 'which_editor')->delete();
+    $db->table('site_plugins')->insert(['name' => 'TinyMCE4', 'disabled' => 1]);
+    (new \EvolutionCMS\Installer\Update\SystemSettingsTableSeeder())->run();
+    expect($editor())->toBe('dTuiEditor');
+
+    $db->table('system_settings')->where('setting_name', 'which_editor')->delete();
+    $db->table('site_plugins')->where('name', 'TinyMCE4')->update(['disabled' => 0]);
+    (new \EvolutionCMS\Installer\Update\SystemSettingsTableSeeder())->run();
+    expect($editor())->toBe('TinyMCE4');
+
+    $db->table('system_settings')->where('setting_name', 'which_editor')->update(['setting_value' => 'CodeMirror']);
+    (new \EvolutionCMS\Installer\Update\SystemSettingsTableSeeder())->run();
+    expect($editor())->toBe('CodeMirror');
+    $db->table('site_plugins')->where('name', 'TinyMCE4')->delete();
+
     // Bundled Extras module refreshed from install/assets/modules/store.tpl.
     $extras = $db->table('site_modules')->where('name', 'Extras')->first();
     expect($extras->description)->toContain('<strong>0.2.0</strong>')
