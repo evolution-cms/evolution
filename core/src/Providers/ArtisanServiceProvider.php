@@ -81,6 +81,7 @@ class ArtisanServiceProvider extends ServiceProvider
         'InstallPackageAutoload' => 'command.packages.installautoload',
         'UpdateTree' => 'command.updatetree',
         'SiteUpdate' => 'command.siteupdate',
+        'SiteLink' => 'command.sitelink',
         'TranslationsSync' => 'command.translations.sync',
         'Extras' => 'command.extras',
         'RouteList' => 'command.route.list',
@@ -516,6 +517,18 @@ class ArtisanServiceProvider extends ServiceProvider
     {
         $this->app->singleton('command.siteupdate', function () {
             return new Console\SiteUpdateCommand();
+        });
+    }
+
+    /**
+     * Register the command.
+     *
+     * @return void
+     */
+    protected function registerSiteLinkCommand()
+    {
+        $this->app->singleton('command.sitelink', function () {
+            return new Console\SiteLinkCommand();
         });
     }
 

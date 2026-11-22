@@ -1835,6 +1835,7 @@ class ComposerStaticInit925fea465a58fa69f06ccf2629003e87
         'EvolutionCMS\\Console\\RouteListCommand' => __DIR__ . '/../..' . '/src/Console/RouteListCommand.php',
         'EvolutionCMS\\Console\\Scheduling\\ScheduleListCommand' => __DIR__ . '/../..' . '/src/Console/Scheduling/ScheduleListCommand.php',
         'EvolutionCMS\\Console\\Scheduling\\ScheduleRunCommand' => __DIR__ . '/../..' . '/src/Console/Scheduling/ScheduleRunCommand.php',
+        'EvolutionCMS\\Console\\SiteLinkCommand' => __DIR__ . '/../..' . '/src/Console/SiteLinkCommand.php',
         'EvolutionCMS\\Console\\SiteUpdateCommand' => __DIR__ . '/../..' . '/src/Console/SiteUpdateCommand.php',
         'EvolutionCMS\\Console\\SystemTasks\\SchedulerHeartbeatCommand' => __DIR__ . '/../..' . '/src/Console/SystemTasks/SchedulerHeartbeatCommand.php',
         'EvolutionCMS\\Console\\SystemTasks\\TaskWorkerCommand' => __DIR__ . '/../..' . '/src/Console/SystemTasks/TaskWorkerCommand.php',

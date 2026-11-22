@@ -194,3 +194,30 @@ it('pins SERVER_NAME to the configured name in every nginx php block', function 
         ->toBe(substr_count($nginx, 'fastcgi_param SERVER_NAME $server_name;'))
         ->and($nginx)->not->toContain('fastcgi_param SERVER_NAME $host');
 });
+
+it('serves the static well-known files of nginx without PHP source, dumps or dotfiles', function () {
+    preg_match('#location \^~ /\.well-known/ \{(.*?)\n    \}#s', evoFile('ng.inx'), $block);
+    preg_match_all('#location (~\*?) (\S+) \{ access_log off; return 404; \}#', $block[1] ?? '', $denies, PREG_SET_ORDER);
+    $refused = static function (string $uri) use ($denies): bool {
+        foreach ($denies as [, $modifier, $pattern]) {
+            if (preg_match('#' . $pattern . '#' . ($modifier === '~*' ? 'i' : ''), $uri) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    // `^~` skips every regex of the server, so the block carries its own.
+    expect($denies)->toHaveCount(2)
+        ->and($refused('/.well-known/security.txt'))->toBeFalse()
+        ->and($refused('/.well-known/assetlinks.json'))->toBeFalse()
+        ->and($refused('/.well-known/apple-app-site-association'))->toBeFalse()
+        ->and($refused('/.well-known/acme-challenge/Ab-9_x'))->toBeFalse()
+        ->and($refused('/.well-known/openid-configuration'))->toBeFalse()
+        ->and($refused('/.well-known/info.php'))->toBeTrue()
+        ->and($refused('/.well-known/dump.sql.gz'))->toBeTrue()
+        ->and($refused('/.well-known/BACKUP.SQL'))->toBeTrue()
+        ->and($refused('/.well-known/.env'))->toBeTrue()
+        ->and($refused('/.well-known/sub/.git/config'))->toBeTrue();
+});

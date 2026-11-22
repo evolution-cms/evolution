@@ -1173,6 +1173,7 @@ return array(
     'EvolutionCMS\\Console\\RouteListCommand' => $baseDir . '/src/Console/RouteListCommand.php',
     'EvolutionCMS\\Console\\Scheduling\\ScheduleListCommand' => $baseDir . '/src/Console/Scheduling/ScheduleListCommand.php',
     'EvolutionCMS\\Console\\Scheduling\\ScheduleRunCommand' => $baseDir . '/src/Console/Scheduling/ScheduleRunCommand.php',
+    'EvolutionCMS\\Console\\SiteLinkCommand' => $baseDir . '/src/Console/SiteLinkCommand.php',
     'EvolutionCMS\\Console\\SiteUpdateCommand' => $baseDir . '/src/Console/SiteUpdateCommand.php',
     'EvolutionCMS\\Console\\SystemTasks\\SchedulerHeartbeatCommand' => $baseDir . '/src/Console/SystemTasks/SchedulerHeartbeatCommand.php',
     'EvolutionCMS\\Console\\SystemTasks\\TaskWorkerCommand' => $baseDir . '/src/Console/SystemTasks/TaskWorkerCommand.php',
