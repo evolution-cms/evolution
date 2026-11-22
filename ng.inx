@@ -14,18 +14,26 @@
 #   {php_backend}  FPM backend, either a unix socket or a TCP address
 #                    unix:/run/php/php8.4-fpm.sock   or   127.0.0.1:9000
 #
+# The CMS outside the web root (a hosting public_html next to it): only
+# for that layout, see "OUTSIDE THE WEB ROOT" below.
+#   {public_path}  the public folder, WITHOUT the leading slash; {domain_path}
+#                  is then the CMS folder next to it
+#                    home/user/public_html   (CMS in home/user/evolution)
+#
 #   DOMAIN=example.com
 #   DOMAIN_PATH=var/www/example.com
 #   LOG_PATH=var/log/nginx/example.com
 #   SSL_CERT=etc/letsencrypt/live/example.com/fullchain.pem
 #   SSL_KEY=etc/letsencrypt/live/example.com/privkey.pem
 #   PHP_BACKEND=unix:/run/php/php8.4-fpm.sock
+#   PUBLIC_PATH=home/user/public_html     # outside the web root only
 #
 #   sed -e "s|{domain_path}|${DOMAIN_PATH}|g" \
 #       -e "s|{log_path}|${LOG_PATH}|g" \
 #       -e "s|{ssl_cert}|${SSL_CERT}|g" \
 #       -e "s|{ssl_key}|${SSL_KEY}|g" \
 #       -e "s|{php_backend}|${PHP_BACKEND}|g" \
+#       -e "s|{public_path}|${PUBLIC_PATH}|g" \
 #       -e "s|{domain}|${DOMAIN}|g" \
 #       ng.inx | sudo tee /etc/nginx/sites-available/"$DOMAIN".conf > /dev/null
 #
@@ -42,6 +50,22 @@
 # PHP execution is an allowlist, not a filter: the only URIs passed to FPM are
 # the handful of real entry points listed further down, and everything else
 # ending in .php returns 404. Check that list before adding an extra.
+#
+# OUTSIDE THE WEB ROOT. The CMS may live next to the folder the server
+# serves, as hosting accounts do with public_html, so core/ is not under the
+# web root at all and the account keeps files and scripts of its own there.
+# The public folder then holds links to the entry points, made from the CMS:
+#
+#   php core/artisan site:link /home/user/public_html
+#
+# (index.php, the manager, assets, and install/ and update.php while they
+# exist). Each line marked "outside the web root" REPLACES the active line it
+# names: the root of the public folder, the PHP handler that runs the
+# account's own scripts while the CMS keeps its allowlist, and the ACME root
+# of the plain HTTP server. Comment the replaced line out: two roots, or two
+# locations of one prefix, make nginx refuse the file (check with nginx -t).
+# Keep disable_symlinks off (the default) or if_not_owner with the links
+# owned by the site's user.
 #
 # The locations are grouped into a PUBLIC SITE section and a MANAGER section
 # (admin panel + installer), because the two are worth different levels of
@@ -79,6 +103,8 @@ server {
     server_name {domain} www.{domain};
     # merge_slashes off; # Uncomment this line if you want to handle double slashes from php.
     root /{domain_path};
+    # Outside the web root: replaces the line above, comment that one out.
+    # root /{public_path};
 
     # Refuse anything that did not ask for one of the names above, so the
     # site cannot be reached by IP address or by a stray Host header.
@@ -134,9 +160,17 @@ server {
     # Never serve a directory index anywhere on the site.
     autoindex off;
 
-    # Let's Encrypt / domain verification. `^~` stops regex evaluation, so this
-    # must stay above the dotfile rule that would otherwise swallow it.
-    location ^~ /.well-known/ { allow all; }
+    # Well-known URIs (RFC 8615) are static files of the site: ACME challenges,
+    # security.txt, assetlinks.json, apple-app-site-association, change-password
+    # and the like, from the root (the public folder outside the web root).
+    # `^~` keeps the dotfile rule below from swallowing them, and with it every
+    # other regex, so the ones that matter here are repeated inside: no PHP
+    # source, no dump, no dotfile below it.
+    location ^~ /.well-known/ {
+        allow all;
+        location ~ (^/\.well-known/(.*/)?\.|\.(php\d?|phtml|phar|inc)$) { access_log off; return 404; }
+        location ~* \.(sql|sqlite|db|log|bak|old|orig|save|swp|swo|tpl|ini|env|dist|example|yml|yaml|lock|tar)(\.(gz|bz2|xz|zip|tgz))?$ { access_log off; return 404; }
+    }
 
     # Dotfiles and dotfolders at any level (.git, .env, .htaccess, .idea, ...).
     location ~ (^|/)\. { access_log off; return 404; }
@@ -322,6 +356,20 @@ server {
     # handler above is anchored with $, so /index.php/evil.php never reaches
     # FPM and the cgi.fix_pathinfo class of bypass has nothing to work with.
     location ~ \.php$ { access_log off; return 404; }
+    # Outside the web root: the account's own scripts in the public folder run,
+    # the CMS's other PHP files stay refused. Uncomment these two blocks and
+    # comment the line above out.
+    # location ~ ^/(manager|install)/.*\.php$ { access_log off; return 404; }
+    # location ~ \.php$ {
+    #     try_files $uri =404;
+    #
+    #     include /etc/nginx/fastcgi_params;
+    #     fastcgi_param SERVER_NAME $server_name;
+    #     fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    #     fastcgi_param HTTPS on;
+    #     fastcgi_hide_header X-Powered-By;
+    #     fastcgi_pass {php_backend};
+    # }
 
     location ~* \.(css|js|html|txt|xml|rss|atom|jpg|jpeg|gif|png|webp|avif|svg|svgz|ico|bmp|swf|woff|woff2|ttf|otf|eot|mp3|mp4|webm|ogg|ogv|wav|mid|midi|pdf|doc|docx|xls|xlsx|ppt|pptx|rtf|zip|gz|bz2|rar|7z)$ {
         access_log off;
@@ -344,6 +392,9 @@ server {
     # Certificate renewals have to be answerable over plain HTTP, so this
     # stays above the redirect. `^~` keeps it out of regex comparison.
     location ^~ /.well-known/acme-challenge/ { root /{domain_path}; }
+    # Outside the web root: replaces the location above, comment that one out;
+    # two locations of one prefix are a configuration error.
+    # location ^~ /.well-known/acme-challenge/ { root /{public_path}; }
 
     location / { return 301 https://{domain}$request_uri; }
 }
