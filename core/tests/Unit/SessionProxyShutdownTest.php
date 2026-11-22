@@ -38,6 +38,18 @@ test('a console command saves no session: no cookie can bring it back', function
     'whatever headers it printed' => [['manager' => '1', 'setCookie' => '1']],
 ]);
 
+test('native session keys that start with an underscore are kept, the store\'s own keys stay the store\'s', function () {
+    $out = evoRunPhp(dirname(__DIR__) . '/Mocks/session_native_keys_worker.php', []);
+    $result = json_decode($out, true);
+    expect($result)->toBeArray("worker output: $out");
+
+    expect($result['seen']['_flashMessages'])->toBe(['success' => ['Goodbye!']])
+        ->and($result['data']['_flashMessages'])->toBe(['success' => ['Thanks']])
+        ->and($result['data'])->not->toHaveKey('_native_stale')
+        ->and($result['data']['_token'])->toBe('new-token')
+        ->and($result['data']['visitor'])->toBe('x');
+});
+
 test('the session is synced before the shutdown decides, and only the shutdown registers the check', function () {
     $proxy = file_get_contents(dirname(__DIR__, 2) . '/functions/session_proxy.php');
     $middleware = file_get_contents(dirname(__DIR__, 2) . '/src/Middleware/SessionProxy.php');
