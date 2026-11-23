@@ -25,6 +25,8 @@ $store->data = [
     '_flash' => ['old' => [], 'new' => []],
     '_flashMessages' => ['success' => ['Goodbye!']],
     '_native_stale' => 'remove me',
+    '_laravel_changed' => 'before',
+    '_laravel_gone' => 'remove me in Laravel',
     'visitor' => 'x',
 ];
 $app = new Illuminate\Container\Container();
@@ -40,8 +42,13 @@ $seen = $_SESSION;
 // Native code: a flash library shows its message and queues another, and drops a key of its own.
 $_SESSION['_flashMessages'] = ['success' => ['Thanks']];
 unset($_SESSION['_native_stale']);
-// Laravel, during the same request: a new CSRF token; $_SESSION still holds the old one.
+$_SESSION['_native_new'] = ['queued' => 1];
+// Laravel, during the same request: a new CSRF token, and "_" keys of its own that native code
+// never touched. $_SESSION still holds the values init() gave it.
 $store->put('_token', 'new-token');
+$store->put('_laravel_new', 'created in Laravel');
+$store->put('_laravel_changed', 'after');
+$store->forget('_laravel_gone');
 
 EvoSessionProxy::syncBack();
 
