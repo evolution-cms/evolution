@@ -18,7 +18,8 @@ require_once EVO_BASE_PATH . 'install/src/functions.php';
  * php cli-install.php --typeInstall=1 --databaseType=sqlite --database=evolution --tablePrefix=evo_ --cmsAdmin=admin --cmsAdminEmail=serious2008@gmail.com --cmsPassword=123456 --language=uk --removeInstall=y
  * php cli-install.php --typeInstall=2 --removeInstall=y
  *
- * The sqlite database is created as core/database/<--database>.sqlite
+ * The sqlite database is created as core/database/<--database>.sqlite; --database is a name
+ * (folders split by /), not a path, so it cannot leave core/database
  * Use --skipComposer=y to keep the already installed dependencies untouched.
  * Missing or invalid values can prompt for input. EOF at a prompt exits with code 1;
  * an empty input line, rather than EOF, is required to accept a prompt's default.
@@ -443,9 +444,22 @@ class InstallEvo
         }
     }
 
+    /**
+     * The same rule as the web installer: for sqlite, a name below core/database, never a path that
+     * reaches the database of another site on the host.
+     */
     public function checkDatabase()
     {
-        while ($this->database === '') {
+        while (true) {
+            try {
+                $this->database = validateDbName($this->database, $this->databaseType);
+
+                return;
+            } catch (InvalidArgumentException $e) {
+                if ($this->database !== '') {
+                    error('✖ ' . $e->getMessage());
+                }
+            }
             $this->database = $this->ask('Please enter database:', '');
         }
     }

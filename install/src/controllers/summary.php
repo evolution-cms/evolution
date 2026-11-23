@@ -220,7 +220,7 @@ try {
         $dbh = new PDO(databaseDsn($database_type, $database_server, $database_name), $database_user, $database_password, $pdoOptions);
     }
     echo '<span class="ok">' . $_lang['ok'] . '</span></p>';
-} catch (PDOException $e) {
+} catch (PDOException|InvalidArgumentException $e) {
     $errors++;
     echo '<span class="notok">' . $_lang['database_connection_failed'] . '</span><p />' . $_lang['database_connection_failed_note'] . $e->getMessage() . '</p>';
     echo '<span class="notok">' . $_lang['database_use_failed'] . '</span><p />' . $_lang['database_use_failed_note'] . '</p>';

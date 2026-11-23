@@ -161,4 +161,58 @@ final class CliInstallTest extends TestCase
 
         $installer->writeConfig();
     }
+
+    /**
+     * --database used to be joined to core/database unchecked: an absolute path nested a new file
+     * below it, and "../" opened (and installed into) the sqlite database of another site.
+     */
+    public function testCliAsksAgainForASqliteNameThatLeavesCoreDatabase(): void
+    {
+        foreach (['/other/core/database/site', '../../../other/core/database/site', 'a/../../site'] as $path) {
+            $installer = $this->installerAnswering('evolution');
+            $installer->databaseType = 'sqlite';
+            $installer->database = $path;
+
+            ob_start();
+            $installer->checkDatabase();
+            $output = (string) ob_get_clean();
+
+            $this->assertSame('evolution', $installer->database, $path);
+            $this->assertSame(1, $installer->asked, $path);
+            $this->assertStringContainsString('below core/database', $output, $path);
+        }
+    }
+
+    public function testCliKeepsAValidDatabaseNameWithoutAsking(): void
+    {
+        foreach (['sqlite' => 'sites/evolution', 'mysql' => 'evo_site', 'pgsql' => 'evo-site'] as $type => $name) {
+            $installer = $this->installerAnswering('unused');
+            $installer->databaseType = $type;
+            $installer->database = $name;
+
+            $installer->checkDatabase();
+
+            $this->assertSame($name, $installer->database, $type);
+            $this->assertSame(0, $installer->asked, $type);
+        }
+    }
+
+    private function installerAnswering(string $answer): \InstallEvo
+    {
+        return new class([], $answer) extends \InstallEvo {
+            public int $asked = 0;
+
+            public function __construct(array $arguments, private readonly string $answer)
+            {
+                parent::__construct($arguments);
+            }
+
+            public function ask(string $question, ?string $default = null): string
+            {
+                $this->asked++;
+
+                return $this->answer;
+            }
+        };
+    }
 }

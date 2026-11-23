@@ -67,7 +67,7 @@ if ($installMode !== 0) {
                 try {
                     $conn = new PDO('sqlite:' . sqliteDbNameToPath($database_name));
                     $result = true;
-                } catch (PDOException $e) {
+                } catch (PDOException|InvalidArgumentException $e) {
                     $conn = false;
                     $result = false;
                 }

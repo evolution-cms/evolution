@@ -199,7 +199,13 @@ function dbConnect(string $driver, string $host, $db, ?string $user = null, ?str
     return $dbh;
 }
 
+/**
+ * @throws InvalidArgumentException For anything but a name below core/database: an absolute path or
+ *         "../" would open the database of another site on the host.
+ */
 function sqliteDbNameToPath(string $name) {
+    $name = validateDbName($name, 'sqlite');
+
     return EVO_CORE_PATH . 'database' . DIRECTORY_SEPARATOR . "$name.sqlite";
 }
 
@@ -284,6 +290,10 @@ function validateDbName($name, $type = '')
     // SQLite names a file below core/database, which may sit in a folder of its own (a mounted volume).
     if ($type === 'sqlite' && preg_match('~^[A-Za-z0-9_$-]+(?:/[A-Za-z0-9_$-]+)*$~', $name) === 1) {
         return $name;
+    }
+    if ($type === 'sqlite') {
+        throw new InvalidArgumentException("SQLite database name should be a file name below core/database:"
+            . " letters, numbers, dashes, dollar signs and underscores, folders split by /, not a path");
     }
     if (preg_match('/^[A-Za-z0-9_$-]+$/', $name) !== 1) {
         throw new InvalidArgumentException("Database name should contain only letters, numbers, dashes,"
