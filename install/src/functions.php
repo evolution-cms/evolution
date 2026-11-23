@@ -551,14 +551,23 @@ function bootstrapInstallMigrationHistory(string $migrationsPath, string $baseli
         return 0;
     }
 
+    // Up to 3.5.9 the installer logged in migrations_install. Its rows come over before anything
+    // reads the log, and a failure stops the update: without them the install chain runs again.
+    $repository = app('migration.repository');
+    $log = 'migrations';
+    if ($repository instanceof \EvolutionCMS\Support\MigrationRepository) {
+        $repository->importInstallerLog();
+        $log = $repository->getTable();
+    }
+
     try {
-        if (!\Illuminate\Support\Facades\Schema::hasTable('migrations_install') ||
+        if (!\Illuminate\Support\Facades\Schema::hasTable($log) ||
             !\Illuminate\Support\Facades\Schema::hasTable('active_user_locks')
         ) {
             return 0;
         }
 
-        $registered = \Illuminate\Support\Facades\DB::table('migrations_install')
+        $registered = \Illuminate\Support\Facades\DB::table($log)
             ->pluck('migration')
             ->all();
 
@@ -579,15 +588,14 @@ function bootstrapInstallMigrationHistory(string $migrationsPath, string $baseli
         }
 
         sort($historical);
-        $batch = (int) (\Illuminate\Support\Facades\DB::table('migrations_install')->max('batch') ?: 1);
-        $rows = array_map(static function ($migration) use ($batch) {
+        $rows = array_map(static function ($migration) {
             return [
                 'migration' => $migration,
-                'batch' => $batch,
+                'batch' => \EvolutionCMS\Support\MigrationRepository::BASELINE_BATCH,
             ];
         }, $historical);
 
-        \Illuminate\Support\Facades\DB::table('migrations_install')->insert($rows);
+        \Illuminate\Support\Facades\DB::table($log)->insert($rows);
 
         return count($historical);
     } catch (\Throwable $exception) {

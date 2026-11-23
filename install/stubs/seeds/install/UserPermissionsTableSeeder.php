@@ -29,9 +29,6 @@ class UserPermissionsTableSeeder extends Seeder
             ['id' => 14, 'name' => 'Config Management', 'lang_key' => 'role_config_management'],
         ];
         DB::table('permissions_groups')->insert($insertArray);
-        DB::table('migrations_install')->insert([
-            'migration' => '2018_06_29_182342_create_permissions_table', 'batch' => 1
-        ]);
         $insertArray = [
             [
                 'name'     => 'Request manager frames', 'lang_key' => 'role_frames', 'key' => 'frames', 'disabled' => 1,
