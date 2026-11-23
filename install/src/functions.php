@@ -1171,6 +1171,8 @@ function loadExecWithFallback(): bool
  * packages come back at the versions the last restore noted, and a dry run comes
  * first. Any other change it shows needs $allowChanges; the Composer of core/vendor,
  * however it was selected, never replaces the packages it runs on.
+ * Dependency backports run before discovery even with Composer scripts disabled;
+ * a backport failure leaves the restore incomplete and preserves its diagnostic.
  *
  * @since 3.5.9
  * @param callable|null $run Runs a shell command: fn(string $command): array{0: int, 1: string}.
@@ -1249,6 +1251,13 @@ function restoreCustomComposerPackages(?callable $run = null, ?callable $discove
         . ' --working-dir=' . escapeshellarg(EVO_CORE_PATH) . ' 2>&1');
     $result['output'] = installerOutputTail((string) $output);
     if ((int) $exitCode === 0) {
+        // This restore disables Composer scripts; backports must precede discovery.
+        try {
+            $packages->patchRuntimeDependencies();
+        } catch (\Throwable $exception) {
+            $result['output'] .= "\nDependency compatibility backport failed: " . $exception->getMessage();
+            return $result;
+        }
         $discover ??= static function (): void {
             \EvolutionCMS\Facades\Console::call('package:discover');
         };

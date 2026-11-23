@@ -33,7 +33,10 @@
   },
   "config": {
     "bin-compat": "full",
-    "vendor-dir": "vendor"
+    "vendor-dir": "vendor",
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
   },
   "require": {
     "php": "^8.3",
@@ -45,9 +48,18 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require-dev": {
-    "phpstan/phpstan": "^2.1"
+    "phpstan/phpstan": "^2.1",
+    "mockery/mockery": "^1.6",
+    "pestphp/pest": "^4.7 || ^5.3",
+    "roave/security-advisories": "dev-master"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "core/tests/"
+    }
   },
   "scripts": {
-    "analyze": "@php -d xdebug.mode=off vendor/bin/phpstan --memory-limit=512M"
+    "analyze": "@php -d xdebug.mode=off vendor/bin/phpstan --memory-limit=512M",
+    "test": "@composer --working-dir=core test"
   }
 }

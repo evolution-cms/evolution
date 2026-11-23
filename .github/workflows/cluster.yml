@@ -188,13 +188,19 @@ jobs:
           docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app/core \
             evo-redis-tests composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Install test tools separately from core dependencies
+        run: |
+          docker run --rm -u "$(id -u):$(id -g)" -e COMPOSER_HOME=/tmp/composer -v "$PWD:/app" -w /app \
+            evo-redis-tests composer install --no-interaction --no-progress --prefer-dist
+
       - name: Run the Redis tests
         run: |
           docker run --rm --network host -u "$(id -u):$(id -g)" -v "$PWD:/app" -w /app/core \
             -e EVO_TEST_REDIS=127.0.0.1:6379 evo-redis-tests sh -c '
               php -v | head -n 1
               php --ri redis | grep -E "^(Redis Version|Available compression)"
-              php vendor/bin/pest --fail-on-warning --fail-on-risky --fail-on-deprecation \
+              php ../vendor/bin/pest --test-directory=core/tests --configuration=phpunit.xml \
+                --fail-on-warning --fail-on-risky --fail-on-deprecation \
                 --log-junit /app/redis-tests.xml \
                 tests/Unit/RedisSessionStorageTest.php tests/Unit/RedisConnectionConfigTest.php
             ' 2>&1 | tee redis-tests.log

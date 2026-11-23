@@ -1269,6 +1269,7 @@ EXAMPLES;
      * Core dependencies are restored from the shipped lock file. Custom Composer
      * packages need a scoped lock refresh first because the updated core lock does
      * not contain packages merged from core/custom/composer.json.
+     * Dependency backports are reapplied explicitly because these Composer runs disable scripts.
      *
      * @since 3.5.7
      * @since 3.5.9 Takes the update preflightCustomComposerPackages() settled on, and notes the restored versions.
@@ -1285,6 +1286,9 @@ EXAMPLES;
 
         $this->line('<fg=green>Install Composer dependencies</>');
         $this->runCoreShellCommand($this->composerInstallCommand());
+
+        $this->line('<fg=green>Apply dependency compatibility backports</>');
+        $this->customComposerPackages()->patchRuntimeDependencies();
 
         $this->line('<fg=green>Rebuild optimized autoload</>');
         $this->runCoreShellCommand($this->composerDumpAutoloadCommand());

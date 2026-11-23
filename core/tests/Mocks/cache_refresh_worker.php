@@ -3,6 +3,7 @@
 // argv: <sqlite file> <cache dir> <alias>
 [, $database, $dir, $alias] = $argv;
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
+require __DIR__ . '/CacheRefreshHarness.php';
 
 use EvolutionCMS\Legacy\Cache;
 use EvolutionCMS\Models\SiteContent;

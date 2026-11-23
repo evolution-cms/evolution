@@ -4,6 +4,11 @@ namespace Illuminate\Session;
 
 use SessionHandlerInterface;
 
+/**
+ * Illuminate session storage with PHP 8.6 ID methods backported by Evolution CMS.
+ *
+ * The compatibility lifecycle maintains these methods while retaining Laravel 12 storage behavior.
+ */
 class NullSessionHandler implements SessionHandlerInterface
 {
     /**
@@ -65,4 +70,28 @@ class NullSessionHandler implements SessionHandlerInterface
     {
         return 0;
     }
+
+    /**
+     * Generate a session ID (Laravel 13 backport for PHP 8.6).
+     *
+     * @return string
+     * @since 13.0
+     */
+    public function create_sid(): string
+    {
+        return session_create_id() ?: throw new \RuntimeException('Unable to create a session ID.');
+    }
+
+    /**
+     * Check an existing session ID (Laravel 13 backport for PHP 8.6).
+     *
+     * @param string $id
+     * @return bool
+     * @since 13.0
+     */
+    public function validateId($id): bool
+    {
+        return true;
+    }
+
 }

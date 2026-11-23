@@ -91,9 +91,7 @@
         "symfony/polyfill-php83": "1.99"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-master",
-        "mockery/mockery": "^1.6",
-        "pestphp/pest": "^4.7"
+        "roave/security-advisories": "dev-master"
     },
     "config": {
         "optimize-autoloader": true,
@@ -105,8 +103,7 @@
         "vendor-dir": "vendor",
         "bin-compat": "full",
         "allow-plugins": {
-            "wikimedia/composer-merge-plugin": true,
-            "pestphp/pest-plugin": true
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "extra": {
@@ -148,16 +145,12 @@
             "functions/utils.php"
         ]
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Tests\\": "tests/"
-        }
-    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
+        "pre-autoload-dump": "@php functions/patch-illuminate.php",
         "sync-replace": "@php functions/sync-replace-version.php",
-        "test": "vendor/bin/pest",
+        "test": "@php ../vendor/bin/pest --test-directory=core/tests --configuration=phpunit.xml",
         "optimize": [
             "@composer install --no-dev",
             "@composer dump-autoload -o --no-dev --classmap-authoritative"

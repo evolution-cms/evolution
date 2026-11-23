@@ -24,7 +24,6 @@ jobs:
     outputs:
       versions: ${{ steps.php.outputs.versions }}
       lowest: ${{ steps.php.outputs.lowest }}
-      rc: ${{ steps.php.outputs.rc }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,7 +31,7 @@ jobs:
             .github/scripts
             core/factory
 
-      # 8.3 below CMS 3.6 only, 8.6 RC from 3.6 only, see the script
+      # Keep the supported minimum and stable PHP matrix in one script
       - id: php
         run: sh .github/scripts/php-versions.sh
 
@@ -66,7 +65,7 @@ jobs:
           key: composer-${{ runner.os }}-php${{ matrix.php }}-analyze-${{ hashFiles('composer.json') }}
           restore-keys: composer-${{ runner.os }}-php${{ matrix.php }}-analyze-
 
-      # Only the root dependencies (PHPStan) are installed here:
+      # The root development tools, including PHPStan, are installed here:
       # core/vendor is committed and provides everything phpstan.neon bootstraps.
       - name: Install root dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
@@ -116,62 +115,14 @@ jobs:
         working-directory: core
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Install test tools separately from core dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
       - name: Run Pest
         working-directory: core
         # env:
         #   EVO_TEST_REDIS: 127.0.0.1:6379
-        run: composer test -- --compact
-
-  php86-rc:
-    name: PHP 8.6 RC compatibility (Docker)
-    needs: php
-    if: needs.php.outputs.rc == '8.6'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      # The official 8.6-rc alias follows the latest PHP 8.6 release candidate.
-      # Report prerelease failures as warnings so this compatibility signal never
-      # marks the workflow build as failed.
-      - name: Build and test the PHP 8.6 RC image
-        env:
-          IMAGE: evo-ci-php:8.6-rc
-        run: |
-          if docker build --build-arg PHP_VERSION=8.6-rc -f .github/docker/ci/Dockerfile -t "$IMAGE" .; then
-            build_result=passed
-          else
-            build_result=failed
-          fi
-
-          version_result=skipped
-          test_result=skipped
-          if [ "$build_result" = passed ]; then
-            if docker run --rm --entrypoint php "$IMAGE" -r 'if (PHP_VERSION_ID < 80600 || PHP_VERSION_ID >= 80700 || !str_contains(PHP_VERSION, "RC")) { fwrite(STDERR, PHP_VERSION . PHP_EOL); exit(1); } echo PHP_VERSION, PHP_EOL;'; then
-              version_result=passed
-            else
-              version_result=failed
-            fi
-
-            # Locked dev tools still declare an upper PHP bound of 8.5; ignore
-            # only that metadata to exercise them on this prerelease runtime.
-            if docker run --rm --entrypoint sh "$IMAGE" -c 'cd core && php vendor/bin/composer install --no-interaction --no-progress --prefer-dist --ignore-platform-req=php && php vendor/bin/pest --compact'; then
-              test_result=passed
-            else
-              test_result=failed
-            fi
-          fi
-
-          {
-            echo '### PHP 8.6 RC compatibility'
-            echo "- Docker image build: **${build_result}**"
-            echo "- PHP RC version check: **${version_result}**"
-            echo "- Pest: **${test_result}**"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-          if [ "$build_result" != passed ] || [ "$version_result" = failed ] || [ "$test_result" = failed ]; then
-            echo "::warning title=PHP 8.6 RC compatibility::Image build=${build_result}, version check=${version_result}, Pest=${test_result}"
-          fi
-          exit 0
+        run: composer test -- --compact --fail-on-warning --fail-on-risky --fail-on-deprecation
 
   install:
     name: Install on ${{ matrix.db }}

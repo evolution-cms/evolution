@@ -81,15 +81,14 @@ being investigated.
 One PHP version, every database: what the job proves is the installer's database
 paths, which do not vary with the PHP minor, and it runs on the lowest one
 `.github/scripts/php-versions.sh` lists. The analysis and unit test jobs cover
-all of them: 8.4 and 8.5, plus 8.3 while the CMS version is below 3.6. The
+all of them: 8.4, 8.5 and stable 8.6, plus 8.3 while the CMS version is below 3.6. The
 sqlite leg starts no container.
 
-From CMS 3.6 on (the 3.5 line skips it), the same workflow also builds this
-image from the official `php:8.6-rc-cli` image and runs the unit tests in it. The `8.6-rc` tag follows the latest PHP 8.6
-release candidate; it currently resolves to PHP 8.6.0RC3. The image includes
-SQLite and mbstring support for the test suite. This prerelease compatibility
-job reports the build, version and test results in the Actions summary and as a
-warning while keeping the workflow status green.
+PHP 8.6 uses the normal setup-php matrix for tests and analysis. Its failures fail
+the workflow; the old optional RC job has been removed. For a local Docker
+qualification, build this image with `--build-arg PHP_VERSION=8.6.0`. The image
+includes SQLite and mbstring; the committed vendor tree already contains the
+Illuminate backports needed by PHP 8.6.
 
 Running the CMS on more than one server - two nodes behind a balancer, one
 database, sessions in Redis, shared upload and cache folders - is checked by

@@ -131,6 +131,8 @@ LUA;
     /**
      * The compression phpredis applies to sessions: its reading of redis.session.compression
      * (redis_session.c, session_compression_type()), none for a method this ext-redis was built without.
+     * Resolve driver constants by name, as for the optional codecs above; generic Redis stubs
+     * need not declare constants supplied by the installed phpredis build.
      */
     public static function compression(): int
     {
@@ -141,25 +143,28 @@ LUA;
             }
         }
 
-        return Redis::COMPRESSION_NONE;
+        return (int) constant(Redis::class . '::COMPRESSION_NONE');
     }
 
     /**
      * The session data phpredis reads from a stored value: decompressed, or the value itself when it
      * does not decompress (redis_session.c, session_uncompress_data()).
+     * Compression option numbers come from the active phpredis build rather than local stubs.
      */
     public static function uncompress(Redis $redis, string $stored, int $compression): string
     {
-        if ($compression === Redis::COMPRESSION_NONE || $stored === '') {
+        $none = (int) constant(Redis::class . '::COMPRESSION_NONE');
+        if ($compression === $none || $stored === '') {
             return $stored;
         }
+        $option = (int) constant(Redis::class . '::OPT_COMPRESSION');
         try {
-            $redis->setOption(Redis::OPT_COMPRESSION, $compression);
+            $redis->setOption($option, $compression);
             $data = $redis->_uncompress($stored);
         } catch (Throwable $exception) {
             $data = false;
         } finally {
-            $redis->setOption(Redis::OPT_COMPRESSION, Redis::COMPRESSION_NONE);
+            $redis->setOption($option, $none);
         }
 
         return is_string($data) ? $data : $stored;
