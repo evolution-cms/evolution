@@ -93,7 +93,7 @@ return [
     'email_method' => 'mail',
     'smtp_auth' => '0',
     'smtp_verify_peer' => '1',
-    'which_editor' => 'TinyMCE4',
+    'which_editor' => 'dTuiEditor',
     'auto_menuindex' => '1',
     'tinymce4_theme' => 'custom',
     'validate_referer' => '1',

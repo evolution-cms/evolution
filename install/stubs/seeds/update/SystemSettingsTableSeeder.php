@@ -13,6 +13,22 @@ class SystemSettingsTableSeeder extends Seeder
     {
         $this->setWhenEmpty('site_id', uniqid(''));
         $this->setWhenEmpty('manager_theme', 'default');
+        $this->setWhenEmpty('which_editor', $this->defaultEditor());
+    }
+
+    /**
+     * The rich-text editor for a site that never chose one. Its factory default used to be TinyMCE4,
+     * which 3.6 does not ship, so a site that still has the TinyMCE4 plugin keeps it; any other site
+     * gets dTui.editor, which the core bundles.
+     */
+    private function defaultEditor(): string
+    {
+        $tinyMce = DB::table('site_plugins')
+            ->where('name', 'TinyMCE4')
+            ->where('disabled', 0)
+            ->exists();
+
+        return $tinyMce ? 'TinyMCE4' : 'dTuiEditor';
     }
 
     private function setWhenEmpty(string $name, string $value): void

@@ -95,6 +95,10 @@ class SystemSettingsTableSeeder extends Seeder
                 'setting_value' => '1',
             ],
             [
+                'setting_name' => 'which_editor',
+                'setting_value' => 'dTuiEditor',
+            ],
+            [
                 'setting_name' => 'use_browser',
                 'setting_value' => '1',
             ],
