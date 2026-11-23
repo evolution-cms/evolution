@@ -144,11 +144,21 @@ function count_rows_or_null(string $table): ?int
 function counted_tables(): array
 {
     return [
-        'migrations_install', 'site_content', 'site_templates', 'system_eventnames',
+        'migrations', 'site_content', 'site_templates', 'system_eventnames',
         'system_settings', 'permissions', 'permissions_groups', 'role_permissions',
         'user_roles', 'users', 'user_attributes', 'site_plugins', 'site_plugin_events',
         'site_modules', 'site_snippets', 'site_htmlsnippets',
     ];
+}
+
+/**
+ * Tables a release before 3.5.10 left that nothing writes any more, counted
+ * only where they exist: the installer's old migration log stays as it was,
+ * for a site that goes back to that release.
+ */
+function frozen_tables(): array
+{
+    return ['migrations_install'];
 }
 
 function has_column(string $table, string $column): bool
@@ -184,7 +194,7 @@ $baselineFile = getenv('EVO_SMOKE_BASELINE') ?: sys_get_temp_dir() . '/evo-smoke
 // All it does is write down what is there for the upgrade run to compare with.
 if ($mode === 'baseline') {
     $counts = [];
-    foreach (counted_tables() as $table) {
+    foreach (array_merge(counted_tables(), frozen_tables()) as $table) {
         $rows = count_rows_or_null($table);
         if ($rows !== null) {
             $counts[$table] = $rows;
@@ -207,7 +217,7 @@ $expected = [
     'active_user_locks', 'active_user_sessions', 'active_users', 'categories',
     'document_groups', 'documentgroup_names', 'event_log', 'file_groups',
     'manager_log', 'member_groups', 'membergroup_access', 'membergroup_names',
-    'migrations_install', 'permissions', 'permissions_groups', 'role_permissions',
+    'migrations', 'permissions', 'permissions_groups', 'role_permissions',
     'site_content', 'site_content_closure', 'site_htmlsnippets', 'site_module_access',
     'site_module_depobj', 'site_modules', 'site_plugin_events', 'site_plugins',
     'site_snippets', 'site_templates', 'site_tmplvar_access',
@@ -241,11 +251,16 @@ foreach ($lateColumns as $table => $columns) {
     }
 }
 
-// The installer records its whole chain - the install stubs and the core
-// migrations it runs afterwards - in migrations_install; the `migrations` table
-// of a plain Laravel app stays unused here (core/config/database/migrations.php).
-$applied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations_install'));
+// The installer and artisan record in one log, `migrations`. An older release's
+// installer log, migrations_install, has to be in it in full, or the install
+// chain runs again on the next update (EvolutionCMS\Support\MigrationRepository).
+$applied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations'));
 check('migrations were recorded', $applied > 0, 'recorded: ' . $applied);
+if (count_rows_or_null('migrations_install') !== null) {
+    $notCopied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations_install') . ' i WHERE NOT EXISTS'
+        . ' (SELECT 1 FROM ' . t('migrations') . ' m WHERE m.migration = i.migration)');
+    check('the old installer log is in migrations', $notCopied === 0, 'missing: ' . $notCopied);
+}
 
 echo PHP_EOL . 'Seeded content' . PHP_EOL;
 // An upgraded site carries the content the older release seeded and whatever
@@ -327,6 +342,12 @@ $counts = [];
 foreach ($counted as $table) {
     $counts[$table] = count_rows($table);
 }
+foreach (frozen_tables() as $table) {
+    $rows = count_rows_or_null($table);
+    if ($rows !== null) {
+        $counts[$table] = $rows;
+    }
+}
 
 if (!is_file($baselineFile)) {
     file_put_contents($baselineFile, json_encode($counts, JSON_PRETTY_PRINT));
@@ -335,7 +356,7 @@ if (!is_file($baselineFile)) {
     $baseline = json_decode((string) file_get_contents($baselineFile), true) ?: [];
     // Rows an upgrade has to carry across untouched: the documents, the accounts
     // and the accounts' attributes are the site, not the release.
-    $preserved = ['site_content', 'users', 'user_attributes'];
+    $preserved = array_merge(['site_content', 'users', 'user_attributes'], frozen_tables());
     $drifted = [];
     $lost = [];
     foreach ($counts as $table => $rows) {
