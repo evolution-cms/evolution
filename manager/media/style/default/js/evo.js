@@ -2046,7 +2046,7 @@
             function Tabs(a) {
                 var s = this;
                 this.url = a.url.replace(new RegExp(evo.EVO_MANAGER_URL, 'g'), '');
-                this.title = a.title || '';
+                this.title = evo.tabTitle(a.title || '');
                 this.name = a.name || '';
                 this.timer = null;
                 this.olduid = '';
@@ -2226,7 +2226,7 @@
                                 w.main.location.href = this.url;
                             }
                         } else {
-                            this.title = w.main.document.body.querySelectorAll('h1')[0] && w.main.document.body.querySelectorAll('h1')[0].innerHTML || this.title;
+                            this.title = w.main.document.body.querySelectorAll('h1')[0] && evo.tabTitle(w.main.document.body.querySelectorAll('h1')[0].innerHTML) || this.title;
                             // Native pages can use the manager tab as their only heading.
                             // Keep the action icon selected when that tab was created.
                             if (this.icon && !/<(?:i|svg)\b/i.test(this.title)) {
@@ -2796,6 +2796,15 @@
         title: function (t) {
             t = t && t.replace(/<\/?[^>]+>/g, ' ').replace(/[\n\t\r]/g, '').trim() || '';
             return d.title = (t && t + ' - ') + this.config.manager_title;
+        },
+        // A tab title is a page heading copied as markup. The tab places an icon only as a direct child of
+        // .tab-title, so a heading that wraps it (<span class="pagetitle-icon"><i ...></i></span>) left it
+        // stranded in the corner: unwrap such icons and drop the heading's indentation around them.
+        tabTitle: function (html) {
+            return String(html === undefined || html === null ? '' : html)
+                .replace(/<(span|div)\b[^>]*>\s*(<i\b[^>]*>\s*<\/i>|<svg\b[\s\S]*?<\/svg>)\s*<\/\1>/gi, '$2')
+                .replace(/^\s*(<i\b[^>]*>\s*<\/i>|<svg\b[\s\S]*?<\/svg>)\s*/i, '$1')
+                .trim();
         },
         // Tree titles reach scripts as text: dataset and inline handler arguments are already decoded,
         // so "&lt;img onerror&gt;" in the markup is "<img onerror>" here. Escape before any innerHTML.
