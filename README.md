@@ -60,10 +60,36 @@ Evolution CMS **3.5.x** requires **PHP 8.3 or later within PHP 8.x** (`^8.3` in 
 | **8.3** | Supported; minimum required version | Suitable for existing installations |
 | **8.4** | Supported | **Recommended for production and new installations** |
 | **8.5** | Supported | Check installed extras and custom code before upgrading |
+| **8.6** | Supported with the shipped Illuminate compatibility backports | Check installed extras and custom code before upgrading |
 
-The [CI workflow](.github/workflows/ci.yml) runs unit tests on PHP **8.3, 8.4 and 8.5**. PHP **8.6 RC** has a separate experimental compatibility job and is not recommended for production.
+The [CI workflow](.github/workflows/ci.yml) runs unit tests and static analysis on PHP **8.3, 8.4, 8.5 and stable 8.6** as required matrix jobs.
 
 Use the latest patch release of your chosen PHP version. See the [PHP support lifecycle](https://www.php.net/supported-versions.php) for maintenance and security support dates.
+
+## Development tests
+
+Install runtime dependencies from `core/` and development tools from the repository
+root, then run `composer test` from either directory:
+
+```bash
+composer install --working-dir=core
+composer install
+composer test
+```
+
+Pest, Mockery and PHPStan live in the root `vendor/`; the CMS uses `core/vendor/`.
+This keeps Pest 5's Symfony Process 8 requirement separate from Illuminate 12's
+Symfony Process 7 requirement on PHP 8.6. PHP 8.3 can still resolve Pest 4.
+Security advisories remain enabled in both dependency sets. A production install
+in `core/` does not need the root development tools or a PHP platform override.
+
+The repository ships PHP 8.6 backports for Illuminate 12. Composer reapplies them
+before generating its autoloader; managed CMS updates also apply them when they
+disable Composer scripts. When intentionally running Composer with `--no-scripts`
+by hand, run `php core/functions/patch-illuminate.php` before booting the CMS.
+The backport validates known source before replacing files and stops on an
+unrecognized deprecated call. It adds no package dependency and does not change
+PHP error-reporting settings.
 
 ## Update and switch versions
 

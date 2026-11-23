@@ -38,6 +38,27 @@ final class CustomComposerPackages
     }
 
     /**
+     * Apply shipped dependency backports after a managed --no-scripts Composer run.
+     *
+     * Load the helper explicitly before the new authoritative classmap exists.
+     * Older update targets without this helper keep their existing behavior.
+     * A failed backport must stop discovery and leave the update incomplete.
+     *
+     * @return void
+     * @since 3.6.0
+     */
+    public function patchRuntimeDependencies(): void
+    {
+        $helper = $this->corePath . 'src/Services/IlluminateCompatibility.php';
+        if (is_file($helper)) {
+            if (!class_exists(IlluminateCompatibility::class, false)) {
+                require_once $helper;
+            }
+            (new IlluminateCompatibility())->apply($this->corePath);
+        }
+    }
+
+    /**
      * Package constraints from core/custom/composer.json.
      *
      * Platform requirements such as php/ext-json are left out, because Composer

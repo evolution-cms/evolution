@@ -1,0 +1,130 @@
+[
+    {
+        "input": "",
+        "studly": "",
+        "headline": "",
+        "initials": "",
+        "initialsUpper": "",
+        "apa": ""
+    },
+    {
+        "input": "hello_world",
+        "studly": "HelloWorld",
+        "headline": "Hello World",
+        "initials": "h",
+        "initialsUpper": "H",
+        "apa": "Hello_world"
+    },
+    {
+        "input": "foo-bar",
+        "studly": "FooBar",
+        "headline": "Foo Bar",
+        "initials": "f",
+        "initialsUpper": "F",
+        "apa": "Foo-Bar"
+    },
+    {
+        "input": " hello  world ",
+        "studly": "HelloWorld",
+        "headline": "Hello World",
+        "initials": "hw",
+        "initialsUpper": "HW",
+        "apa": " Hello World "
+    },
+    {
+        "input": "\thello\nworld\r\n",
+        "studly": "HelloWorld",
+        "headline": "Hello World",
+        "initials": "hw",
+        "initialsUpper": "HW",
+        "apa": " Hello World "
+    },
+    {
+        "input": "поле_товару",
+        "studly": "ПолеТовару",
+        "headline": "Поле Товару",
+        "initials": "п",
+        "initialsUpper": "П",
+        "apa": "Поле_товару"
+    },
+    {
+        "input": "Назва товару",
+        "studly": "НазваТовару",
+        "headline": "Назва Товару",
+        "initials": "Нт",
+        "initialsUpper": "НТ",
+        "apa": "Назва Товару"
+    },
+    {
+        "input": " два слова ",
+        "studly": "ДваСлова",
+        "headline": "Два Слова",
+        "initials": "дс",
+        "initialsUpper": "ДС",
+        "apa": " Два Слова "
+    },
+    {
+        "input": "über cool",
+        "studly": "ÜberCool",
+        "headline": "Über Cool",
+        "initials": "üc",
+        "initialsUpper": "ÜC",
+        "apa": "Über Cool"
+    },
+    {
+        "input": "XMLHttp_request",
+        "studly": "XMLHttpRequest",
+        "headline": "X M L Http Request",
+        "initials": "X",
+        "initialsUpper": "X",
+        "apa": "Xmlhttp_request"
+    },
+    {
+        "input": "déjá vu",
+        "studly": "DéjáVu",
+        "headline": "Déjá Vu",
+        "initials": "dv",
+        "initialsUpper": "DV",
+        "apa": "Déjá Vu"
+    },
+    {
+        "input": "the lord of the rings",
+        "studly": "TheLordOfTheRings",
+        "headline": "The Lord Of The Rings",
+        "initials": "tlotr",
+        "initialsUpper": "TLOTR",
+        "apa": "The Lord of the Rings"
+    },
+    {
+        "input": "0 a 0",
+        "studly": "0A0",
+        "headline": "A",
+        "initials": "0a0",
+        "initialsUpper": "0A0",
+        "apa": "0 a 0"
+    },
+    {
+        "input": "--foo__bar--",
+        "studly": "FooBar",
+        "headline": "Foo Bar",
+        "initials": "-",
+        "initialsUpper": "-",
+        "apa": "--Foo__bar--"
+    },
+    {
+        "input": "onetwo\u2028three",
+        "studly": "OneTwoThree",
+        "headline": "One Two Three",
+        "initials": "ott",
+        "initialsUpper": "OTT",
+        "apa": "One Two Three"
+    },
+    {
+        "input": "   ",
+        "studly": "",
+        "headline": "",
+        "initials": "",
+        "initialsUpper": "",
+        "apa": "   "
+    }
+]

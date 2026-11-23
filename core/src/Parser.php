@@ -450,7 +450,7 @@ class Parser
             }
         }
         switch (true) {
-            case is_integer($tpl):
+            case is_int($tpl):
                 $tpl = $this->getTemplate($tpl);
                 break;
             case is_string($tpl):
