@@ -11,8 +11,8 @@ use Illuminate\Database\Migrations\DatabaseMigrationRepository;
  * Up to 3.5.9 the installer logged in `migrations_install` and artisan in `migrations`, and both ran
  * the migrations of every package, so a migration logged on one side ran again on the other (the
  * sGallery table created twice). The first use of this log copies the rows only
- * `migrations_install` holds; that table is left as it is, for a site that goes back to an older
- * release, and is never written again.
+ * `migrations_install` holds, and is never written again: 3.5 keeps that table for a site that
+ * goes back to 3.5.9, 3.6 drops it (2026_11_23_000000_drop_migrations_install_table).
  *
  * Batch 0 is the installer's baseline: the copied rows and whatever the installer runs. Rollback
  * and reset never undo it, as artisan never undid what `migrations_install` recorded: the install

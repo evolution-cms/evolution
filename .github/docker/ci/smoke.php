@@ -152,11 +152,11 @@ function counted_tables(): array
 }
 
 /**
- * Tables a release before 3.5.10 left that nothing writes any more, counted
- * only where they exist: the installer's old migration log stays as it was,
- * for a site that goes back to that release.
+ * Tables of an older release that this one drops: the installer's migration log
+ * of releases before 3.5.10, once `migrations` holds it. The baseline counts
+ * them, so the upgrade run can tell their rows came over.
  */
-function frozen_tables(): array
+function retired_tables(): array
 {
     return ['migrations_install'];
 }
@@ -194,10 +194,17 @@ $baselineFile = getenv('EVO_SMOKE_BASELINE') ?: sys_get_temp_dir() . '/evo-smoke
 // All it does is write down what is there for the upgrade run to compare with.
 if ($mode === 'baseline') {
     $counts = [];
-    foreach (array_merge(counted_tables(), frozen_tables()) as $table) {
+    foreach (counted_tables() as $table) {
         $rows = count_rows_or_null($table);
         if ($rows !== null) {
             $counts[$table] = $rows;
+        }
+    }
+    foreach (retired_tables() as $table) {
+        try {
+            // Distinct: the old install seeder logged one migration twice.
+            $counts[$table] = (int) scalar('SELECT COUNT(DISTINCT migration) FROM ' . t($table));
+        } catch (PDOException $e) {
         }
     }
     file_put_contents($baselineFile, json_encode($counts, JSON_PRETTY_PRINT));
@@ -252,14 +259,12 @@ foreach ($lateColumns as $table => $columns) {
 }
 
 // The installer and artisan record in one log, `migrations`. An older release's
-// installer log, migrations_install, has to be in it in full, or the install
-// chain runs again on the next update (EvolutionCMS\Support\MigrationRepository).
+// installer log is copied into it and then dropped (EvolutionCMS\Support\MigrationRepository,
+// core/database/migrations/2026_11_23_000000_drop_migrations_install_table.php).
 $applied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations'));
 check('migrations were recorded', $applied > 0, 'recorded: ' . $applied);
-if (count_rows_or_null('migrations_install') !== null) {
-    $notCopied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations_install') . ' i WHERE NOT EXISTS'
-        . ' (SELECT 1 FROM ' . t('migrations') . ' m WHERE m.migration = i.migration)');
-    check('the old installer log is in migrations', $notCopied === 0, 'missing: ' . $notCopied);
+foreach (retired_tables() as $table) {
+    check($table . ' is gone', count_rows_or_null($table) === null);
 }
 
 echo PHP_EOL . 'Seeded content' . PHP_EOL;
@@ -342,12 +347,6 @@ $counts = [];
 foreach ($counted as $table) {
     $counts[$table] = count_rows($table);
 }
-foreach (frozen_tables() as $table) {
-    $rows = count_rows_or_null($table);
-    if ($rows !== null) {
-        $counts[$table] = $rows;
-    }
-}
 
 if (!is_file($baselineFile)) {
     file_put_contents($baselineFile, json_encode($counts, JSON_PRETTY_PRINT));
@@ -356,7 +355,7 @@ if (!is_file($baselineFile)) {
     $baseline = json_decode((string) file_get_contents($baselineFile), true) ?: [];
     // Rows an upgrade has to carry across untouched: the documents, the accounts
     // and the accounts' attributes are the site, not the release.
-    $preserved = array_merge(['site_content', 'users', 'user_attributes'], frozen_tables());
+    $preserved = ['site_content', 'users', 'user_attributes'];
     $drifted = [];
     $lost = [];
     foreach ($counts as $table => $rows) {
@@ -374,6 +373,11 @@ if (!is_file($baselineFile)) {
         }
     }
 
+    if ($upgraded && isset($baseline['migrations_install'])) {
+        // Every row of the old log is one migration, and none may be lost on the way.
+        check('migrations holds the old installer log', $counts['migrations'] >= (int) $baseline['migrations_install'],
+            $baseline['migrations_install'] . ' -> ' . $counts['migrations']);
+    }
     if ($upgraded) {
         check('the rows belonging to the site came through unchanged', $drifted === [], implode(', ', $drifted));
         check('no seeded table lost rows in the upgrade', $lost === [], implode(', ', $lost));
