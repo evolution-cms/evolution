@@ -51,8 +51,21 @@ test('native session keys that start with an underscore are kept, the store\'s o
     expect($result['seen']['_flashMessages'])->toBe(['success' => ['Goodbye!']])
         ->and($result['data']['_flashMessages'])->toBe(['success' => ['Thanks']])
         ->and($result['data'])->not->toHaveKey('_native_stale')
+        ->and($result['data']['_native_new'])->toBe(['queued' => 1])
         ->and($result['data']['_token'])->toBe('new-token')
         ->and($result['data']['visitor'])->toBe('x');
+});
+
+test('an underscore key only Laravel created, changed or removed during the request keeps the store value', function () {
+    $out = evoRunPhp(dirname(__DIR__) . '/Mocks/session_native_keys_worker.php', []);
+    $result = json_decode($out, true);
+    expect($result)->toBeArray("worker output: $out");
+
+    expect($result['seen']['_laravel_changed'])->toBe('before')
+        ->and($result['seen']['_laravel_gone'])->toBe('remove me in Laravel')
+        ->and($result['data']['_laravel_new'])->toBe('created in Laravel')
+        ->and($result['data']['_laravel_changed'])->toBe('after')
+        ->and($result['data'])->not->toHaveKey('_laravel_gone');
 });
 
 test('the session is synced before the shutdown decides, and only the shutdown registers the check', function () {

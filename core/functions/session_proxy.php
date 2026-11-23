@@ -22,12 +22,18 @@ class EvoSessionProxy
      */
     private static bool $cookieEmitted = false;
 
+    /**
+     * @var array<string, string|null> The native "_" keys as init() left them (isNativeKey()), serialized.
+     */
+    private static array $nativeSnapshot = [];
+
     public static function resetForWorker(): void
     {
         self::$initialized = false;
         self::$synced = false;
         self::$shutdownRegistered = false;
         self::$cookieEmitted = false;
+        self::$nativeSnapshot = [];
     }
 
     /**
@@ -137,6 +143,13 @@ class EvoSessionProxy
             }
         }
 
+        self::$nativeSnapshot = [];
+        foreach ($_SESSION as $key => $value) {
+            if (self::isNativeKey((string) $key)) {
+                self::$nativeSnapshot[$key] = self::fingerprint($value);
+            }
+        }
+
         self::$initialized = true;
 
         if (!self::$shutdownRegistered) {
@@ -167,6 +180,12 @@ class EvoSessionProxy
             if (self::isInternalKey($key)) {
                 continue;
             }
+            if (self::isNativeKey((string) $key)) {
+                if (self::nativeKeyChanged((string) $key, $value)) {
+                    $store->put($key, $value);
+                }
+                continue;
+            }
             if (!array_key_exists($key, $laravelData) || $laravelData[$key] !== $value) {
                 $store->put($key, $value);
             }
@@ -174,6 +193,13 @@ class EvoSessionProxy
 
         foreach ($laravelData as $key => $value) {
             if (self::isInternalKey($key)) {
+                continue;
+            }
+            if (self::isNativeKey((string) $key)) {
+                // Removed by native code; one the store created during the request stays.
+                if (array_key_exists($key, self::$nativeSnapshot) && !array_key_exists($key, $_SESSION)) {
+                    $store->forget($key);
+                }
                 continue;
             }
             if (!array_key_exists($key, $_SESSION)) {
@@ -483,5 +509,41 @@ class EvoSessionProxy
     private static function isInternalKey(string $key): bool
     {
         return in_array($key, self::LARAVEL_KEYS, true);
+    }
+
+    /**
+     * A "_" key of native session code. Only what that code changed in $_SESSION since init() is
+     * synced back: a value Laravel created, changed or removed during the request is kept.
+     */
+    private static function isNativeKey(string $key): bool
+    {
+        return str_starts_with($key, '_') && !self::isInternalKey($key);
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private static function nativeKeyChanged(string $key, $value): bool
+    {
+        if (!array_key_exists($key, self::$nativeSnapshot)) {
+            return true;
+        }
+        $before = self::$nativeSnapshot[$key];
+
+        return $before === null || $before !== self::fingerprint($value);
+    }
+
+    /**
+     * Serialized, so an object changed in place counts as changed; null when it cannot be serialized.
+     *
+     * @param mixed $value
+     */
+    private static function fingerprint($value): ?string
+    {
+        try {
+            return serialize($value);
+        } catch (\Throwable $exception) {
+            return null;
+        }
     }
 }
