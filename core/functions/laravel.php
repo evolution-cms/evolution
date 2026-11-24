@@ -5,6 +5,71 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Support\Facades\Date;
 
+if (!function_exists('abort')) {
+    /**
+     * Throw an HTTP exception with the given status. 404 outside the manager shows the error page of the site.
+     *
+     * @param  \Symfony\Component\HttpFoundation\Response|\Illuminate\Contracts\Support\Responsable|int  $code
+     * @param  string  $message
+     * @param  array  $headers
+     * @return never
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws \Illuminate\Http\Exceptions\HttpResponseException
+     */
+    function abort($code, $message = '', array $headers = [])
+    {
+        if ($code instanceof \Symfony\Component\HttpFoundation\Response) {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException($code);
+        }
+
+        if ($code instanceof \Illuminate\Contracts\Support\Responsable) {
+            throw new \Illuminate\Http\Exceptions\HttpResponseException($code->toResponse(request()));
+        }
+
+        if ((int) $code === 404) {
+            throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException($message, null, 0, $headers);
+        }
+
+        throw new \Symfony\Component\HttpKernel\Exception\HttpException((int) $code, $message, null, $headers);
+    }
+}
+
+if (!function_exists('abort_if')) {
+    /**
+     * Throw an HTTP exception with the given status if the condition is true.
+     *
+     * @param  bool  $boolean
+     * @param  \Symfony\Component\HttpFoundation\Response|\Illuminate\Contracts\Support\Responsable|int  $code
+     * @param  string  $message
+     * @param  array  $headers
+     * @return void
+     */
+    function abort_if($boolean, $code, $message = '', array $headers = [])
+    {
+        if ($boolean) {
+            abort($code, $message, $headers);
+        }
+    }
+}
+
+if (!function_exists('abort_unless')) {
+    /**
+     * Throw an HTTP exception with the given status unless the condition is true.
+     *
+     * @param  bool  $boolean
+     * @param  \Symfony\Component\HttpFoundation\Response|\Illuminate\Contracts\Support\Responsable|int  $code
+     * @param  string  $message
+     * @param  array  $headers
+     * @return void
+     */
+    function abort_unless($boolean, $code, $message = '', array $headers = [])
+    {
+        abort_if(!$boolean, $code, $message, $headers);
+    }
+}
+
 if (!function_exists('app_path')) {
     /**
      * Get the path to the application folder.

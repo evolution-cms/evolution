@@ -2,6 +2,8 @@
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Process\Process;
 
 /** The site of this file, served once; $stop takes it down again. */
@@ -135,4 +137,46 @@ test('a redirect after the token sends the cookie once', function () {
 
     expect($page['status'])->toBe(302, $page['body'])
         ->and($page['cookies'])->toHaveCount(1);
+});
+
+test('abort() in a route answers with its status, and nothing printed before it', function (int $status) {
+    $response = frontEndVisitor()->get("/routed-abort/$status");
+
+    expect((string) $response->getBody())->toBe('refused <b>here</b>')
+        ->and($response->getStatusCode())->toBe($status)
+        ->and($response->getHeaderLine('Content-Type'))->toStartWith('text/plain')
+        ->and($response->getHeaderLine('X-Reason'))->toBe('test');
+})->with([403, 419, 503]);
+
+test('abort() with a response answers with that response', function () {
+    $response = frontEndVisitor()->get('/routed-abort/response');
+
+    expect($response->getStatusCode())->toBe(409)
+        ->and((string) $response->getBody())->toBe('a response of its own');
+});
+
+test('abort(404) in a route leaves the request to the parser', function () {
+    expect((string) frontEndVisitor()->get('/routed-abort/404?do=none')->getBody())->toBe('no form here');
+});
+
+test('abort(404) in a document shows the error page, also when a route left the request to it', function (string $path) {
+    $response = frontEndVisitor()->get("$path?do=abort&status=404");
+
+    expect((string) $response->getBody())->toBe('the error page of the site')
+        ->and($response->getStatusCode())->toBe(404);
+})->with(['/document', '/routed-abort/404']);
+
+test('abort() in a document answers with its status', function (string $path) {
+    $response = frontEndVisitor()->get("$path?do=abort&status=403");
+
+    expect((string) $response->getBody())->toBe('Forbidden')
+        ->and($response->getStatusCode())->toBe(403);
+})->with(['/document', '/routed-abort/404']);
+
+test('abort_if() and abort_unless() abort on their condition only', function () {
+    abort_if(false, 403);
+    abort_unless(true, 403);
+
+    expect(fn () => abort_if(true, 403, 'no'))->toThrow(HttpException::class, 'no')
+        ->and(fn () => abort_unless(false, 404))->toThrow(NotFoundHttpException::class);
 });
