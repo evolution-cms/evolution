@@ -1,5 +1,6 @@
 <?php namespace EvolutionCMS\Controllers;
 
+use EvolutionCMS\Auth\TwoFactor;
 use EvolutionCMS\Interfaces\ManagerTheme;
 use EvolutionCMS\Legacy;
 use EvolutionCMS\Models;
@@ -77,6 +78,7 @@ class SystemSettings extends AbstractController implements ManagerTheme\PageCont
             'langKeys' => $this->parameterLang(),
             'templates' => $this->parameterTemplates(),
             'tabEvents' => $this->parameterTabEvents(),
+            'twoFactorMethods' => $this->managerTheme->getCore()->make(TwoFactor::class)->options(),
             'actionButtons' => $this->parameterActionButtons(),
         ];
     }

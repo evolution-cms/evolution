@@ -57,4 +57,30 @@
         'mail_decay' => 3600,
         'hold' => 3,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Two-factor authentication
+    |--------------------------------------------------------------------------
+    |
+    | Which method applies is a system setting (Security) and can be overridden
+    | per user. A site locked out by a broken method is opened again with
+    | 'two_factor_method' => 'off' in core/custom/config/cms/settings.php and
+    | a cleared cache (php core/artisan cache:clear-full).
+    |
+    | 'key': any long random text; with it, the stored data (secrets of the
+    | authenticator apps) is encrypted. Keep it outside the database and never
+    | lose it: without it nobody can use what they have set up.
+    |
+    | 'redirect': a website login that needs the second factor takes a browser
+    | to the page that asks for it. false leaves that to the login form, which
+    | gets a ServiceActionException with the code TwoFactor::PENDING.
+    |
+    | Override per key, e.g. core/custom/config/cms/auth/two_factor/key.php.
+    |
+    */
+    'two_factor' => [
+        'key' => null,
+        'redirect' => true,
+    ],
 ];

@@ -854,6 +854,12 @@ class SystemEventnamesTableSeeder extends Seeder
                     'service'   => 1,
                     'groupname' => 'System Settings',
                 ],
+            146 =>
+                [
+                    'name'      => 'OnTwoFactorMethods',
+                    'service'   => 1,
+                    'groupname' => 'Users',
+                ],
         ]);
     }
 }

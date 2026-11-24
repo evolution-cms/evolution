@@ -38,6 +38,7 @@ final class SecuritySettings
         'blocked_minutes',
         'pwd_hash_algo',
         'pwd_repair_minutes',
+        'two_factor_method',
     ];
 
     /**

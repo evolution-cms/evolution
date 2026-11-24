@@ -1,5 +1,7 @@
 <?php namespace EvolutionCMS\Controllers\Users;
 
+use EvolutionCMS\Auth\LoginPipeline;
+use EvolutionCMS\Auth\TwoFactor as SecondFactor;
 use EvolutionCMS\Controllers\AbstractController;
 use EvolutionCMS\Exceptions\ServiceActionException;
 use EvolutionCMS\Exceptions\ServiceValidationException;
@@ -60,6 +62,10 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
 
     public function login()
     {
+        if (isset($_POST['two_factor'])) {
+            TwoFactor::answerLogin(fn ($user, $stage) => $this->finishLogin($user, $stage));
+            evo_exit();
+        }
         if (!isset($_GET['hash'])) {
             $this->simpleLogin();
         } else {
@@ -82,6 +88,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
         try {
             $user = \UserManager::login($_POST);
         } catch (ServiceActionException $exception) {
+            $this->goToSecondFactor($exception);
             jsAlert($exception->getMessage());
             exit();
         } catch (ServiceValidationException $exception) {
@@ -90,6 +97,22 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
                 exit();
             }
         }
+        $this->redirectAfterLogin($this->finishLogin($user));
+    }
+
+    /**
+     * Log the login and tell where it leads.
+     *
+     * @param \EvolutionCMS\Models\User $user
+     * @param string $stage LoginPipeline::STAGE_*
+     * @return string
+     */
+    protected function finishLogin($user, string $stage = LoginPipeline::STAGE_LOGIN): string
+    {
+        if ($stage === LoginPipeline::STAGE_HASH_LOGIN) {
+            return EVO_MANAGER_URL . '#?a=28';
+        }
+
         $log = new \EvolutionCMS\Legacy\LogHandler();
         $log->initAndWriteLog('Logged in', $user->id, $user->username, '58', '-', 'EVO');
 
@@ -100,23 +123,35 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
         if (!is_null($setting)) {
             $id = (int)$setting->setting_value;
         }
-        $ajax = (int)get_by_key($_POST, 'ajax', 0, 'is_scalar');
-        if ($id > 0) {
-            $header = 'Location: ' . \UrlProcessor::makeUrl($id, '', '', 'full');
-            if ($ajax === 1) {
-                echo $header;
-            } else {
-                header($header);
-            }
+
+        return $id > 0 ? \UrlProcessor::makeUrl($id, '', '', 'full') : EVO_MANAGER_URL;
+    }
+
+    /**
+     * @param string $url
+     * @return never
+     */
+    protected function redirectAfterLogin(string $url)
+    {
+        // the login form posts in the background and follows this answer itself
+        if ((int)get_by_key($_POST, 'ajax', 0, 'is_scalar') === 1) {
+            echo 'Location: ' . $url;
         } else {
-            $header = 'Location: ' . EVO_MANAGER_URL;
-            if ($ajax === 1) {
-                echo $header;
-            } else {
-                header($header);
-            }
+            header('Location: ' . $url);
         }
         exit();
+    }
+
+    /**
+     * The login page asks for the second factor while a login waits for it.
+     *
+     * @param ServiceActionException $exception
+     */
+    protected function goToSecondFactor(ServiceActionException $exception): void
+    {
+        if ($exception->getCode() === SecondFactor::PENDING && isset($_SESSION[SecondFactor::SESSION]['pending']['mgr'])) {
+            $this->redirectAfterLogin(EVO_MANAGER_URL);
+        }
     }
 
     public function loginFromHash()
@@ -143,6 +178,7 @@ class LogInOut extends AbstractController implements ManagerTheme\PageController
         try {
             \UserManager::hashLogin($_GET);
         } catch (ServiceActionException $exception) {
+            $this->goToSecondFactor($exception);
             jsAlert($exception->getMessage());
             exit();
         }
