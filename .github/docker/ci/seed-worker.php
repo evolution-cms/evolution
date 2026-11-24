@@ -15,6 +15,13 @@ $page = EvolutionCMS\Models\SiteContent::firstOrNew(['alias' => 'worker-demo']);
 $page->fill(['pagetitle' => 'Worker demo', 'published' => 1, 'template' => 0,
     'alias_visible' => 1, 'cacheable' => 0, 'content' => '<h1>[[WorkerProbe]]</h1>']);
 $page->save();
+$formSnippet = EvolutionCMS\Models\SiteSnippet::firstOrNew(['name' => 'WorkerForm']);
+$formSnippet->snippet = 'return csrf_field();';
+$formSnippet->save();
+$form = EvolutionCMS\Models\SiteContent::firstOrNew(['alias' => 'worker-form']);
+$form->fill(['pagetitle' => 'Worker form', 'published' => 1, 'template' => 0,
+    'alias_visible' => 1, 'cacheable' => 0, 'content' => '[!WorkerForm!]']);
+$form->save();
 $errorPage = EvolutionCMS\Models\SiteContent::firstOrNew(['alias' => 'worker-error']);
 $errorPage->fill(['pagetitle' => 'Worker error page', 'published' => 1, 'template' => 0,
     'cacheable' => 0, 'content' => '<h1>worker-error</h1>']);

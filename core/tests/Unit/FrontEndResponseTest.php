@@ -132,6 +132,20 @@ test('a document without a token gives a guest no cookie', function () {
         ->and($page['cookies'])->toBe([]);
 });
 
+test('NO_SESSION sends no cookie with a token and stores no session', function (string $path) {
+    $visitor = frontEndVisitor();
+    $page = frontEndGet($visitor, "$path?no_session=1");
+
+    expect($page['status'])->toBe(200, $page['body'])
+        ->and($page['cookies'])->toBe([])
+        ->and($page['token'])->not->toBe('')
+        ->and(frontEndPost($visitor, "$path?no_session=1", $page['token']))->toBe('rejected');
+})->with(['/routed', '/document']);
+
+test('abort() answers with its status under NO_SESSION', function () {
+    expect(frontEndVisitor()->get('/routed-abort/403?no_session=1')->getStatusCode())->toBe(403);
+});
+
 test('a redirect after the token sends the cookie once', function () {
     $page = frontEndGet(frontEndVisitor(), '/document?do=redirect');
 

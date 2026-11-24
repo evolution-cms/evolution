@@ -101,6 +101,16 @@ Route::get('/__worker/update-setting', static function () {
     return $value;
 });
 Route::post('/__worker/post', static fn () => response()->json(['value' => request()->input('value')]));
+Route::match(['GET', 'POST'], '/__worker/form', static function () {
+    if (request()->isMethod('POST')) {
+        return hash_equals((string) ($_SESSION['_token'] ?? ''), (string) request()->input('_token')) ? 'accepted' : 'rejected';
+    }
+    return response((string) csrf_field());
+});
+Route::get('/__worker/abort/{status}', static function ($status) {
+    echo 'printed before the abort';
+    abort((int) $status, 'refused');
+});
 Route::get('/__worker/failure', static function () {
     throw new RuntimeException('worker-test-private-detail');
 });

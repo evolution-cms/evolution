@@ -2,6 +2,7 @@
 import http.cookiejar
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -107,6 +108,28 @@ for value in ('first payload', 'second payload'):
     with alice.open(request, timeout=15) as response:
         assert json.load(response)['value'] == value
         assert response.headers['X-Evo-Worker'] == worker
+# The first form of every new visitor is accepted, from a route and from a document, with one session cookie each.
+tokens = set()
+for path in ('/__worker/form', '/worker-form') * 2:
+    visitor = client()
+    body, headers = get(path, visitor)
+    cookies = [value for value in headers.get_all('Set-Cookie') or [] if value.startswith('evo_session=')]
+    assert len(cookies) == 1, (path, cookies)
+    token = re.search(r'name="_token" value="([^"]+)"', body).group(1)
+    for opener, expected in ((visitor, 'accepted'), (client(), 'rejected')):
+        request = urllib.request.Request(base + '/__worker/form', data=urllib.parse.urlencode({'_token': token}).encode())
+        with opener.open(request, timeout=15) as response:
+            assert response.read().decode() == expected, (path, expected)
+            assert response.headers['X-Evo-Worker'] == worker
+    tokens.add(token)
+assert len(tokens) == 4, tokens
+# An aborted request answers with its status and keeps the worker; 404 in a route is left to the parser.
+for status in (403, 503):
+    body, headers = get(f'/__worker/abort/{status}', expected=status)
+    assert body == 'refused' and headers['X-Evo-Worker'] == worker, (status, body)
+for _ in range(2):
+    body, headers = get('/__worker/abort/404', expected=404)
+    assert 'worker-error' in body and headers['X-Evo-Worker'] == worker, body
 get('/', expected=421, headers={'Host': 'another-site.invalid'})
 if alias:
     # Another EVO_SITE_HOSTNAMES entry is sent to the worker origin; the origin in another letter case is served.
@@ -158,5 +181,5 @@ if container:
     state, headers = get('/__worker/state')
     assert json.loads(state)['setting'] == 'external', state
     assert headers['X-Evo-Worker'] == worker
-print(('PASS (kept application): ' if keep_app else 'PASS: ') + 'persistent worker, session/auth isolation, request state reset, route controllers, late-booted model events, redirects, forwards, 404, cleanup, rollback, host guard, classic manager, errors, native exit, 100-request memory check'
+print(('PASS (kept application): ' if keep_app else 'PASS: ') + 'persistent worker, session/auth isolation, request state reset, route controllers, late-booted model events, redirects, forwards, 404, cleanup, rollback, host guard, classic manager, errors, first forms, aborts, native exit, 100-request memory check'
       + (', alias redirect' if alias else '') + (', external settings change' if container else ''))

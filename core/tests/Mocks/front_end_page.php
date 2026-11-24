@@ -4,7 +4,7 @@
 //   /routed, /routed-exit       a route of the `web` group that returns its page, or ends in exit
 //   /routed-abort/<status>      a route that aborts
 //   anything else               the parser: a document, or ?do=exit|redirect|none|later|abort
-// A POST answers whether its token is the one of the session.
+// ?no_session=1 serves it with NO_SESSION. A POST answers whether its token is the one of the session.
 use EvolutionCMS\Core;
 use EvolutionCMS\Extensions\Router;
 use EvolutionCMS\Middleware\SessionProxy;
@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Facade;
 
 ob_start();
 define('IN_MANAGER_MODE', false);
+define('NO_SESSION', isset($_GET['no_session']));
 define('IN_PARSER_MODE', false);
 define('EVO_SESSION', true);
 define('IN_INSTALL_MODE', false);
@@ -31,6 +32,7 @@ define('EVO_CLASS', Core::class);
 require dirname(__DIR__, 2) . '/vendor/autoload.php';
 require_once dirname(__DIR__, 2) . '/functions/session_proxy.php';
 require_once dirname(__DIR__, 2) . '/functions/laravel.php';
+class_alias(Illuminate\Support\Str::class, 'Str'); // the facade alias csrf_token() uses
 
 function formPage(): string
 {
