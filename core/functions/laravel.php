@@ -213,7 +213,7 @@ if (!function_exists('csrf_token')) {
             }
             // A token is only worth handing out to a visitor who can come back with its session.
             if (class_exists('EvoSessionProxy', false)) {
-                EvoSessionProxy::ensureCookie();
+                EvoSessionProxy::wantCookie();
             }
             return $_SESSION['_token'];
         }
