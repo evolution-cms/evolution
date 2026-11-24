@@ -18,9 +18,9 @@ class EvoSessionProxy
     private static bool $shutdownRegistered = false;
 
     /**
-     * @var bool  Tracks whether saveAndEmitCookie() already ran, so the shutdown handler does not attempt a second save/emit.
+     * @var string  The session id the response already carries in a cookie.
      */
-    private static bool $cookieEmitted = false;
+    private static string $emittedId = '';
 
     /**
      * @var array<string, string|null> The native "_" keys as init() left them (isNativeKey()), serialized.
@@ -396,10 +396,25 @@ class EvoSessionProxy
         }
 
         // Sync data first (marks self::$synced = true so shutdown won't double-save).
-        if (!self::$cookieEmitted) {
-            self::syncBack();
-        }
+        self::syncBack();
+        self::emitCookie();
+    }
 
+    /**
+     * Give a guest the session cookie and leave the session open for the rest of the page.
+     *
+     * A plain page leaves past the StartSession middleware, so without this a guest gets no
+     * cookie, and whatever the page relies on in the session is gone by the next request.
+     */
+    public static function ensureCookie(): void
+    {
+        if (self::$initialized && !isset($_COOKIE[self::getLaravelSessionCookieName()])) {
+            self::emitCookie();
+        }
+    }
+
+    private static function emitCookie(): void
+    {
         $store = self::getLaravelSessionStore();
         if ($store === null) {
             return;
@@ -408,7 +423,7 @@ class EvoSessionProxy
         $cookieName = self::getLaravelSessionCookieName();
         $sessionId  = $store->getId();
 
-        if (!$cookieName || !$sessionId || headers_sent()) {
+        if (!$cookieName || !$sessionId || $sessionId === self::$emittedId || headers_sent()) {
             return;
         }
 
@@ -440,7 +455,7 @@ class EvoSessionProxy
             ]
         );
 
-        self::$cookieEmitted = true;
+        self::$emittedId = $sessionId;
     }
 
     /**
