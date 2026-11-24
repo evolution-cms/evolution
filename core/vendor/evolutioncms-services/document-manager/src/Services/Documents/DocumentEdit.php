@@ -1,13 +1,16 @@
 <?php namespace EvolutionCMS\DocumentManager\Services\Documents;
 
+use Closure;
 use EvolutionCMS\Exceptions\ServiceActionException;
 use EvolutionCMS\Exceptions\ServiceValidationException;
 use EvolutionCMS\Interfaces\ServiceInterface;
 use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Models\SiteTmplvarTemplate;
+use EvolutionCMS\Models\SiteTmplvarContentvalue;
 use \EvolutionCMS\Models\User;
 use Illuminate\Support\Facades\Lang;
 
+/** Apply manager document edits and atomic partial updates with TV values. */
 class DocumentEdit extends DocumentCreate
 {
     /**
@@ -95,52 +98,163 @@ class DocumentEdit extends DocumentCreate
      */
     public function process(): \Illuminate\Database\Eloquent\Model
     {
+        return $this->saveDocument()['document'];
+    }
+
+    /**
+     * Edit the locked resource and return the requested keys that actually changed.
+     *
+     * @param array<string,string> $tvs
+     * @param Closure(SiteContent): void $authorize
+     * @return array{document: SiteContent, updated_fields: list<string>, updated_tvs: list<string>}
+     * @since 1.1.0
+     */
+    public function processPatch(array $tvs, Closure $authorize): array
+    {
+        return $this->saveDocument($tvs, $authorize);
+    }
+
+    /**
+     * Persist the resource, TV values and parent status in one database transaction.
+     *
+     * Manager form edits use the existing flat payload. Patch calls use a separate
+     * TV map and reject unauthorized publication changes before the first write.
+     * @param array<string,string>|null $tvValues
+     * @param (Closure(SiteContent): void)|null $authorize
+     * @return array{document: SiteContent, updated_fields: list<string>, updated_tvs: list<string>}
+     * @since 1.1.0
+     */
+    private function saveDocument(?array $tvValues = null, ?Closure $authorize = null): array
+    {
         if (!$this->checkRules()) {
-            throw new ServiceActionException(\Lang::get('global.error_no_privileges'));
+            throw new ServiceActionException(Lang::get('global.error_no_privileges'));
         }
-
-
         if (!$this->validate()) {
             $exception = new ServiceValidationException();
             $exception->setValidationErrors($this->validateErrors);
             throw $exception;
         }
 
-        if (isset($this->documentData['pagetitle'])) {
-            $this->prepareAliasDocument();
+        $connection = (new SiteContent())->getConnection();
+        $result = $connection->transaction(function () use ($tvValues, $authorize) {
+            $id = (int)$this->documentData['id'];
+            $document = SiteContent::query()->withTrashed()->lockForUpdate()->findOrFail($id);
+            $requestedFields = array_keys($this->documentData);
+            if ($authorize !== null) {
+                $authorize($document);
+                $this->preparePatchFields($document);
+            }
+
+            if (isset($this->documentData['pagetitle'])) {
+                $this->prepareAliasDocument();
+            }
+            if ($authorize === null) {
+                $this->prepareEditDocument();
+            } else {
+                $this->prepareEditDocumentFrom($document);
+            }
+            $patchTvIds = $tvValues === null ? [] : $this->resolvePatchTvs($tvValues);
+
+            if ($this->events) {
+                EvolutionCMS()->invokeEvent('OnBeforeDocFormSave', ['mode' => 'upd', 'user' => $id]);
+            }
+
+            if (!$document->update($this->documentData)) {
+                throw new ServiceActionException('The document update was cancelled.');
+            }
+            $updatedFields = array_values(array_intersect($requestedFields, array_keys($document->getChanges())));
+            $updatedTvs = [];
+            if ($tvValues === null) {
+                $this->prepareTV();
+                $this->saveTVs();
+            } else {
+                foreach ($patchTvIds as $name => $tvId) {
+                    $value = SiteTmplvarContentvalue::query()->firstOrNew(['contentid' => $id, 'tmplvarid' => $tvId]);
+                    $value->value = $tvValues[$name];
+                    if ($value->exists && !$value->isDirty('value')) {
+                        continue;
+                    }
+                    if (!$value->save()) {
+                        throw new ServiceActionException("The update of TV [{$name}] was cancelled.");
+                    }
+                    if ($value->wasRecentlyCreated || $value->wasChanged('value')) {
+                        $updatedTvs[] = $name;
+                    }
+                }
+            }
+            $this->updateParent();
+
+            return ['document' => $document, 'updated_fields' => $updatedFields, 'updated_tvs' => $updatedTvs];
+        });
+
+        $afterCommit = function () use ($result) {
+            if ($this->events) {
+                EvolutionCMS()->invokeEvent('OnDocFormSave', ['mode' => 'upd', 'id' => $result['document']->getKey()]);
+            }
+            $_SESSION['itemname'] = $result['document']->pagetitle;
+            if ($this->cache) {
+                EvolutionCMS()->clearCache('full');
+            }
+        };
+        if ($connection->transactionLevel() > 0) {
+            $connection->afterCommit($afterCommit);
+        } else {
+            $afterCommit();
         }
-        $this->prepareEditDocument();
 
-        // invoke OnBeforeDocFormSave event
-        if ($this->events) {
-            EvolutionCMS()->invokeEvent("OnBeforeDocFormSave", array(
-                "mode" => "upd",
-                "user" => $this->documentData['id'],
-            ));
+        return $result;
+    }
+
+    /**
+     * Check requested publication changes and fill fields the manager service reads on each edit.
+     *
+     * @since 1.1.0
+     */
+    private function preparePatchFields(SiteContent $document): void
+    {
+        foreach (['published', 'pub_date', 'unpub_date'] as $field) {
+            if (array_key_exists($field, $this->documentData)
+                && (int)$this->documentData[$field] !== (int)$document->getAttribute($field)
+                && !EvolutionCMS()->hasPermission('publish_document', 'mgr')
+            ) {
+                throw new ServiceActionException('Changing publication state or dates requires the publish_document permission.');
+            }
         }
 
-        $document = SiteContent::query()->withTrashed()->find($this->documentData['id']);
-        $document->update($this->documentData);
-        $this->prepareTV();
-        $this->saveTVs();
-        $this->updateParent();
+        foreach (['pagetitle', 'alias', 'template', 'parent', 'published', 'pub_date', 'unpub_date', 'isfolder', 'hidemenu', 'menuindex'] as $field) {
+            $this->documentData += [$field => $document->getAttribute($field)];
+        }
+    }
 
-        if ($this->events) {
-            // invoke OnDocFormSave event
-            EvolutionCMS()->invokeEvent("OnDocFormSave", array(
-                "mode" => "upd",
-                "id" => $this->documentData['id']
-            ));
+    /**
+     * Resolve every supplied TV against the chosen template before any writes.
+     *
+     * @param array<string,string> $values
+     * @return array<string,int>
+     * @since 1.1.0
+     */
+    private function resolvePatchTvs(array $values): array
+    {
+        if ($values === []) {
+            return [];
         }
 
-
-        $_SESSION['itemname'] = $this->documentData['pagetitle'];
-
-        if ($this->cache) {
-            EvolutionCMS()->clearCache('full');
+        $ids = SiteTmplvarTemplate::query()
+            ->where('templateid', $this->documentData['template'])
+            ->join('site_tmplvars', 'site_tmplvars.id', '=', 'site_tmplvar_templates.tmplvarid')
+            ->whereIn('site_tmplvars.name', array_keys($values))
+            ->pluck('site_tmplvars.id', 'site_tmplvars.name')
+            ->all();
+        if (array_diff_key($values, $ids) !== []) {
+            throw new ServiceActionException('TVs not assigned to the target template: ' . implode(', ', array_keys(array_diff_key($values, $ids))));
         }
 
-        return $document;
+        $ordered = [];
+        foreach (array_keys($values) as $name) {
+            $ordered[$name] = (int)$ids[$name];
+        }
+
+        return $ordered;
     }
 
     /**
@@ -162,9 +276,25 @@ class DocumentEdit extends DocumentCreate
     }
 
 
+    /**
+     * Prepare manager fields and retain the stored publication values when the role lacks permission.
+     *
+     * The locked model is supplied by the transactional editor.
+     */
     public function prepareEditDocument()
     {
-        $existingDocument = SiteContent::query()->withTrashed()->find($this->documentData['id'])->toArray();
+        $document = SiteContent::query()->withTrashed()->findOrFail($this->documentData['id']);
+        $this->prepareEditDocumentFrom($document);
+    }
+
+    /**
+     * Apply the editor's normalizations using a document already read inside the transaction.
+     *
+     * @since 1.1.0
+     */
+    private function prepareEditDocumentFrom(SiteContent $document): void
+    {
+        $existingDocument = $document->toArray();
         $this->documentData['editedby'] = EvolutionCMS()->getLoginUserID();
         $this->documentData['editedon'] = $this->currentDate;
         $this->documentData['oldparent'] = $existingDocument['parent'];

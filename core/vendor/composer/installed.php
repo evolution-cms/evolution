@@ -182,9 +182,9 @@
             'dev_requirement' => false,
         ),
         'evolutioncms-services/document-manager' => array(
-            'pretty_version' => '1.0.9',
-            'version' => '1.0.9.0',
-            'reference' => '403c065a0be6367baaadd3a5b01cf0f84522c8db',
+            'pretty_version' => '1.1.0',
+            'version' => '1.1.0.0',
+            'reference' => '5d6b0917b9dc0abea4c0c41a668f2bc253013629',
             'type' => 'library',
             'install_path' => __DIR__ . '/../evolutioncms-services/document-manager',
             'aliases' => array(),
