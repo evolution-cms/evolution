@@ -1,12 +1,12 @@
 <?php namespace EvolutionCMS\Providers;
 
-use EvolutionCMS\Support\SharedMigrationRepository;
-use EvolutionCMS\Support\SharedMigrator;
+use EvolutionCMS\Support\MigrationRepository;
+use EvolutionCMS\Support\Migrator as EvolutionMigrator;
 use Illuminate\Database\MigrationServiceProvider as IlluminateMigrationServiceProvider;
 use Illuminate\Database\Migrations\Migrator;
 
 /**
- * Laravel's migration services, with a migrator that knows the installer's and artisan's logs.
+ * Laravel's migration services on the site's one log, which keeps the installer's baseline.
  *
  * @since 3.5.10
  */
@@ -21,7 +21,7 @@ class MigrationServiceProvider extends IlluminateMigrationServiceProvider
             $migrations = $app['config']['database.migrations'];
             $table = is_array($migrations) ? ($migrations['table'] ?? null) : $migrations;
 
-            return new SharedMigrationRepository($app['db'], $table);
+            return new MigrationRepository($app['db'], $table, defined('IN_INSTALL_MODE') && IN_INSTALL_MODE === true);
         });
     }
 
@@ -31,7 +31,7 @@ class MigrationServiceProvider extends IlluminateMigrationServiceProvider
     protected function registerMigrator()
     {
         $this->app->singleton('migrator', function ($app) {
-            return new SharedMigrator($app['migration.repository'], $app['db'], $app['files'], $app['events']);
+            return new EvolutionMigrator($app['migration.repository'], $app['db'], $app['files'], $app['events']);
         });
 
         $this->app->bind(Migrator::class, fn ($app) => $app['migrator']);

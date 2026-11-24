@@ -144,11 +144,21 @@ function count_rows_or_null(string $table): ?int
 function counted_tables(): array
 {
     return [
-        'migrations_install', 'site_content', 'site_templates', 'system_eventnames',
+        'migrations', 'site_content', 'site_templates', 'system_eventnames',
         'system_settings', 'permissions', 'permissions_groups', 'role_permissions',
         'user_roles', 'users', 'user_attributes', 'site_plugins', 'site_plugin_events',
         'site_modules', 'site_snippets', 'site_htmlsnippets',
     ];
+}
+
+/**
+ * Tables of an older release that this one drops: the installer's migration log
+ * of releases before 3.5.10, once `migrations` holds it. The baseline counts
+ * them, so the upgrade run can tell their rows came over.
+ */
+function retired_tables(): array
+{
+    return ['migrations_install'];
 }
 
 function has_column(string $table, string $column): bool
@@ -190,6 +200,13 @@ if ($mode === 'baseline') {
             $counts[$table] = $rows;
         }
     }
+    foreach (retired_tables() as $table) {
+        try {
+            // Distinct: the old install seeder logged one migration twice.
+            $counts[$table] = (int) scalar('SELECT COUNT(DISTINCT migration) FROM ' . t($table));
+        } catch (PDOException $e) {
+        }
+    }
     file_put_contents($baselineFile, json_encode($counts, JSON_PRETTY_PRINT));
     echo PHP_EOL . 'Recorded ' . count($counts) . ' table counts in ' . $baselineFile . PHP_EOL;
     foreach ($counts as $table => $rows) {
@@ -207,7 +224,7 @@ $expected = [
     'active_user_locks', 'active_user_sessions', 'active_users', 'categories',
     'document_groups', 'documentgroup_names', 'event_log', 'file_groups',
     'manager_log', 'member_groups', 'membergroup_access', 'membergroup_names',
-    'migrations_install', 'permissions', 'permissions_groups', 'role_permissions',
+    'migrations', 'permissions', 'permissions_groups', 'role_permissions',
     'site_content', 'site_content_closure', 'site_htmlsnippets', 'site_module_access',
     'site_module_depobj', 'site_modules', 'site_plugin_events', 'site_plugins',
     'site_snippets', 'site_templates', 'site_tmplvar_access',
@@ -241,11 +258,14 @@ foreach ($lateColumns as $table => $columns) {
     }
 }
 
-// The installer records its whole chain - the install stubs and the core
-// migrations it runs afterwards - in migrations_install; the `migrations` table
-// of a plain Laravel app stays unused here (core/config/database/migrations.php).
-$applied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations_install'));
+// The installer and artisan record in one log, `migrations`. An older release's
+// installer log is copied into it and then dropped (EvolutionCMS\Support\MigrationRepository,
+// core/database/migrations/2026_11_23_000000_drop_migrations_install_table.php).
+$applied = (int) scalar('SELECT COUNT(*) FROM ' . t('migrations'));
 check('migrations were recorded', $applied > 0, 'recorded: ' . $applied);
+foreach (retired_tables() as $table) {
+    check($table . ' is gone', count_rows_or_null($table) === null);
+}
 
 echo PHP_EOL . 'Seeded content' . PHP_EOL;
 // An upgraded site carries the content the older release seeded and whatever
@@ -353,6 +373,11 @@ if (!is_file($baselineFile)) {
         }
     }
 
+    if ($upgraded && isset($baseline['migrations_install'])) {
+        // Every row of the old log is one migration, and none may be lost on the way.
+        check('migrations holds the old installer log', $counts['migrations'] >= (int) $baseline['migrations_install'],
+            $baseline['migrations_install'] . ' -> ' . $counts['migrations']);
+    }
     if ($upgraded) {
         check('the rows belonging to the site came through unchanged', $drifted === [], implode(', ', $drifted));
         check('no seeded table lost rows in the upgrade', $lost === [], implode(', ', $lost));
