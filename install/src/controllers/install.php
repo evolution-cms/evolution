@@ -189,7 +189,7 @@ try {
 
         if ($installMode != 0 && $database_type == 'pgsql') {
             try {
-                $result = \DB::table('migrations_install')->select('id')->orderBy('id', 'DESC')->first();
+                $result = \DB::table('migrations')->select('id')->orderBy('id', 'DESC')->first();
             } catch (\PDOException $exception) {
                 $result = null;
                 if (!str_contains($exception->getMessage(), 'SQLSTATE[42P01]')) {
@@ -199,7 +199,7 @@ try {
             if (!is_null($result)) {
                 $new_id = $result->id;
                 $new_id++;
-                $table = table_prefix('migrations_install') . '_id_seq';
+                $table = table_prefix('migrations') . '_id_seq';
                 \DB::statement('ALTER SEQUENCE '.$table.' RESTART WITH ' . $new_id);
             }
         }

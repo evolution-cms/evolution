@@ -147,6 +147,12 @@ must target the same `.x` branch/ref unless the operator explicitly selects anot
 Update migrations, seeders, and data fixes must be trackable or idempotent so repeated
 `make:site update` runs do not break already-updated installations.
 
+The installer and artisan record migrations in one log, `migrations`
+(`EvolutionCMS\Support\MigrationRepository`). Batch 0 is the installer's baseline: what the
+installer runs, and the rows of `migrations_install`, the installer log up to 3.5.9, which the
+first use of the log copies over. Rollback and reset never undo batch 0. `migrations_install`
+itself stays as it was, for a way back to 3.5.9; do not write to it.
+
 Switching lines is one explicit ref away, in either direction (`make:site update 3.5.x`,
 `make:site update 3.5.8`, or a fork as `make:site update https://github.com/<owner>/<repo>/tree/<ref>`).
 After a non-release or fork update, `make:site` notes `ref` / `repository` / `commit` (the archive's

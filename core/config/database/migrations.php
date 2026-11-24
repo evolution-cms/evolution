@@ -1,6 +1,3 @@
 <?php
-if (IN_INSTALL_MODE === false)
-    return 'migrations';
-else
-    return 'migrations_install';
-
+// One log for the installer and artisan (EvolutionCMS\Support\MigrationRepository).
+return 'migrations';
