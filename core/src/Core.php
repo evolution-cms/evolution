@@ -1166,6 +1166,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             }
         }
 
+        // A document leaves past the StartSession middleware, and what follows may send the headers.
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            \EvoSessionProxy::emitWantedCookie();
+        }
+
         echo $this->documentOutput;
 
         if ($this->dumpSQL) {
