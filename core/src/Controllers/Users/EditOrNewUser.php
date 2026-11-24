@@ -156,6 +156,22 @@ class EditOrNewUser extends AbstractController implements ManagerTheme\PageContr
         $values['id'] = $user->getKey();
         \UserManager::saveValues($values);
 
+        // The two-factor fields are no user settings, and belong to the same people as the site-wide one.
+        $secondFactor = array_intersect_key($userData, ['two_factor_override' => 1, 'two_factor_reset' => 1]);
+        $userData = array_diff_key($userData, $secondFactor);
+        if (EvolutionCMS()->hasPermission('security_settings')) {
+            $service = EvolutionCMS()->make(\EvolutionCMS\Auth\TwoFactor::class);
+            if (is_string($secondFactor['two_factor_override'] ?? null)) {
+                $override = $secondFactor['two_factor_override'];
+                if ($override === '' || isset($service->options()[$override])) {
+                    $service->setOverride((int) $user->getKey(), $override);
+                }
+            }
+            if (($secondFactor['two_factor_reset'] ?? '') === '1') {
+                $service->reset($user);
+            }
+        }
+
         // Save User Settings
         \UserManager::clearSettings($userData);
         \UserManager::saveSettings($userData);

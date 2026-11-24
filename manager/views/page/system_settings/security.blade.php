@@ -194,6 +194,22 @@
 
         <div class="split my-1"></div>
 
+        @include('manager::form.select', [
+            'name' => 'two_factor_method',
+            'label' => __('global.two_factor_title'),
+            'small' => '[(two_factor_method)]',
+            'value' => $settings['two_factor_method'],
+            'options' => $twoFactorMethods + (isset($twoFactorMethods[$settings['two_factor_method']])
+                ? []
+                : [$settings['two_factor_method'] => $settings['two_factor_method'] . ' - ' . __('global.two_factor_unavailable')]),
+            'attributes' => 'onchange="documentDirty=true;" size="1"',
+            'comment' => (isset($disabledSettings['two_factor_method']) ? __('global.setting_from_file') . '<br>' : '') .
+                e(__('global.two_factor_method_message')) . ' <a href="index.php?a=202">' . e(__('global.two_factor_own_page')) . '</a>',
+            'disabled' => $disabledSettings['two_factor_method'] ?? null
+        ])
+
+        <div class="split my-1"></div>
+
         @include('manager::form.radio', [
             'name' => 'pwd_hash_algo',
             'label' => __('global.pwd_hash_algo_title'),

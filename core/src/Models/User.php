@@ -69,6 +69,7 @@ class User extends BaseModel
         $this->memberGroups()->delete();
         $this->attributes()->delete();
         $this->settings()->delete();
+        \EvolutionCMS\Auth\TwoFactor::purge((int) $this->getKey());
 
         return parent::delete();
     }

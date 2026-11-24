@@ -36,6 +36,7 @@ return [
     'failed_login_attempts' => 3,
     'blocked_minutes' => 10,
     'pwd_repair_minutes' => 60,
+    'two_factor_method' => 'off',
     'error_reporting' => '1',
     'send_errormail' => '0',
     'enable_bindings' => 1,

@@ -35,6 +35,7 @@ a template variable (TV) system, plugins, snippets, chunks, and a modular extras
 │   ├── database/
 │   │   ├── migrations/  ← Eloquent migrations (single consolidated migration)
 │   │   └── seeders/
+│   ├── includes/        ← files loaded by path (constants, worker runtime, two_factor methods)
 │   ├── functions/       ← autoloaded global helpers (helper.php, nodes.php, etc.)
 │   ├── lang/            ← locale files (en, ru, de, fr, …)
 │   ├── modifiers/       ← output modifier include files (mdf_*.inc.php)
@@ -544,6 +545,38 @@ a manager's e-mail address is a phishing target.
 
 Do not add a reply, a log line, a wait or a second entry point that differs by whether the account exists.
 Test: `core/tests/Unit/Security/PasswordRecoveryRequestTest.php`.
+
+### Two-factor authentication rules
+
+`EvolutionCMS\Auth\TwoFactor` decides whether a login needs a second step and keeps what users have set up.
+
+- The gate (`TwoFactor::gate()`) sits in `PipelineUserManager`, inside the package's login classes, between the
+  accepted first factor and the session: `login`, `loginById`, `hashLogin` and `loginByIdWithoutPipeline` all pass it.
+  Any new way into a session goes through one of them. `withoutChallenge()` is the only way round, for a first factor
+  that is two by itself (a passkey with user verification) or an administrator's impersonation; never decide it from
+  request data. `artisan` is not asked.
+- A refusal that waits for the second step is a `ServiceActionException` with the code `TwoFactor::PENDING`; the
+  attempt is in the session (`pending()`), `complete()` finishes it. Website logins: a browser is redirected to
+  `index.php?evo_two_factor=1` (a site replaces its design with `views/two_factor.blade.php`), a script gets the exception,
+  a stateless client sends `two_factor_code` along with the password.
+- Which method applies: the administrator's override for the user, else the site setting `two_factor_method`
+  (read from the database, not from the merged user configuration), else, while that is `off`, the user's own choice.
+  The override is not a user setting: those are rewritten by every save of the user form and merged into the
+  configuration. Override, reset and site setting need `security_settings`. A site method is accepted only from a
+  manager who has passed it; a lost one is undone with `'two_factor_method' => 'off'` in
+  `core/custom/config/cms/settings.php` and `cache:clear-full`.
+- Everything stored is in `user_two_factor`, changed by compare-and-swap, so that no code is used twice. Recovery codes
+  are kept as hashes. Attempts are counted before the answer is checked, in one statement, with the counter and the
+  lock of wrong passwords. Codes never go into a mail subject or a log: the event log keeps subjects.
+- Plugins add a method on `OnTwoFactorMethods` with `$twoFactor->extend($key, new class extends TwoFactorMethod {...})`;
+  it then is in the settings, the user form and the user's page (manager action 202). A method whose plugin is gone
+  falls back to TOTP, if set up, else e-mail, never to an open door.
+- The login template stays the site's: `ControllersSERSTWOFACTOR` replaces only its form.
+- Few autoloader entries: built-in methods and the QR code are files of `core/includes/two_factor` that return an
+  anonymous class or a closure. A frontend request loads none of this; the query parameter is spelled out in
+  `Core::processRoutes()` and `RoutingServiceProvider` for that reason.
+
+Test: `core/tests/Unit/Security/TwoFactorTest.php` (with `Fixtures/two-factor-harness.php`).
 
 ---
 

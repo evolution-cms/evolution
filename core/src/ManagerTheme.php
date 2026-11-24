@@ -126,6 +126,8 @@ class ManagerTheme implements ManagerThemeInterface
         200 => Controllers\Phpinfo::class,
         /** send a test mail message */
         201 => Controllers\MailTest::class,
+        /** two-factor authentication of one's own account */
+        202 => Controllers\Users\TwoFactor::class,
         /** @deprecated errorpage */
         29 => Controllers\EventLog::class,
         /** file manager */
@@ -797,6 +799,14 @@ class ManagerTheme implements ManagerThemeInterface
 
     public function renderLoginPage()
     {
+        // a password was accepted: the second factor is next
+        if (isset($_SESSION[Auth\TwoFactor::SESSION]['pending']['mgr'])) {
+            $page = Controllers\Users\TwoFactor::loginPage();
+            if ($page !== null) {
+                return $page;
+            }
+        }
+
         $plh = [
             'remember_me' => isset($_COOKIE['evo_remember_manager']) ? 'checked="checked"' : ''
         ];

@@ -119,6 +119,7 @@
 
     '200' => 'Viewing phpInfo()', //ok
     '201' => 'Sending a test mail message', //ok
+    '202' => 'Two-factor authentication', //ok
 
     '300' => 'Create Template Variable', //ok 300,301
     '301' => 'Edit Template Variable',//ok 300,301

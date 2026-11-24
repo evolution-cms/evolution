@@ -69,6 +69,11 @@
                                     </li>
                                 @endif
                                 <li>
+                                    <a href="index.php?a=202" target="main">
+                                        {{ icon_html($_style['icon_lock']) }} {{ManagerTheme::getLexicon('two_factor_title')}}
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="index.php?a=8&_token={{ csrf_token() }}">
                                         {{ icon_html($_style['icon_logout']) }} {{ManagerTheme::getLexicon('logout')}}
                                     </a>

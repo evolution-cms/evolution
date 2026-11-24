@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Auth\LoginPipeline;
 use EvolutionCMS\Auth\PipelineUserManager;
+use EvolutionCMS\Auth\TwoFactor;
 use EvolutionCMS\Interfaces\UserManagerInterface;
 use Illuminate\Support\ServiceProvider;
 
@@ -10,8 +11,8 @@ use Illuminate\Support\ServiceProvider;
  *
  * This is the default provider for the `Evolution_UserManager` key. It binds the same
  * container key as the package's own provider, so the `\UserManager` facade and every
- * existing call site keep working unchanged — with an empty `cms.auth.pipeline` the
- * wrapper is a pass-through and behaviour is identical to the package's.
+ * existing call site keep working unchanged. It also binds TwoFactor, the second sign-in
+ * step the wrapper asks for; a replacement that is not a PipelineUserManager has none.
  *
  * A site that wants the plain package implementation back, or its own, replaces this
  * one entry — the custom configuration directory is loaded after the core one and
@@ -30,6 +31,9 @@ class PipelineUserManagerServiceProvider extends ServiceProvider
         $this->app->singleton(LoginPipeline::class, function ($app) {
             return new LoginPipeline($app);
         });
+
+        $this->app->singleton(TwoFactor::class);
+        $this->app->alias(TwoFactor::class, 'TwoFactor');
 
         $this->app->singleton('UserManager', function ($app) {
             return new PipelineUserManager($app->make(LoginPipeline::class));

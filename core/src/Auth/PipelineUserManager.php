@@ -1,7 +1,11 @@
 <?php namespace EvolutionCMS\Auth;
 
+use EvolutionCMS\Exceptions\ServiceActionException;
 use EvolutionCMS\Interfaces\UserManagerInterface;
+use EvolutionCMS\Models\User;
 use EvolutionCMS\UserManager\Services\UserManager;
+use EvolutionCMS\UserManager\Services\Users\UserLogin;
+use EvolutionCMS\UserManager\Services\Users\UserLoginById;
 
 /**
  * The UserManager that runs a login pipeline around the three ways into a session.
@@ -12,14 +16,10 @@ use EvolutionCMS\UserManager\Services\UserManager;
  * shipped. The package itself is not modified, so its own compatibility is untouched
  * and it can be upgraded independently.
  *
- * It is not registered by default. A site opts in by pointing the provider key at
- * PipelineUserManagerServiceProvider:
- *
- *     // core/custom/config/app/providers/Evolution_UserManager.php
- *     <?php return EvolutionCMS\Providers\PipelineUserManagerServiceProvider::class;
- *
- * With an empty `cms.auth.pipeline` this class is a pass-through, so opting in changes
- * nothing until pipes are configured.
+ * PipelineUserManagerServiceProvider registers it by default. With an empty `cms.auth.pipeline`
+ * it adds one thing to the package: TwoFactor::gate(), between the first factor and the session.
+ * The gate sits inside the package's own login classes, where the user is known and nothing is
+ * written yet. They are anonymous so that they take no autoloader entries.
  */
 class PipelineUserManager extends UserManager implements UserManagerInterface
 {
@@ -44,7 +44,19 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
         return $this->pipeline->run(
             new LoginAttempt(LoginPipeline::STAGE_LOGIN, $userData, $this, $events, $cache),
             function (LoginAttempt $attempt) {
-                return parent::login($attempt->data, $attempt->events, $attempt->cache);
+                return (new class($attempt->data, $attempt->events, $attempt->cache) extends UserLogin {
+                    public function authProcess()
+                    {
+                        PipelineUserManager::secondFactor(
+                            $this->user,
+                            $this->context,
+                            $this->userData,
+                            LoginPipeline::STAGE_LOGIN,
+                            fn () => $this->regenerateSessionId()
+                        );
+                        parent::authProcess();
+                    }
+                })->process();
             }
         );
     }
@@ -57,7 +69,7 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
         return $this->pipeline->run(
             new LoginAttempt(LoginPipeline::STAGE_LOGIN_BY_ID, $userData, $this, $events, $cache),
             function (LoginAttempt $attempt) {
-                return parent::loginById($attempt->data, $attempt->events, $attempt->cache);
+                return $this->loginByIdWithoutPipeline($attempt->data, $attempt->events, $attempt->cache);
             }
         );
     }
@@ -70,7 +82,7 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
         return $this->pipeline->run(
             new LoginAttempt(LoginPipeline::STAGE_HASH_LOGIN, $userData, $this, $events, $cache),
             function (LoginAttempt $attempt) {
-                return parent::hashLogin($attempt->data, $attempt->events, $attempt->cache);
+                return $this->loginByHash($attempt);
             }
         );
     }
@@ -83,6 +95,9 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
      * loginById pipeline nested inside the login pipeline, so every `*` pipe would run
      * twice for one attempt.
      *
+     * The second factor is asked for all the same. A pipe whose own check is as good as two
+     * wraps the call in TwoFactor::withoutChallenge().
+     *
      * @param array $userData
      * @param bool $events
      * @param bool $cache
@@ -90,6 +105,62 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
      */
     public function loginByIdWithoutPipeline(array $userData, bool $events = true, bool $cache = true)
     {
-        return parent::loginById($userData, $events, $cache);
+        return $this->startSession($userData, $events, $cache, LoginPipeline::STAGE_LOGIN_BY_ID);
+    }
+
+    /**
+     * The package's own UserHashLogin cannot be loaded: it narrows a property of UserLogin to private.
+     *
+     * @throws ServiceActionException
+     */
+    protected function loginByHash(LoginAttempt $attempt)
+    {
+        $hash = $attempt->get('hash');
+        $user = is_string($hash) && $hash !== '' ? User::query()->where('cachepwd', $hash)->first() : null;
+        if ($user === null) {
+            throw new ServiceActionException(\Lang::get('global.login_processor_unknown_user'));
+        }
+
+        $user = $this->startSession(
+            ['id' => $user->getKey()] + array_intersect_key($attempt->data, ['context' => 1, 'rememberme' => 1, 'two_factor_code' => 1]),
+            $attempt->events,
+            $attempt->cache,
+            LoginPipeline::STAGE_HASH_LOGIN
+        );
+        // the link is spent
+        $user->cachepwd = '';
+        $user->save();
+
+        return $user;
+    }
+
+    protected function startSession(array $userData, bool $events, bool $cache, string $stage)
+    {
+        $login = new class($userData, $events, $cache) extends UserLoginById {
+            public string $stage = '';
+
+            public function authProcess()
+            {
+                PipelineUserManager::secondFactor(
+                    $this->user,
+                    $this->context,
+                    $this->userData,
+                    $this->stage,
+                    fn () => $this->regenerateSessionId()
+                );
+                parent::authProcess();
+            }
+        };
+        $login->stage = $stage;
+
+        return $login->process();
+    }
+
+    /**
+     * @internal for the login classes above
+     */
+    public static function secondFactor(User $user, string $context, array $data, string $stage, callable $rotate): void
+    {
+        evo()->make(TwoFactor::class)->gate($user, $context, $data, $stage, $rotate);
     }
 }

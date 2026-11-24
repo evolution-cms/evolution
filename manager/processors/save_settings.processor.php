@@ -127,6 +127,23 @@ if (isset($data) && count($data) > 0) {
             case 'manager_language':
                 $v = \EvolutionCMS\Support\ManagerLanguage::resolve($v);
                 break;
+            case \EvolutionCMS\Auth\TwoFactor::SETTING:
+                $secondFactor = $modx->make(\EvolutionCMS\Auth\TwoFactor::class);
+                $v = is_string($v) ? $v : '';
+                if ($v === $secondFactor->siteMethod()) {
+                    break;
+                }
+                // Whoever turns a method on for everybody has to have passed it: a mail server that
+                // does not send or a clock that is off would lock the whole site out.
+                if (!isset($secondFactor->options()[$v])
+                    || !($modx->make('UserManager') instanceof \EvolutionCMS\Auth\PipelineUserManager)
+                    || ($v !== \EvolutionCMS\Auth\TwoFactor::OFF && !$secondFactor->isConfirmed((int) $modx->getLoginUserID('mgr'), $v))) {
+                    $_SESSION['SystemAlertMsgQueque'][] = e($_lang['two_factor_confirm_first'])
+                        . ' <a href="index.php?a=202" target="main">' . e($_lang['two_factor_own_page']) . '</a>';
+                    $k = '';
+                    $v = $secondFactor->siteMethod();
+                }
+                break;
             case 'site_timezone':
                 $v = \EvolutionCMS\Support\SiteTimezone::resolve($v);
                 break;

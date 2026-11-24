@@ -3209,6 +3209,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     public function processRoutes()
     {
         $request = Request::createFromGlobals();
+        if (isset($_GET['evo_two_factor'])) {
+            // the path of its route (RoutingServiceProvider), whatever address the parameter came with
+            $request->server->set('REQUEST_URI', '/evo_two_factor');
+            $request->server->set('SCRIPT_NAME', '/index.php');
+        }
         $this->instance(Request::class, $request);
         $this->alias(Request::class, 'request');
 

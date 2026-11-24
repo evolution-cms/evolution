@@ -815,6 +815,44 @@ $displayStyle = ($_SESSION['browser'] === 'modern') ? 'table-row' : 'block';
                         <td>&nbsp;</td>
                         <td class='comment'><?php echo $_lang["login_allowed_days_message"] ?></td>
                     </tr>
+                    <?php if ($modx->hasPermission('security_settings')) {
+                        $secondFactor = $modx->make(\EvolutionCMS\Auth\TwoFactor::class);
+                        $secondFactorMethods = $secondFactor->options();
+                        $secondFactorSite = $secondFactor->siteMethod();
+                        $secondFactorOverride = (string)($_POST['two_factor_override'] ?? $secondFactor->override($user));
+                        if ($secondFactorOverride !== '' && !isset($secondFactorMethods[$secondFactorOverride])) {
+                            $secondFactorMethods[$secondFactorOverride] = $secondFactorOverride . ' - ' . $_lang['two_factor_unavailable'];
+                        }
+                        ?>
+                    <tr>
+                        <td><?= e($_lang['two_factor_title']) ?></td>
+                        <td>
+                            <select name="two_factor_override" class="inputBox" onChange="documentDirty=true">
+                                <option value=""><?= e($_lang['two_factor_site_setting'] . ' (' . ($secondFactorMethods[$secondFactorSite] ?? $secondFactorSite) . ')') ?></option>
+                                <?php foreach ($secondFactorMethods as $secondFactorKey => $secondFactorTitle) { ?>
+                                    <option value="<?= e($secondFactorKey) ?>"<?= $secondFactorKey === $secondFactorOverride ? ' selected="selected"' : '' ?>><?= e($secondFactorTitle) ?></option>
+                                <?php } ?>
+                            </select>
+                            <?php if ($user > 0) {
+                                $secondFactorReady = array_filter(
+                                    $secondFactorMethods,
+                                    static fn ($secondFactorKey) => $secondFactor->isConfirmed($user, (string)$secondFactorKey),
+                                    ARRAY_FILTER_USE_KEY
+                                );
+                                if ($secondFactorReady !== []) { ?>
+                                    <label>
+                                        <input type="checkbox" name="two_factor_reset" value="1" onChange="documentDirty=true;">
+                                        <?= e(__('global.two_factor_reset', ['methods' => implode(', ', $secondFactorReady), 'count' => $secondFactor->recoveryCodesLeft($user)])) ?>
+                                    </label>
+                                <?php }
+                            } ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td class='comment'><?= e($_lang['two_factor_override_message']) ?></td>
+                    </tr>
+                    <?php } ?>
                     <tr>
                         <td><?php echo $_lang["manager_theme"] ?></td>
                         <td><select name="manager_theme" class="inputBox" onChange="documentDirty=true;document.userform.theme_refresher.value = Date.parse(new Date());">
