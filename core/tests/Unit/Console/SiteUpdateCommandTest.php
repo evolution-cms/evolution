@@ -1021,6 +1021,100 @@ test('without custom packages only the Composer of core/vendor is checked, again
     }
 });
 
+test('an archive without vendor is checked with the vendor of the site', function () {
+    [$workspace, $target] = preflightWorkspace();
+    $siteVendor = $workspace . '/site/vendor';
+    mkdir($siteVendor . '/composer', 0777, true);
+    rename($target . '/vendor/composer/installed.json', $siteVendor . '/composer/installed.json');
+
+    $run = function (string $composer, ?string $presetEnv = null) use ($workspace, $target, $siteVendor): array {
+        $command = new class($workspace . '/custom-composer.json', $siteVendor, $composer) extends SiteUpdateCommand {
+            public array $vendorDirs = [];
+            public array $lines = [];
+
+            public function __construct(private string $customComposer, private string $siteVendor, private string $composer)
+            {
+                parent::__construct();
+            }
+
+            protected function customComposerJsonPath(): string
+            {
+                return $this->customComposer;
+            }
+
+            protected function siteVendorPath(): string
+            {
+                return $this->siteVendor;
+            }
+
+            protected function allowCustomPackageChanges(): bool
+            {
+                return true;
+            }
+
+            protected function composerBinaryCommand(): string
+            {
+                return $this->composer;
+            }
+
+            protected function composerSupportsMinimalChanges(string $composer): bool
+            {
+                return true;
+            }
+
+            protected function execCoreShellCommand(string $command, ?array &$output = null): int
+            {
+                $this->vendorDirs[] = getenv('COMPOSER_VENDOR_DIR');
+                $output = ['  - Locking league/csv (9.18.0)', '  - Upgrading symfony/finder (v7.4.20 => v8.1.8)'];
+
+                return 0;
+            }
+
+            public function line($string, $style = null, $verbosity = null)
+            {
+                $this->lines[] = (string) $string;
+            }
+
+            public function error($string, $verbosity = null)
+            {
+                $this->lines[] = 'ERROR ' . $string;
+            }
+        };
+        $before = getenv('COMPOSER_VENDOR_DIR');
+        putenv($presetEnv === null ? 'COMPOSER_VENDOR_DIR' : 'COMPOSER_VENDOR_DIR=' . $presetEnv);
+        try {
+            $arguments = invokeSiteUpdateMethod($command, 'preflightComposer', [$target, ['league/csv'], ['league/csv' => '9.18.0']]);
+
+            return [$arguments, $command, getenv('COMPOSER_VENDOR_DIR')];
+        } finally {
+            putenv($before === false ? 'COMPOSER_VENDOR_DIR' : 'COMPOSER_VENDOR_DIR=' . $before);
+        }
+    };
+
+    try {
+        // The merge plugin that reads custom/composer.json is in the vendor of the site only.
+        [$arguments, $command, $after] = withoutBundledComposerOnPath(fn () => $run('composer'));
+        expect($arguments)->toStartWith(escapeshellarg('league/csv:9.18.0'))
+            ->and($command->vendorDirs)->toBe([$siteVendor])
+            ->and($after)->toBeFalse();
+
+        [, , $after] = withoutBundledComposerOnPath(fn () => $run('composer', '/elsewhere'));
+        expect($after)->toBe('/elsewhere');
+
+        // What the bundled Composer runs on is read there too.
+        [$arguments, $command] = $run(escapeshellarg(dirname(__DIR__, 3) . '/vendor/bin/composer'));
+        expect($arguments)->toBeNull()
+            ->and(implode("\n", $command->lines))->toContain('Composer of core/vendor runs on (symfony/finder)');
+
+        // An archive with a vendor of its own is checked against that one.
+        rename($siteVendor . '/composer/installed.json', $target . '/vendor/composer/installed.json');
+        [, $command] = withoutBundledComposerOnPath(fn () => $run('composer'));
+        expect($command->vendorDirs)->toBe([false]);
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
 test('make:site checks the custom packages before it replaces a single file', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Console/SiteUpdateCommand.php');
     $update = substr($source, strpos($source, 'public function startUpdate()'));
