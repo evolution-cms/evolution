@@ -1436,16 +1436,16 @@
         },
         {
             "name": "evolutioncms-services/document-manager",
-            "version": "1.0.9",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/evolution-cms/DocumentManager.git",
-                "reference": "403c065a0be6367baaadd3a5b01cf0f84522c8db"
+                "reference": "5d6b0917b9dc0abea4c0c41a668f2bc253013629"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/evolution-cms/DocumentManager/zipball/403c065a0be6367baaadd3a5b01cf0f84522c8db",
-                "reference": "403c065a0be6367baaadd3a5b01cf0f84522c8db",
+                "url": "https://api.github.com/repos/evolution-cms/DocumentManager/zipball/5d6b0917b9dc0abea4c0c41a668f2bc253013629",
+                "reference": "5d6b0917b9dc0abea4c0c41a668f2bc253013629",
                 "shasum": ""
             },
             "type": "library",
@@ -1466,9 +1466,10 @@
             ],
             "support": {
                 "issues": "https://github.com/evolution-cms/DocumentManager/issues",
-                "source": "https://github.com/evolution-cms/DocumentManager/tree/1.0.9"
+                "source": "https://github.com/evolution-cms/DocumentManager/tree/1.1.0"
             },
-            "time": "2021-05-31T15:12:43+00:00"
+            "time": "2026-11-18T13:11:34+00:00",
+            "published-time": "2026-11-18T13:12:41+00:00"
         },
         {
             "name": "evolutioncms-services/user-manager",
