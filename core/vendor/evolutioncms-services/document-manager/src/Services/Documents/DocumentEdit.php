@@ -157,6 +157,11 @@ class DocumentEdit extends DocumentCreate
 
             if ($this->events) {
                 EvolutionCMS()->invokeEvent('OnBeforeDocFormSave', ['mode' => 'upd', 'user' => $id]);
+
+                if ($authorize === null) {
+                    // Compare submitted values against the row as left by manager plugins.
+                    $document = SiteContent::query()->withTrashed()->lockForUpdate()->findOrFail($id);
+                }
             }
 
             if (!$document->update($this->documentData)) {
