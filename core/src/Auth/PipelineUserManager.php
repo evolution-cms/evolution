@@ -1,6 +1,8 @@
 <?php namespace EvolutionCMS\Auth;
 
+use EvolutionCMS\Exceptions\ServiceActionException;
 use EvolutionCMS\Interfaces\UserManagerInterface;
+use EvolutionCMS\Models\User;
 use EvolutionCMS\UserManager\Services\UserManager;
 
 /**
@@ -70,7 +72,7 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
         return $this->pipeline->run(
             new LoginAttempt(LoginPipeline::STAGE_HASH_LOGIN, $userData, $this, $events, $cache),
             function (LoginAttempt $attempt) {
-                return parent::hashLogin($attempt->data, $attempt->events, $attempt->cache);
+                return $this->loginByHash($attempt);
             }
         );
     }
@@ -91,5 +93,30 @@ class PipelineUserManager extends UserManager implements UserManagerInterface
     public function loginByIdWithoutPipeline(array $userData, bool $events = true, bool $cache = true)
     {
         return parent::loginById($userData, $events, $cache);
+    }
+
+    /**
+     * The package's own UserHashLogin cannot be loaded: it narrows a property of UserLogin to private.
+     *
+     * @throws ServiceActionException
+     */
+    protected function loginByHash(LoginAttempt $attempt)
+    {
+        $hash = $attempt->get('hash');
+        $user = is_string($hash) && $hash !== '' ? User::query()->where('cachepwd', $hash)->first() : null;
+        if ($user === null) {
+            throw new ServiceActionException(\Lang::get('global.login_processor_unknown_user'));
+        }
+
+        $user = parent::loginById(
+            ['id' => $user->getKey()] + array_intersect_key($attempt->data, ['context' => 1, 'rememberme' => 1]),
+            $attempt->events,
+            $attempt->cache
+        );
+        // the link is spent
+        $user->cachepwd = '';
+        $user->save();
+
+        return $user;
     }
 }
