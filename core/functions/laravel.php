@@ -211,6 +211,10 @@ if (!function_exists('csrf_token')) {
             if (!isset($_SESSION['_token'])) {
                 $_SESSION['_token'] = Str::random(40);
             }
+            // A token is only worth handing out to a visitor who can come back with its session.
+            if (class_exists('EvoSessionProxy', false)) {
+                EvoSessionProxy::ensureCookie();
+            }
             return $_SESSION['_token'];
         }
 
