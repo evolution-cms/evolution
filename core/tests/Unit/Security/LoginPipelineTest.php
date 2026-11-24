@@ -209,13 +209,22 @@ test('every entry point into a session runs the pipeline', function () {
     $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Auth/PipelineUserManager.php');
 
     foreach (['login', 'loginById', 'hashLogin'] as $method) {
-        expect($source)->toContain('public function ' . $method . '(array $userData')
-            ->and($source)->toContain('parent::' . $method . '($attempt->data');
+        expect($source)->toMatch('/public function ' . $method . '\(array \$userData[^{]*\{\s*return \$this->pipeline->run\(/');
     }
 
     expect($source)->toContain('STAGE_LOGIN,')
         ->and($source)->toContain('STAGE_LOGIN_BY_ID,')
         ->and($source)->toContain('STAGE_HASH_LOGIN,');
+});
+
+test('a recovery link does not go through the package class that cannot be loaded', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Auth/PipelineUserManager.php');
+
+    // UserHashLogin declares private $userSettings over the protected one of UserLogin: a fatal error
+    // the moment it is loaded, for every recovery link
+    expect($source)->not->toContain('parent::hashLogin')
+        ->and($source)->toContain("is_string(\$hash) && \$hash !== ''")
+        ->and($source)->toContain("\$user->cachepwd = '';");
 });
 
 test('the pipeline ships enabled but empty, so behaviour is unchanged by default', function () {
