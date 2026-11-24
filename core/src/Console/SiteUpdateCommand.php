@@ -1363,11 +1363,22 @@ EXAMPLES;
      */
     protected function checkComposerPlan(string $targetCore, array $packages, array $previous, string $composer, bool $bundled): ?string
     {
-        $target = new CustomComposerPackages($targetCore);
+        // An archive without vendor/ (3.6 and newer) is installed over the site's vendor. Without that
+        // one the dry run has no merge plugin, never reads custom/composer.json and agrees to anything.
+        $vendor = is_file($targetCore . 'vendor/composer/installed.json') ? null : $this->siteVendorPath();
+        $target = new CustomComposerPackages($targetCore, $vendor);
         $pins = $packages === [] ? [] : $target->pins($packages, $previous, $target->constraints());
-        $run = function (string $command): array {
+        $run = function (string $command) use ($vendor): array {
             $output = [];
-            $exitCode = $this->execCoreShellCommand($command, $output);
+            $before = getenv('COMPOSER_VENDOR_DIR');
+            if ($vendor !== null) {
+                putenv('COMPOSER_VENDOR_DIR=' . $vendor);
+            }
+            try {
+                $exitCode = $this->execCoreShellCommand($command, $output);
+            } finally {
+                putenv($before === false ? 'COMPOSER_VENDOR_DIR' : 'COMPOSER_VENDOR_DIR=' . $before);
+            }
 
             return [$exitCode, implode("\n", $output)];
         };
@@ -1398,6 +1409,15 @@ EXAMPLES;
         }
 
         return $plan['arguments'];
+    }
+
+    /**
+     * @since 3.5.10
+     * @return string
+     */
+    protected function siteVendorPath(): string
+    {
+        return EVO_CORE_PATH . 'vendor';
     }
 
     /**

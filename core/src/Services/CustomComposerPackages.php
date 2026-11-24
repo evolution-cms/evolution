@@ -32,9 +32,14 @@ final class CustomComposerPackages
      */
     public const RECORD_FILE = 'custom/composer.installed.json';
 
-    public function __construct(private string $corePath)
+    /**
+     * @param string $corePath Core directory, with composer.json and composer.lock.
+     * @param string|null $vendorPath Vendor directory Composer installs into, when it is not the core's own.
+     */
+    public function __construct(private string $corePath, private ?string $vendorPath = null)
     {
         $this->corePath = rtrim($corePath, '/\\') . '/';
+        $this->vendorPath = rtrim($vendorPath ?? $this->corePath . 'vendor', '/\\') . '/';
     }
 
     /**
@@ -855,7 +860,7 @@ final class CustomComposerPackages
      */
     private function installedPackages(): array
     {
-        $installed = json_decode((string) @file_get_contents($this->corePath . 'vendor/composer/installed.json'), true);
+        $installed = json_decode((string) @file_get_contents($this->vendorPath . 'composer/installed.json'), true);
 
         return array_values(array_filter((array) ($installed['packages'] ?? $installed ?? []), 'is_array'));
     }
