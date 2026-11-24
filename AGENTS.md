@@ -180,7 +180,8 @@ under one policy. Do not add a restore path that skips it:
   the merged requirements must still fit the lock). Any change beyond installing those versions needs
   consent (`make:site --update-custom-packages`, `cli-install.php --updateCustomPackages=y`). `make:site`
   runs it against the unpacked archive before `moveFiles()` (`preflightComposer()`), so a refusal changes
-  nothing. The staged `custom/composer.json` is rebased (`rebasedCustomComposerJson()`: the merge plugin
+  nothing. An archive without `core/vendor` is checked with `COMPOSER_VENDOR_DIR` on the site's vendor: without the
+  merge plugin the dry run never reads `custom/composer.json` and agrees to anything. The staged `custom/composer.json` is rebased (`rebasedCustomComposerJson()`: the merge plugin
   prefixes `custom/` to path repositories and to `extra.merge-plugin.include` / `require`, a list or a
   single path) and removed again before `moveFiles()`, which
   would otherwise lay it over the site's own.
