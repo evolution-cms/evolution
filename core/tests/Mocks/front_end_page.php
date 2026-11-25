@@ -152,6 +152,10 @@ $router->middleware('web')->group(static function () use ($router) {
         exit;
     });
     $router->get('/routed-abort/{status}', static function ($status) {
+        if (isset($_GET['locked_buffer'])) {
+            ob_start(null, 0, $_GET['locked_buffer'] === 'cleanable' ? PHP_OUTPUT_HANDLER_CLEANABLE : 0);
+            ob_start();
+        }
         if ($status === 'response') {
             abort(new Response('a response of its own', 409));
         }

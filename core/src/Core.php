@@ -3255,13 +3255,22 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
     /**
      * Drop what was printed before a request was aborted, snippets and views included.
+     *
+     * Stop at a non-removable buffer so HTTP error handling can finish. Clean the
+     * remaining buffer only when allowed; output below a locked buffer cannot be reached.
+     *
+     * @param int $level Output-buffer depth before dispatching the request.
+     * @return void
      */
     private function discardBuffers(int $level): void
     {
         while (ob_get_level() > $level) {
-            ob_end_clean();
+            if (!(ob_get_status()['flags'] & PHP_OUTPUT_HANDLER_REMOVABLE) || !@ob_end_clean()) {
+                break;
+            }
         }
-        if ($level > 0 && ob_get_level() === $level) {
+        $buffer = ob_get_status();
+        if (($buffer['flags'] ?? 0) & PHP_OUTPUT_HANDLER_CLEANABLE) {
             ob_clean();
         }
     }
