@@ -435,6 +435,33 @@ EXAMPLES;
 
         $this->line('<fg=green>Remove Install Directory</>');
         self::rmdirs(EVO_BASE_PATH . 'install');
+
+        $this->updateInstallTime();
+    }
+
+    /**
+     * Date the installation to this update, as the installers do (EVO_INSTALL_TIME): the manager
+     * loads its CSS anew, and whoever signed in before signs in again.
+     *
+     * @since 3.5.10
+     * @return void
+     */
+    protected function updateInstallTime(): void
+    {
+        $file = $this->installMarkerFile();
+        // The file also says that the site is installed, which is not for an update to say.
+        if (is_file($file) && @file_put_contents($file, (string) time()) === false) {
+            $this->warn('Could not write ' . $file . ': manager sessions from before the update stay signed in.');
+        }
+    }
+
+    /**
+     * @since 3.5.10
+     * @return string
+     */
+    protected function installMarkerFile(): string
+    {
+        return EVO_CORE_PATH . '.install';
     }
 
     /**

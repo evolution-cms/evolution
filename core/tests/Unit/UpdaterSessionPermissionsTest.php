@@ -10,14 +10,14 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 
-function loadUpdaterBuildRefresh(): void
+function loadUpdaterFunction(string $name): void
 {
-    if (function_exists('updaterRefreshPermissionsAfterBuildChange')) {
+    if (function_exists($name)) {
         return;
     }
 
     $source = (string) file_get_contents(dirname(__DIR__, 2) . '/../assets/plugins/updater/plugin.updater.php');
-    $start = strpos($source, 'function updaterRefreshPermissionsAfterBuildChange(');
+    $start = strpos($source, 'function ' . $name . '(');
     $depth = 0;
     for ($i = strpos($source, '{', $start); $i < strlen($source); $i++) {
         $depth += $source[$i] === '{' ? 1 : ($source[$i] === '}' ? -1 : 0);
@@ -29,7 +29,8 @@ function loadUpdaterBuildRefresh(): void
 }
 
 beforeEach(function () {
-    loadUpdaterBuildRefresh();
+    loadUpdaterFunction('updaterRefreshPermissionsAfterBuildChange');
+    loadUpdaterFunction('updaterKeepSessionOfUpdate');
     $this->session = $_SESSION ?? null;
     $this->resolver = Model::getConnectionResolver();
 
@@ -50,6 +51,15 @@ beforeEach(function () {
         $table->unsignedInteger('role_id');
         $table->timestamps();
     });
+    $schema->create('system_cli_tasks', function (Blueprint $table) {
+        $table->increments('id');
+        $table->string('type');
+        $table->string('status');
+        $table->text('requested_by_snapshot');
+        $table->dateTime('finished_at')->nullable();
+        $table->timestamps();
+    });
+    $this->db = $db;
     $db->table('user_roles')->insert(['id' => 1, 'name' => 'Administrator']);
     $db->table('role_permissions')->insert([
         ['permission' => 'settings', 'role_id' => 1],
@@ -129,4 +139,47 @@ test('a refresh that throws keeps the old build noted too', function () {
 
     expect(updaterRefreshPermissionsAfterBuildChange(['version' => '3.5.9', 'commit' => 'b796f06']))->toBeFalse()
         ->and($_SESSION['updater_build'])->toBe('3.5.9@e8a4913');
+});
+
+function finishedUpdateTask($db, string $sessionHash, int $finishedAt, string $status = 'succeeded', string $type = 'site_update'): void
+{
+    $db->table('system_cli_tasks')->insert([
+        'type' => $type,
+        'status' => $status,
+        'requested_by_snapshot' => json_encode(['session_hash' => $sessionHash]),
+        'finished_at' => date('Y-m-d H:i:s', $finishedAt),
+    ]);
+}
+
+test('the session that started the update outlives the install time the update sets', function () {
+    $installTime = time() - 5;
+    $_SESSION['evo.session.created.time'] = 1000;
+    finishedUpdateTask($this->db, 'mine', $installTime + 1);
+
+    expect(updaterKeepSessionOfUpdate('mine', $installTime))->toBeTrue()
+        ->and($_SESSION['evo.session.created.time'])->toBeGreaterThanOrEqual($installTime);
+});
+
+test('no other session does', function (string $hash, int $finishedAfter, string $status, string $type) {
+    $installTime = time() - 5;
+    $_SESSION['evo.session.created.time'] = 1000;
+    finishedUpdateTask($this->db, 'mine', $installTime + $finishedAfter, $status, $type);
+
+    expect(updaterKeepSessionOfUpdate($hash, $installTime))->toBeFalse()
+        ->and($_SESSION['evo.session.created.time'])->toBe(1000);
+})->with([
+    'another session' => ['other', 1, 'succeeded', 'site_update'],
+    'no session id' => ['', 1, 'succeeded', 'site_update'],
+    'an install after the update' => ['mine', -1, 'succeeded', 'site_update'],
+    'an update that failed' => ['mine', 1, 'failed', 'site_update'],
+    'another task' => ['mine', 1, 'succeeded', 'package_install'],
+]);
+
+test('only a refresh that worked keeps the session', function () {
+    $source = (string) file_get_contents(dirname(__DIR__, 2) . '/../assets/plugins/updater/plugin.updater.php');
+    $case = substr($source, strpos($source, "case 'refresh_session':"));
+    $case = substr($case, 0, strpos($case, "case 'cancel':"));
+
+    expect($case)->toContain("if (!empty(\$refreshed['ok'])) {
+                        updaterKeepSessionOfUpdate(");
 });
