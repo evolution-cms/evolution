@@ -724,6 +724,34 @@ test('recordInstallSource leaves a missing version file alone', function () {
     }
 });
 
+test('an update dates the installation anew, and does not mark a site as installed', function () {
+    $workspace = updateGuardWorkspace();
+    $file = $workspace . '/.install';
+    $command = new class($file) extends SiteUpdateCommand {
+        public function __construct(private string $file)
+        {
+            parent::__construct();
+        }
+
+        protected function installMarkerFile(): string
+        {
+            return $this->file;
+        }
+    };
+
+    try {
+        invokeSiteUpdateMethod($command, 'updateInstallTime');
+        expect(file_exists($file))->toBeFalse();
+
+        file_put_contents($file, '1000');
+        $before = time();
+        invokeSiteUpdateMethod($command, 'updateInstallTime');
+        expect((int) file_get_contents($file))->toBeGreaterThanOrEqual($before);
+    } finally {
+        SiteUpdateCommand::rmdirs($workspace);
+    }
+});
+
 test('clearCompiledViews drops the views of the replaced version, also on a switch back', function () {
     $workspace = updateGuardWorkspace();
     file_put_contents($workspace . '/b24302c270cd0a5c777ca9ba56636912.php', '<?php new SimplePie\SimplePie();');

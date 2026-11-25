@@ -153,6 +153,8 @@ test('make:site finish announces itself before any step and runs every step afte
         ->and($steps)->toContain('$this->updateBundledExtrasModule();')
         ->and($steps)->toContain('$this->syncSettingsVersion();')
         ->and($steps)->toContain("self::rmdirs(EVO_BASE_PATH . 'install');")
+        // last: a step that fails leaves the sessions alone
+        ->and(trim(substr($steps, strrpos($steps, '$this->'))))->toBe('$this->updateInstallTime();')
         // Nothing of it runs in the updating process any more, except for a release without finish.
         ->and($update)->not->toContain('$this->runCoreMigrations();')
         ->and($update)->not->toContain('$this->runUpdateSeeders();')
