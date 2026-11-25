@@ -56,17 +56,14 @@ if (!defined('EVO_STORAGE_PATH')) {
 
 if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     // automatically assign base_path and base_url
-    $script_name = str_replace(
-        '\\',
-        '/',
-        dirname(
-            get_by_key(
-                $_SERVER,
-                ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME'] && ('undefined' === php_sapi_name() || is_cli())) ?
-                    'PHP_SELF' : 'SCRIPT_NAME'
-            )
-        )
+    $script_name = get_by_key(
+        $_SERVER,
+        ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME'] && ('undefined' === php_sapi_name() || is_cli())) ?
+            'PHP_SELF' : 'SCRIPT_NAME'
     );
+    // On the console it is the path the command was started by, unless the script set a URL itself.
+    $is_file_path = is_cli() && $script_name === ($_SERVER['SCRIPT_FILENAME'] ?? null);
+    $script_name = str_replace('\\', '/', dirname($script_name));
 
     if (substr($script_name, -1 - strlen(MGR_DIR)) === '/' . MGR_DIR ||
         strpos($script_name, '/' . MGR_DIR . '/') !== false
@@ -92,7 +89,10 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     $url = implode($separator, $items);
 
     $base_url = rtrim(implode($separator, $items), '/') . '/';
-    unset($separator);
+    if ($is_file_path) {
+        $base_url = rtrim((string) parse_url(defined('EVO_SITE_URL') ? EVO_SITE_URL : '/', PHP_URL_PATH), '/') . '/';
+    }
+    unset($separator, $is_file_path);
 
     unset($items);
 

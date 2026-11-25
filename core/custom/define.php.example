@@ -12,7 +12,8 @@
  *      - EVO_SITE_HOSTNAMES  comma separated host[:port] list, no port means 80/443. Wins over SetEnv and .env
  *      - MGR_DIR
  *      - EVO_BASE_PATH
- *      - EVO_BASE_URL
+ *      - EVO_BASE_URL      path of a site in a subfolder ("/shop/"): console commands cannot tell it, and take
+ *                          it from EVO_SITE_URL when that is defined
  *      - EVO_MANAGER_PATH
  *      - EVO_SITE_URL
  *      - EVO_MANAGER_URL
