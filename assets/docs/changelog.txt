@@ -2,6 +2,11 @@ This file shows the changes in recent releases of Evolution CMS. The most curren
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
 Evolution CMS 3.5.10 (Nov 25, 2026)
+* [03b5e5329] - fix(autoload): register compatibility service in static map (#2641) <Serhii Korneliuk>
+* [377d900f7] - fix(autoload): register compatibility service in classmap (#2641) <Serhii Korneliuk>
+* [3b4a891ce] - fix(session): keep the creation time of a session stored before dotted keys were flat <Artur Kyryliuk>
+* [fe1e2f9bb] - fix(session): keep native and Laravel values of one dotted name apart <Artur Kyryliuk>
+* [c1a4440a0] - fix(session): keep dotted keys and what Laravel code stores <Artur Kyryliuk>
 * [eb3458f45] - fix(ci): avoid deprecated HTTP response header access <MiddleSokilAI>
 * [492905298] - fix(console): keep the URL of a script that sets only SCRIPT_NAME <Artur Kyryliuk>
 * [013635436] - fix(console): keep the path a command is started by out of the site URL <Artur Kyryliuk>

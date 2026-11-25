@@ -63,6 +63,117 @@ test('an underscore key only Laravel created, changed or removed during the requ
         ->and($result['data'])->not->toHaveKey('_laravel_gone');
 });
 
+function sessionOfRequests(string $native, string $routed): array
+{
+    $out = evoRunPhp(dirname(__DIR__) . '/Mocks/session_requests_worker.php', [$native, $routed]);
+    $result = json_decode($out, true);
+    expect($result)->toBeArray("worker output: $out");
+
+    return $result;
+}
+
+dataset('kinds of requests', [
+    'routes, native session file' => ['1', '1'],
+    'routes, worker' => ['0', '1'],
+    'pages, native session file' => ['1', '0'],
+    'pages, worker' => ['0', '0'],
+]);
+
+test('a key with a dot comes back under its own name', function (string $native, string $routed) {
+    ['second' => $second, 'third' => $third] = sessionOfRequests($native, $routed);
+
+    expect($second['seen']['shop.cart'] ?? null)->toBe(['a.b' => 1])
+        ->and($second['seen']['shop'])->toBe('open')
+        ->and($second['seen']['_native.dotted'])->toBe('native')
+        ->and($second['seen']['gone.soon'])->toBe('x')
+        // session('shop.cart') of Laravel code reads it as well
+        ->and($second['result']['cart'])->toBe(['a.b' => 1])
+        ->and($third['seen']['shop.cart'])->toBe(['a.b' => 2])
+        ->and(array_intersect(['gone', 'gone.soon'], array_keys($third['seen'])))->toBe([]);
+})->with('kinds of requests');
+
+test('the creation time of a session is kept from one request to the next', function (string $native, string $routed) {
+    ['third' => $third] = sessionOfRequests($native, $routed);
+
+    expect($third['seen']['evo.session.created.time'])->toBe(1000)
+        ->and(array_intersect(['evo'], array_keys($third['seen'])))->toBe([]);
+})->with('kinds of requests');
+
+test('what Laravel code puts, changes and forgets is kept', function (string $native, string $routed) {
+    ['second' => $second, 'third' => $third] = sessionOfRequests($native, $routed);
+
+    expect($second['seen']['laravel'] ?? null)->toBe('put')
+        ->and($second['result']['laravel'] ?? null)->toBe('put')
+        ->and($second['result']['nested'] ?? null)->toBe(['key' => 'value'])
+        ->and($third['seen']['both'])->toBe('laravel 2')
+        ->and(array_intersect(['forgotten'], array_keys($third['seen'])))->toBe([]);
+})->with('kinds of requests');
+
+test('what native code changes is kept, an object changed in place included', function (string $native, string $routed) {
+    $result = sessionOfRequests($native, $routed);
+
+    expect($result['object'])->toBe(['in place' => 2])
+        ->and($result['third']['result'])->toBe('laravel 2');
+})->with('kinds of requests');
+
+test('flash data lasts for exactly one more request', function (string $native, string $routed) {
+    ['second' => $second, 'third' => $third] = sessionOfRequests($native, $routed);
+
+    expect($second['result']['notice'] ?? null)->toBe('saved')
+        ->and($second['result']['_old_input'] ?? null)->toBe(['name' => 'typed'])
+        ->and(array_intersect(['notice', '_old_input'], array_keys($third['seen'])))->toBe([]);
+})->with('kinds of requests');
+
+test('an invalidated session stays empty', function (string $native, string $routed) {
+    ['third' => $third, 'fourth' => $fourth, 'fifth' => $fifth] = sessionOfRequests($native, $routed);
+
+    expect($fourth['id'])->not->toBe($third['id'])
+        ->and(array_intersect(['shop', 'shop.cart', 'both', 'laravel', 'object'], array_keys($fifth['seen'])))->toBe([]);
+})->with('kinds of requests');
+
+test('flash data under the dotted name of a native key expires and leaves that key alone', function (string $native, string $routed) {
+    ['flashed' => $flashed, 'expired' => $expired, 'later' => $later] = sessionOfRequests($native, $routed);
+
+    expect($flashed['cart']['notice'] ?? null)->toBe('saved')
+        ->and($flashed['cart'])->not->toHaveKey('now');
+    foreach ([$flashed, $expired, $later] as $seen) {
+        expect($seen['cart.notice'] ?? null)->toBe('native')
+            ->and($seen['cart.now'] ?? null)->toBe('native');
+    }
+    foreach ([$expired, $later] as $seen) {
+        expect($seen['cart'])->not->toHaveKey('notice');
+    }
+})->with('kinds of requests');
+
+test('a removed native key with a dot takes no nested value of Laravel code along', function (string $native, string $routed) {
+    ['flashed' => $seen] = sessionOfRequests($native, $routed);
+
+    expect($seen['cart']['total'] ?? null)->toBe(2)
+        ->and(array_intersect(['cart.total'], array_keys($seen)))->toBe([]);
+})->with('kinds of requests');
+
+test('an object Laravel code changes and then drops or replaces does not come back', function (string $native, string $routed) {
+    ['flashed' => $seen] = sessionOfRequests($native, $routed);
+
+    expect(array_intersect(['box', 'boxes'], array_keys($seen)))->toBe([])
+        ->and($seen['swapped'] ?? null)->toBe('laravel')
+        // what native code assigns still wins
+        ->and($seen['reassigned'] ?? null)->toBe('native');
+})->with('kinds of requests');
+
+test('a session stored before dotted keys were flat keeps its creation time', function (string $native, string $routed) {
+    ['upgraded' => $upgraded] = sessionOfRequests($native, $routed);
+
+    foreach ($upgraded['lost native file'] as $seen) {
+        expect($seen['evo.session.created.time'])->toBe(800)
+            ->and($seen['evo']['other'])->toBe('kept');
+    }
+    foreach ($upgraded['native file'] as $seen) {
+        // a worker has no native session file to take the older time from
+        expect($seen['evo.session.created.time'])->toBe($native ? 500 : 800);
+    }
+})->with('kinds of requests');
+
 test('the session is synced before the shutdown decides, and only the shutdown registers the check', function () {
     $proxy = file_get_contents(dirname(__DIR__, 2) . '/functions/session_proxy.php');
     $middleware = file_get_contents(dirname(__DIR__, 2) . '/src/Middleware/SessionProxy.php');
