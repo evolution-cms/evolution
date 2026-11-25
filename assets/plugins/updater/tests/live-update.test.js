@@ -27,7 +27,7 @@ function element(tag) {
     return el;
 }
 
-function setup({ activeTask = null, responses = [] } = {}) {
+function setup({ activeTask = null, responses = [], refresh = null } = {}) {
     const body = element('body');
     const head = element('head');
     const requests = [];
@@ -58,6 +58,7 @@ function setup({ activeTask = null, responses = [] } = {}) {
         fetch(url, options) {
             const action = /updater_task_action=(\w+)/.exec(options.body)[1];
             requests.push({ action, body: options.body });
+            if (action === 'refresh_session' && refresh) return refresh();
             const next = action === 'refresh_session' ? JSON.stringify({ ok: true, changed: true }) : responses.shift();
             if (next instanceof Error) return Promise.reject(next);
             return Promise.resolve({ text: () => Promise.resolve(next === undefined ? '' : next) });
@@ -78,8 +79,9 @@ function setup({ activeTask = null, responses = [] } = {}) {
         async settle() {
             for (let i = 0; i < 20; i++) await new Promise((r) => setImmediate(r));
         },
-        async tick() {
-            const due = timers.filter((t) => t.fn);
+        // all timers, or only those due within ms
+        async tick(ms = Infinity) {
+            const due = timers.filter((t) => t.fn && t.ms <= ms);
             due.forEach((t) => { const fn = t.fn; t.fn = null; fn(); });
             await this.settle();
         },
@@ -193,4 +195,65 @@ test('a manager that sends no server time is measured by the browser clock', asy
     await page.settle();
 
     assert.match(page.text(), /Last server activity: 0:07 ago\./);
+});
+
+const refreshed = (body = '{"ok":true,"changed":true}') => ({ text: () => Promise.resolve(body) });
+const finished = (refresh) => setup({ activeTask: task('running'), responses: [answer('succeeded')], refresh });
+
+test('the manager is reloaded only once the server has saved the refreshed session', async () => {
+    let save;
+    const page = finished(() => new Promise((resolve) => { save = resolve; }));
+    await page.settle();
+    assert.match(page.text(), /Update completed/);
+    assert.match(page.text(), /data-role="close" disabled/);
+
+    page.context.EvoUpdaterSystemTask.close();
+    await page.settle();
+    assert.strictEqual(page.reloads(), 0, 'a GET ahead of the refresh would end the session');
+
+    save(refreshed());
+    await page.settle();
+    assert.strictEqual(page.reloads(), 1, 'the close asked for meanwhile follows');
+    assert.strictEqual(page.pending().length, 0);
+});
+
+test('once the session is saved the window can be closed at will', async () => {
+    const page = finished(() => Promise.resolve(refreshed()));
+    await page.settle();
+    assert.doesNotMatch(page.text(), /disabled/);
+    assert.strictEqual(page.reloads(), 0, 'nothing reloads by itself');
+    assert.strictEqual(page.pending().length, 0);
+
+    page.context.EvoUpdaterSystemTask.close();
+    assert.strictEqual(page.reloads(), 1);
+});
+
+test('a refresh that fails is tried again', async () => {
+    const answers = [
+        () => Promise.reject(new Error('down')),
+        () => Promise.resolve(refreshed('<b>Fatal error</b>')),
+        () => Promise.resolve(refreshed('{"ok":false}')),
+        () => Promise.resolve(refreshed()),
+    ];
+    const page = finished(() => answers.shift()());
+    await page.settle();
+    for (let i = 0; i < 3; i++) {
+        assert.match(page.text(), /data-role="close" disabled/);
+        await page.tick(2000);
+    }
+
+    assert.strictEqual(page.requests.filter((r) => r.action === 'refresh_session').length, 4);
+    assert.doesNotMatch(page.text(), /disabled/);
+    assert.strictEqual(page.pending().length, 0);
+});
+
+test('a server that never confirms does not hold the window', async () => {
+    const page = finished(() => new Promise(() => {}));
+    await page.settle();
+    page.context.EvoUpdaterSystemTask.close();
+    assert.strictEqual(page.reloads(), 0);
+
+    await page.tick(15000);
+    assert.strictEqual(page.reloads(), 1);
+    assert.strictEqual(page.pending().length, 0);
 });

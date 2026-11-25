@@ -12,7 +12,7 @@ if (PHP_VERSION_ID >= 80400) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 if (!defined('EVO_INSTALL_TIME')) {
-    $tmp = __DIR__ . '.install';
+    $tmp = __DIR__ . '/.install';
     define('EVO_INSTALL_TIME', is_readable($tmp) ? (int)file_get_contents($tmp) : 0);
     unset($tmp);
 }
