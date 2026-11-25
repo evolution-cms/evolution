@@ -19,7 +19,7 @@ on:
           - build-only # build and throw away, no GHCR write needed
           - skip
       release:
-        description: 'Also replace the nightly release with this build'
+        description: 'Also publish this build as the nightly release'
         type: boolean
         default: true
 
@@ -66,8 +66,6 @@ jobs:
     name: Installed CMS (zip, sqlite)
     needs: php
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # required to publish the nightly release
     outputs:
       zip-name: ${{ steps.package.outputs.zip-name }}
     steps:
@@ -161,30 +159,64 @@ jobs:
           retention-days: 14
           compression-level: 0 # already a zip
 
-      # Nightly release: anonymous direct download, unlike workflow artifacts.
-      # The tag is recreated on every push, so the link always serves the
-      # latest build of the branch.
+  nightly:
+    name: Publish nightly release
+    needs: zip
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.release)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the tested build
+        uses: actions/download-artifact@v8
+        with:
+          name: evolution-cms-sqlite
+
       - name: Publish nightly release
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.release)
         env:
           GH_TOKEN: ${{ github.token }}
-          ZIP: ${{ steps.package.outputs.zip-name }}
+          ZIP: ${{ needs.zip.outputs.zip-name }}
         run: |
           tag="nightly-${GITHUB_REF_NAME}"
-          # .git is gone by now, so every call is repo-qualified explicitly.
+          test -f "$ZIP"
+          published() {
+            gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft,body,assets 2>/dev/null \
+              | jq -e --arg sha "$GITHUB_SHA" --arg zip "$ZIP" \
+                '.isDraft == false and (.body | contains($sha)) and any(.assets[]; .name == $zip)' >/dev/null
+          }
+          if published; then
+            exit 0
+          fi
+          # Replace the rolling nightly once, not on every retry.
           gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes 2>/dev/null || true
-          gh release create "$tag" "$ZIP" \
-            --repo "$GITHUB_REPOSITORY" \
-            --prerelease \
-            --target "$GITHUB_SHA" \
-            --title "Nightly ${GITHUB_REF_NAME} ($(date -u +%Y-%m-%d))" \
-            --notes "Automated build of \`${GITHUB_REF_NAME}\` at ${GITHUB_SHA}.
+          notes=$(cat <<EOF
+          Automated build of \`${GITHUB_REF_NAME}\` at ${GITHUB_SHA}.
 
-          Pre-installed Evolution CMS on sqlite — unpack into a docroot and open it, no database server needed.
+          Pre-installed Evolution CMS on sqlite. Unpack into a docroot and open it; no database server is needed.
 
           Manager: \`${DEMO_ADMIN}\` / \`${DEMO_PASSWORD}\`
 
-          A testing build with published credentials. Not for production."
+          A testing build with published credentials. Not for production.
+          EOF
+          )
+          for delay in 5 15 0; do
+            if output=$(gh release create "$tag" "$ZIP" \
+              --repo "$GITHUB_REPOSITORY" --prerelease --target "$GITHUB_SHA" \
+              --title "Nightly ${GITHUB_REF_NAME} ($(date -u +%Y-%m-%d))" --notes "$notes" 2>&1); then
+              printf '%s\n' "$output"
+              exit 0
+            fi
+            printf '%s\n' "$output" >&2
+            # A failed API response can follow a successful publish.
+            if published; then
+              exit 0
+            fi
+            if [[ "$delay" == 0 || ! "$output" =~ HTTP\ 5[0-9][0-9] ]]; then
+              echo "::error::Nightly publication failed; the SQLite artifact and Docker build are independent."
+              exit 1
+            fi
+            sleep "$delay"
+          done
 
   docker:
     name: Docker image PHP ${{ matrix.php }} ${{ matrix.server }} (GHCR)
