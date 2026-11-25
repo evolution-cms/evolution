@@ -1,6 +1,155 @@
 This file shows the changes in recent releases of Evolution CMS. The most current release is usually the
 development release, and is only shown to give an idea of what's currently in the pipeline.
 
+Evolution CMS 3.5.10 (Nov 25, 2026)
+* [eb3458f45] - fix(ci): avoid deprecated HTTP response header access <MiddleSokilAI>
+* [492905298] - fix(console): keep the URL of a script that sets only SCRIPT_NAME <Artur Kyryliuk>
+* [013635436] - fix(console): keep the path a command is started by out of the site URL <Artur Kyryliuk>
+* [0620ff2f0] - fix(updater): reload the manager only after the server has saved the session <Artur Kyryliuk>
+* [a4629d3e2] - fix(updater): date the installation anew after make:site <Artur Kyryliuk>
+* [78c3700b6] - fix(core): read the install time from core/.install <Artur Kyryliuk>
+* [8468c6856] - fix(auth): sign in with a password recovery link again <Artur Kyryliuk>
+* [e220b41f8] - upd(deps): update document-manager to 1.1.1 <Artur Kyryliuk>
+* [084f51f0d] - upd(deps): update document-manager to 1.1.0 <Artur Kyryliuk>
+* [72a56a6c4] - fix(update): check custom packages with the site's vendor when the archive has none <Artur Kyryliuk>
+* [0eced0d07] - fix(session): sync back only the "_" keys native code changed <Artur Kyryliuk>
+* [566639398] - upd(migrations): keep one migration log for the installer and artisan <Artur Kyryliuk>
+* [6bda9a502] - fix(compat): support stable PHP 8.6 on Evolution 3.5 <MiddleSokilAI>
+* [c85f63e8d] - fix(install): keep the CLI sqlite database below core/database <Artur Kyryliuk>
+* [aa90b05c4] - fix(session): keep native "_" keys of $_SESSION in sync with the Laravel store <Artur Kyryliuk>
+* [bbe68368c] - fix(update): stop when the new make:site cannot be read instead of finishing in the old process <Artur Kyryliuk>
+* [1b62cf915] - fix(update): fall back to the old process only for a release without make:site finish <Artur Kyryliuk>
+* [e70bfad04] - fix(update): let the new code finish make:site in a process of its own <Artur Kyryliuk>
+* [b1e1363c1] - fix(update): restore a snapshot folder in place when it cannot be moved aside <Artur Kyryliuk>
+* [fe6a63849] - fix(console): drop the link of a renamed manager in site:link <Artur Kyryliuk>
+* [169ca0b81] - fix(bootstrap): keep EVO_BASE_PATH whole when the manager's name is in the path <Artur Kyryliuk>
+* [7e586b096] - fix(console): replace a forced link without removing it first; name the lines ng.inx replaces <Artur Kyryliuk>
+* [c785ba850] - fix(update): restore a linked vendor at its target, folder modes and removed empty folders <Artur Kyryliuk>
+* [9cfed0b28] - fix(migrations): keep getRan() to its own log, share only the pending choice <Artur Kyryliuk>
+* [e839b1c95] - add(console): put SiteLinkCommand into the committed classmap <Artur Kyryliuk>
+* [13d7e9699] - fix(nginx): keep PHP source, dumps and dotfiles out of /.well-known/ <Artur Kyryliuk>
+* [4dd4d45fa] - add(console): link the entry points into a public folder outside the site <Artur Kyryliuk>
+* [3519846e5] - fix(migrations): count a migration the installer or artisan already ran <Artur Kyryliuk>
+* [f0e382390] - fix(update): add UpdateRollback to the committed classmap <Artur Kyryliuk>
+* [5216dad25] - fix(update): put the site back when make:site fails after laying the new files <Artur Kyryliuk>
+* [56815b2b3] - fix(updater): report a catalog that was not refreshed as such <Artur Kyryliuk>
+* [fb745aa1c] - fix(manager): show the branch and commit of a branch site in the header <Artur Kyryliuk>
+* [fcb30fe2d] - fix(updater): let administrators check for updates at once from Extras <Artur Kyryliuk>
+* [553ea9540] - fix(updater): fit task messages to their column, retry a failed permission refresh <Artur Kyryliuk>
+* [139d378c4] - fix(updater): keep the live update window following the task <Artur Kyryliuk>
+* [1335475da] - fix(manager): repair the manager log and event log views <Artur Kyryliuk>
+* [d9ebe431e] - fix(browser): rename the media browser fallback icons that nginx refuses <Artur Kyryliuk>
+* [364d425ce] - fix(manager): open the resource overview from the recent resources widget <Artur Kyryliuk>
+* [207454044] - fix(updater): send the manager CSRF token with live update requests <Artur Kyryliuk>
+* [89a71d9d9] - fix(ci): read a container log whole before searching it in the cluster smoke test <Artur Kyryliuk>
+* [b14035ae9] - ref(ci): wrap the long commands of the Redis session job <Artur Kyryliuk>
+* [43b8fe39c] - fix(ci): fail the cluster steps when a command piped through tee fails <Artur Kyryliuk>
+* [8c253c684] - upd(ci): check that console commands store no session on the cluster <Artur Kyryliuk>
+* [50a30664c] - upd(core): document the write refused after another request took an expired lock <Artur Kyryliuk>
+* [916c04e55] - upd(ci): run the Redis session tests with every phpredis compression <Artur Kyryliuk>
+* [bc75ca6a6] - fix(session): start no native session file for a console command <Artur Kyryliuk>
+* [8935cbeb5] - fix(session): stop storing a session for every console command <Artur Kyryliuk>
+* [6c96769ae] - add(ci): check two nodes behind a balancer with Redis sessions <Artur Kyryliuk>
+* [90ce29aed] - fix(core): pass Redis credentials to Laravel as username and password <Artur Kyryliuk>
+* [61f5fca7f] - fix(core): keep a compressed Redis session past its lock TTL <Artur Kyryliuk>
+* [e08ee1a88] - fix(config): avoid warnings when creating the bootstrap cache (#2589) <MiddleSokilAI>
+* [065507c73] - fix(core): let a live request keep its Redis session lock past the TTL <Artur Kyryliuk>
+* [9fa851ffe] - add(tests): pin the id-based editor preview after an in-place save <Artur Kyryliuk>
+* [b2395feb6] - fix(install): migrate custom packages after a CLI restore <Artur Kyryliuk>
+* [ecbd5fecd] - fix(session): stop storing a guest session no cookie can reach <Artur Kyryliuk>
+* [a1b62a689] - fix(updater): honor custom manager paths and Composer auth <MiddleSokilAI>
+* [82e2750df] - fix(manager): bind resource scope roles for anonymous error pages <Dmytro Lukianenko>
+* [f3f5adab5] - upd(ci): keep the Redis session tests off by default <Artur Kyryliuk>
+* [fed84fb5e] - upd(ci): run the Redis session tests against a Redis service <Artur Kyryliuk>
+* [5b5fe4575] - fix(core): bound the Redis session lock when Evolution enables it <Artur Kyryliuk>
+* [904a03915] - fix(tests): give the suite its own memory limit <Artur Kyryliuk>
+* [04f7476db] - fix(tests): drop ReflectionProperty::setAccessible() calls deprecated on PHP 8.5 <Artur Kyryliuk>
+* [cac13ce57] - del(core): drop dmitry-suffi/redis-session-handler for the ext-redis session handler <Artur Kyryliuk>
+* [8e83d95d8] - fix(auth): stop the password recovery form from revealing manager accounts <Artur Kyryliuk>
+* [6d81bcc6e] - fix(kcfinder): fall back to Imagick and Gmagick when GD cannot read JPEG <Artur Kyryliuk>
+* [75dc25b74] - fix(acl): store exactly the role id the assignment check approved <Artur Kyryliuk>
+* [fec047f71] - fix(acl): count always-on grants in role reach and assign through one rule <Artur Kyryliuk>
+* [044ecd356] - fix(acl): compare role reach by the grants that authorize at runtime <Artur Kyryliuk>
+* [adb4e31de] - fix(acl): judge role reach by defined, optional permissions only <Artur Kyryliuk>
+* [b65b59a09] - fix(autoload): add the 3.5.x classes missing from the committed classmap <Artur Kyryliuk>
+* [ea88047e7] - fix(manager): keep the file integrity check quiet after an update <Artur Kyryliuk>
+* [110d61b4c] - fix(manager): store each system setting under one spelling in save_settings <Artur Kyryliuk>
+* [806a121e7] - fix(manager): keep the file checksum with the Security tab in save_settings <Artur Kyryliuk>
+* [8aa757355] - fix(manager): validate the file manager root by the file manager's own path rule <Artur Kyryliuk>
+* [e2b32fc3d] - fix(cache): treat an ended publication window as complete in the schedule sync <Artur Kyryliuk>
+* [d867bbd4b] - fix(acl): test the role delete guards with an acting manager <Artur Kyryliuk>
+* [e07084bfe] - fix(manager): judge the editor preview by parsed origin, reject other schemes <Artur Kyryliuk>
+* [fe8dd19ae] - fix(updater): preserve Composer authentication during preflight <MiddleSokilAI>
+* [34263ae4f] - fix(acl): refuse deleting a role that is still assigned to users <Artur Kyryliuk>
+* [fa6b77402] - add(acl): DB-backed Publisher preset seeder tests, narrow preservation wording <Artur Kyryliuk>
+* [2453e7ae1] - fix(cache): keep an overdue publish schedule in the refresh threshold <Artur Kyryliuk>
+* [f3475da79] - fix(acl): require publish_document to run the due (un)publish on Refresh site <Artur Kyryliuk>
+* [dd4f2977a] - upd(acl): drop settings and bk_manager from the default Publisher preset <Artur Kyryliuk>
+* [9947572e2] - add(manager): gate the Security settings tab behind a security_settings permission <Artur Kyryliuk>
+* [d174231d5] - fix(manager): contain a per-user filemanager_path within the system root <Artur Kyryliuk>
+* [b66895348] - del(seeders): drop the dead action_ok permission and its dangling role grants <Artur Kyryliuk>
+* [3664c5f92] - fix(manager): render user group checkboxes outside the actor reach as read-only <Artur Kyryliuk>
+* [4ba21a545] - fix(manager): escape the role name in the manager user role dropdown <Artur Kyryliuk>
+* [72d7b376d] - fix(manager): check the whole branch ACL in delete, undelete, sort, move and search <Artur Kyryliuk>
+* [46ece998b] - fix(manager): cap role save, delete and assignment at the actor reach <Artur Kyryliuk>
+* [93db7b16f] - fix(manager): enforce ACL on refresh, role, category, chunk and trash <Artur Kyryliuk>
+* [ecbc10467] - fix(manager): sandbox the editor resource preview <Artur Kyryliuk>
+* [05ae3aaed] - fix(manager): answer 404 and 405 for requests no route takes <Artur Kyryliuk>
+* [dc72825ce] - fix(packages): compare the reference of a branch without a source <Artur Kyryliuk>
+* [24eb88a90] - fix(manager): keep paths out of manager_language <Artur Kyryliuk>
+* [aee5f1db3] - fix(packages): restore a branch at the commit the site ran <Artur Kyryliuk>
+* [b4394350b] - fix(manager): open the user list after a delete only with edit_user <Artur Kyryliuk>
+* [46652b343] - fix(manager): stop locking the change password page <Artur Kyryliuk>
+* [3fbc3b4d2] - fix(manager): land on the dashboard after changing a password (#2553) <Artur Kyryliuk>
+* [b0c2f3a88] - fix(deps): update symfony packages for the advisories of 2026-11-04 <Artur Kyryliuk>
+* [02fd7b497] - upd(lang): translate the .htaccess warning and the form notice <Artur Kyryliuk>
+* [bf731f2cf] - add(manager): warn when the .htaccess of a site lacks the rules of its release <Artur Kyryliuk>
+* [35003b791] - upd(installer): say on the connection form which settings the environment overrides <Artur Kyryliuk>
+* [6dca2258b] - fix(installer): tell visitors behind a proxy apart in the installer lock <Artur Kyryliuk>
+* [c3443daaa] - fix(installer): let a SQLite database sit in a folder below core/database <Artur Kyryliuk>
+* [15ca55a16] - fix(installer): accept database hosts with underscores <Artur Kyryliuk>
+* [a0444f8c5] - fix(packages): stop treating a branch as changed when only one side names its commit <Artur Kyryliuk>
+* [7e6133d80] - fix(nginx): let the classic updater run update.php <Artur Kyryliuk>
+* [ee88a1809] - fix(tests): keep the installer flow test off any real database <Artur Kyryliuk>
+* [cbc23d75d] - fix(installer): make "remove the install folder" work <Artur Kyryliuk>
+* [b93b8041e] - fix(installer): stop CLI input loops on EOF <MiddleSokilAI>
+* [20a32a0fc] - fix(file-manager): protect folders by real target and never write through a linked file <Artur Kyryliuk>
+* [c8f817cb8] - upd(file-manager): pass operator links to somewhere new in both file managers <Artur Kyryliuk>
+* [1dc336ca2] - fix(file-browser): map shared roots from the configured upload URL <Artur Kyryliuk>
+* [0bd022d02] - fix(tests): accept cached site-wide ACL root lookup <MiddleSokilAI>
+* [94e60f311] - fix(file-browser): preserve group permissions for shared storage <MiddleSokilAI>
+* [7e7cd610b] - fix(manager): make the last top menu item as tall as the others <Artur Kyryliuk>
+* [3a49f3c21] - fix(manager): let the last top menu item take the dropdown's rounded corners <Artur Kyryliuk>
+* [0317d2976] - fix(manager): centre the Clear cache icon beside its menu item <Artur Kyryliuk>
+* [901d4e86f] - fix(manager): align action bar button text and drop the save button's bottom band <Artur Kyryliuk>
+* [0be7db271] - fix(manager): stop stale page locks, alert loops and double alerts <Artur Kyryliuk>
+* [502b4ad25] - fix(tests): align thumbnail cache test with image allowlist in assets/cache (#2538) <Artur Kyryliuk>
+* [3c3e4d11d] - fix(vendor): drop stray blank lines from composer LICENSE <Artur Kyryliuk>
+* [98fd0b873] - fix(manager): fix tree drag-n-drop to make resource a folder, inserting near first and last element, move symbol rendered as copy symbol, multiple files upload over PHP limits handling, tree selection in file browser <Artur Kyryliuk>
+* [92edc82d7] - Allow access to image files in .htaccess <Shin777>
+* [27e23c30e] - fix(i18n): translation drift and @composer <Artur Kyryliuk>
+* [77e20f162] - add(i18n): Lithuanian, Latvian, Romanian, Uzbek, update publiccode.yml, ModX deprecations <Artur Kyryliuk>
+* [a08ed16ec] - add(i18n): Estonian, Armenian, Georgian, Kazakh, Kyrgyz, Tajik, Turkmen, fix old ModX mentions <Artur Kyryliuk>
+* [c381c8bc8] - fix(manager): csrf token message and site behind proxy (referrer same-origin fix) <Artur Kyryliuk>
+* [227ee7515] - fix(manager): csrf token message and site behind proxy (referrer same-origin fix) <Artur Kyryliuk>
+* [105fa2c9c] - fix(core): missing signal availability callback <Artur Kyryliuk>
+* [c2fdaf091] - fix(manager): missing csrf token on manager actions <Artur Kyryliuk>
+* [87e042138] - fix(ci): ci php version test <Artur Kyryliuk>
+* [a39eb0f8f] - fix(manager): tree selection sync <Artur Kyryliuk>
+* [d9aa2e5c4] - fix(ci): dynamic php version based build <Artur Kyryliuk>
+* [45816e4e0] - Revert "upd(core): prepare 3.6 development branch and require PHP 8.4" <Artur Kyryliuk>
+* [48fc8830d] - fix(core): session proxy filename validation <Artur Kyryliuk>
+* [374a6f470] - fix(core): session proxy filename validation <Artur Kyryliuk>
+* [9f197b188] - fix(manager): resource change indicator after save and continue <Artur Kyryliuk>
+* [b20d08c47] - fix(core): thumbnails default server rules and thumbnails generation security <Artur Kyryliuk>
+* [99d914105] - fix(manager): admins own active user record <Artur Kyryliuk>
+* [5b4a7f04f] - fix(tests): without bundled composer on PATH <Artur Kyryliuk>
+* [45a04abfe] - fix(store): preserve CSRF token in legacy installer form <MiddleSokilAI>
+* [a4c2bbb90] - fix(tests): standalone scripts testing <Artur Kyryliuk>
+* [b8cfb08f2] - upd(core): prepare 3.6 development branch and require PHP 8.4 <Serhii Korneliuk>
+* [68e168067] - fix(install): create no empty custom package record <Artur Kyryliuk>
+* [f3833de30] - fix(packages): keep the dev dependency state in package:installrequire <Artur Kyryliuk>
+
 Evolution CMS 3.5.9 (Oct 21, 2026)
 * [47bc8bd] - add(install): update to nightly build or custom repo branch <Artur Kyryliuk>
 * [b5b961f] - add(install): ensure custom packages will not override core dependencies in vendor <Artur Kyryliuk>
