@@ -11,12 +11,12 @@ use EvolutionCMS\Interfaces\CoreInterface;
 use EvolutionCMS\Models\UserAttribute;
 use EvolutionCMS\Support\Formatter\CSSMinify;
 use EvolutionCMS\Support\ManagerLanguage;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use View;
 
 class ManagerTheme implements ManagerThemeInterface
@@ -515,10 +515,10 @@ class ManagerTheme implements ManagerThemeInterface
     {
         try {
             return $router->dispatch($request);
-        } catch (NotFoundHttpException | MethodNotAllowedHttpException $exception) {
-            $status = $exception->getStatusCode();
-
-            return new Response(Response::$statusTexts[$status], $status, $exception->getHeaders());
+        } catch (HttpResponseException $exception) {
+            return $exception->getResponse();
+        } catch (HttpExceptionInterface $exception) {
+            return Support\HttpExceptionResponse::make($exception);
         }
     }
 

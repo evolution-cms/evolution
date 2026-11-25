@@ -15,6 +15,8 @@ use EvolutionCMS\Models\SiteContent;
 use EvolutionCMS\Models\SitePlugin;
 use EvolutionCMS\Models\SiteTmplvar;
 use EvolutionCMS\Models\User;
+use EvolutionCMS\Support\HttpExceptionResponse;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -23,6 +25,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use PHPMailer\PHPMailer\Exception;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use TemplateProcessor;
@@ -129,6 +132,13 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
     private const AT_BIND_FILE_DENIED_EXTENSIONS = [
         '.php', '.php3', '.php4', '.php5', '.php7', '.php8', '.phps', '.phtml', '.phar', '.inc',
     ];
+
+    /**
+     * The request has been given to the parser.
+     *
+     * @var bool
+     */
+    protected $parserStarted = false;
 
     public $minParserPasses = 2;
     public $maxParserPasses = 10;
@@ -1164,6 +1174,11 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
             } elseif (Str::contains($this->documentOutput, '\[')) {
                 $this->documentOutput = $this->RecoveryEscapedTags($this->documentOutput);
             }
+        }
+
+        // A document leaves past the StartSession middleware, and what follows may send the headers.
+        if (defined('EVO_SESSION') && EVO_SESSION) {
+            \EvoSessionProxy::emitWantedCookie();
         }
 
         echo $this->documentOutput;
@@ -3219,14 +3234,46 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
 
         $this->setRouterMiddleware();
 
+        $bufferLevel = ob_get_level();
+        $this->parserStarted = false;
+
         try {
-            $response = $this->router->dispatch($request);
-        } catch (NotFoundHttpException | MethodNotAllowedException $exception) {
-            $this->executeParser();
-            evo_exit();
+            try {
+                $response = $this->router->dispatch($request);
+            } catch (NotFoundHttpException | MethodNotAllowedException $exception) {
+                if ($this->parserStarted) {
+                    throw $exception;
+                }
+                $this->discardBuffers($bufferLevel);
+                $this->executeParser();
+                evo_exit();
+            }
+        } catch (HttpResponseException $exception) {
+            $this->discardBuffers($bufferLevel);
+            $response = $exception->getResponse();
+        } catch (HttpExceptionInterface $exception) {
+            $this->discardBuffers($bufferLevel);
+            if ($exception->getStatusCode() === 404) {
+                // a document that aborts: a route that does has been given to the parser above
+                $this->sendErrorPage();
+            }
+            $response = HttpExceptionResponse::make($exception);
         }
 
         $response->send();
+    }
+
+    /**
+     * Drop what was printed before a request was aborted, snippets and views included.
+     */
+    private function discardBuffers(int $level): void
+    {
+        while (ob_get_level() > $level) {
+            ob_end_clean();
+        }
+        if ($level > 0 && ob_get_level() === $level) {
+            ob_clean();
+        }
     }
 
     /**
@@ -3242,6 +3289,8 @@ class Core extends AbstractLaravel implements Interfaces\CoreInterface
         if (is_cli()) {
             throw new \RuntimeException('Call DocumentParser::executeParser on CLI mode');
         }
+
+        $this->parserStarted = true;
 
         $this->_IIS_furl_fix(); // IIS friendly url fix
 
