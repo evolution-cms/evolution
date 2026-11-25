@@ -23,9 +23,20 @@ class EvoSessionProxy
     private static bool $cookieEmitted = false;
 
     /**
-     * @var array<string, string|null> The native "_" keys as init() left them (isNativeKey()), serialized.
+     * @var array<array-key, mixed> $_SESSION as init() left it.
      */
     private static array $nativeSnapshot = [];
+
+    /**
+     * @var array<array-key, string|null> The arrays and objects of the snapshot, serialized: an object in
+     *                                    them can change in place.
+     */
+    private static array $fingerprints = [];
+
+    /**
+     * @var array<array-key, bool> Whether the store holds the same of them, down to the object instances.
+     */
+    private static array $shared = [];
 
     public static function resetForWorker(): void
     {
@@ -34,6 +45,8 @@ class EvoSessionProxy
         self::$shutdownRegistered = false;
         self::$cookieEmitted = false;
         self::$nativeSnapshot = [];
+        self::$fingerprints = [];
+        self::$shared = [];
     }
 
     /**
@@ -97,6 +110,8 @@ class EvoSessionProxy
     {
         if (self::$initialized || self::disabled()) {
             self::earlyInit();
+            // StartSession reads a store init() has started once more: it has copies of the objects then.
+            self::noteShared();
             return;
         }
 
@@ -135,20 +150,33 @@ class EvoSessionProxy
             $_SESSION[$key] = $value;
         }
 
+        // A session stored before dotted keys were flat has its creation time nested; without it, the
+        // session would look newer than an install it is older than (ManagerTheme::isAuthManager()).
+        $createdAt = $laravelData['evo']['session']['created']['time'] ?? null;
+        if (is_numeric($createdAt)) {
+            $earlyData['evo.session.created.time'] = min((int) $createdAt, (int) ($earlyData['evo.session.created.time'] ?? $createdAt));
+        }
+
         // Merge back early data for keys not present in Laravel.
         foreach ($earlyData as $key => $value) {
             if (!array_key_exists($key, $laravelData)) {
                 $_SESSION[$key] = $value;
-                $store->put($key, $value);
+                self::put($store, $key, $value);
             }
         }
 
-        self::$nativeSnapshot = [];
+        self::$nativeSnapshot = self::$fingerprints = [];
+        // Key by key: a copy of the whole array would share a key some code holds a reference to.
         foreach ($_SESSION as $key => $value) {
-            if (self::isNativeKey((string) $key)) {
-                self::$nativeSnapshot[$key] = self::fingerprint($value);
+            if (self::isInternalKey((string) $key)) {
+                continue;
+            }
+            self::$nativeSnapshot[$key] = $value;
+            if (is_array($value) || is_object($value)) {
+                self::$fingerprints[$key] = self::fingerprint($value);
             }
         }
+        self::noteShared();
 
         self::$initialized = true;
 
@@ -159,52 +187,13 @@ class EvoSessionProxy
     }
 
     /**
-     * Sync back - before response.
+     * Sync back - before response - and save the store, or with $persist=false drop the session.
      */
     public static function syncBack(bool $persist = true): void
     {
-        if (!self::$initialized || self::$synced) {
-            return;
-        }
-
-        self::$synced = true;
-
-        $store = self::getLaravelSessionStore();
+        $store = self::syncStore();
         if ($store === null) {
             return;
-        }
-
-        $laravelData = $store->all();
-
-        foreach ($_SESSION as $key => $value) {
-            if (self::isInternalKey($key)) {
-                continue;
-            }
-            if (self::isNativeKey((string) $key)) {
-                if (self::nativeKeyChanged((string) $key, $value)) {
-                    $store->put($key, $value);
-                }
-                continue;
-            }
-            if (!array_key_exists($key, $laravelData) || $laravelData[$key] !== $value) {
-                $store->put($key, $value);
-            }
-        }
-
-        foreach ($laravelData as $key => $value) {
-            if (self::isInternalKey($key)) {
-                continue;
-            }
-            if (self::isNativeKey((string) $key)) {
-                // Removed by native code; one the store created during the request stays.
-                if (array_key_exists($key, self::$nativeSnapshot) && !array_key_exists($key, $_SESSION)) {
-                    $store->forget($key);
-                }
-                continue;
-            }
-            if (!array_key_exists($key, $_SESSION)) {
-                $store->forget($key);
-            }
         }
 
         if ($persist) {
@@ -212,6 +201,53 @@ class EvoSessionProxy
         } elseif (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }
+    }
+
+    /**
+     * Carry what native code changed in $_SESSION since init() over to the store, without saving it.
+     * A value Laravel created, changed or removed during the request is kept.
+     *
+     * @return object|null the store, unless it was synced before
+     */
+    public static function syncStore()
+    {
+        if (!self::$initialized || self::$synced) {
+            return null;
+        }
+
+        self::$synced = true;
+
+        $store = self::getLaravelSessionStore();
+        if ($store === null) {
+            return null;
+        }
+
+        foreach ($_SESSION as $key => $value) {
+            if (!self::isInternalKey((string) $key) && self::nativeKeyChanged((string) $key, $value)) {
+                self::put($store, $key, $value);
+            }
+        }
+
+        // Only a key the store still has: forget() takes a missing one with a dot for a nested value.
+        foreach (array_diff_key(self::$nativeSnapshot, $_SESSION) as $key => $value) {
+            if (array_key_exists($key, $store->all())) {
+                $store->forget($key);
+            }
+        }
+
+        self::expireNestedFlash($store);
+
+        // The native session keeps no key the store drops, now or when save() ages the flash data:
+        // the next init() would take it for a new one.
+        $kept = $store->all();
+        \Illuminate\Support\Arr::forget($kept, $kept['_flash']['old'] ?? []);
+        foreach (array_keys($_SESSION) as $key) {
+            if ($key !== '_token' && !array_key_exists($key, $kept)) {
+                unset($_SESSION[$key]);
+            }
+        }
+
+        return $store;
     }
 
     /**
@@ -296,6 +332,52 @@ class EvoSessionProxy
     }
 
     /**
+     * A key of $_SESSION is flat, but the store's put() nests one with a dot: the value would come
+     * back under another key and overwrite what is stored under the first part of its name.
+     *
+     * @param object $store
+     * @param int|string $key
+     * @param mixed $value
+     */
+    private static function put($store, $key, $value): void
+    {
+        if (!$store instanceof \Illuminate\Session\Store || !str_contains((string) $key, '.')) {
+            $store->put($key, $value);
+            return;
+        }
+
+        (function () use ($key, $value): void {
+            $this->attributes[$key] = $value;
+        })->call($store);
+    }
+
+    /**
+     * flash('shop.cart') stores a nested value. Once $_SESSION['shop.cart'] is stored as well, save()
+     * would forget that one instead, and the flashed value would stay for good.
+     *
+     * @param object $store
+     */
+    private static function expireNestedFlash($store): void
+    {
+        $expiring = $store->all()['_flash']['old'] ?? [];
+        $kept = [];
+        foreach ($expiring as $key) {
+            if (str_contains((string) $key, '.') && array_key_exists($key, $store->all())) {
+                $value = $store->all()[$key];
+                $store->forget($key);
+                $store->forget($key);
+                self::put($store, $key, $value);
+                continue;
+            }
+            $kept[] = $key;
+        }
+
+        if ($kept !== $expiring) {
+            $store->put('_flash.old', $kept);
+        }
+    }
+
+    /**
      * @param object $store
      * @return void
      */
@@ -348,7 +430,7 @@ class EvoSessionProxy
         $existing = $store->all();
         foreach ($legacyData as $key => $value) {
             if (!array_key_exists($key, $existing)) {
-                $store->put($key, $value);
+                self::put($store, $key, $value);
             }
         }
         $store->save();
@@ -494,11 +576,7 @@ class EvoSessionProxy
 
     /**
      * The keys Illuminate\Session\Store writes and ages itself (CSRF token, flash bags, old
-     * input, previous URL): a copy of them in $_SESSION is stale by the time it would be synced
-     * back. Any other key that starts with "_" belongs to native session code (Phalcon's flash
-     * keeps "_flashMessages", Symfony's "_sf2_attributes") and is synced like any other key:
-     * init() puts such keys into the store, so skipping them here kept a removed or changed
-     * value there, and the next init() handed the old one back.
+     * input, previous URL): a copy of them in $_SESSION is stale by the time it would be synced back.
      */
     private const LARAVEL_KEYS = ['_token', '_flash', '_previous', '_old_input'];
 
@@ -511,13 +589,16 @@ class EvoSessionProxy
         return in_array($key, self::LARAVEL_KEYS, true);
     }
 
-    /**
-     * A "_" key of native session code. Only what that code changed in $_SESSION since init() is
-     * synced back: a value Laravel created, changed or removed during the request is kept.
-     */
-    private static function isNativeKey(string $key): bool
+    private static function noteShared(): void
     {
-        return str_starts_with($key, '_') && !self::isInternalKey($key);
+        if (self::$fingerprints === []) {
+            return;
+        }
+
+        $stored = self::getLaravelSessionStore()?->all() ?? [];
+        foreach (self::$fingerprints as $key => $fingerprint) {
+            self::$shared[$key] = array_key_exists($key, $stored) && $stored[$key] === self::$nativeSnapshot[$key];
+        }
     }
 
     /**
@@ -528,13 +609,20 @@ class EvoSessionProxy
         if (!array_key_exists($key, self::$nativeSnapshot)) {
             return true;
         }
-        $before = self::$nativeSnapshot[$key];
+
+        $same = $value === self::$nativeSnapshot[$key];
+        // Changed in place, a shared object is in the store already, unless Laravel code dropped or replaced it.
+        if (!array_key_exists($key, self::$fingerprints) || ($same && self::$shared[$key])) {
+            return !$same;
+        }
+
+        $before = self::$fingerprints[$key];
 
         return $before === null || $before !== self::fingerprint($value);
     }
 
     /**
-     * Serialized, so an object changed in place counts as changed; null when it cannot be serialized.
+     * Serialized; null when it cannot be.
      *
      * @param mixed $value
      */
