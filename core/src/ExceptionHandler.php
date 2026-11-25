@@ -484,7 +484,8 @@ class ExceptionHandler
         if (!is_cli()) {
             ob_end_flush();
         }
-        evo_exit();
+        // Whatever ran the command (make:site, Composer, a deploy) only has the status to go by.
+        evo_exit(is_cli() && $is_error ? 1 : 0);
     }
 
     protected function shouldDisplay()
@@ -661,7 +662,7 @@ class ExceptionHandler
             )
         ) {
             echo $exception->getMessage();
-            evo_exit();
+            evo_exit(1);
         }
 
         if ($exception instanceof ViewException) {
