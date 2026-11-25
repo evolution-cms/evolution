@@ -23,6 +23,11 @@ class EvoSessionProxy
     private static bool $cookieEmitted = false;
 
     /**
+     * @var bool  The page relies on the session, so a response that bypasses StartSession has to carry the cookie itself.
+     */
+    private static bool $cookieWanted = false;
+
+    /**
      * @var array<array-key, mixed> $_SESSION as init() left it.
      */
     private static array $nativeSnapshot = [];
@@ -237,6 +242,11 @@ class EvoSessionProxy
      */
     public static function syncBackAtShutdown(?array $responseHeaders = null): void
     {
+        // Output that is still buffered has not sent the headers yet. A routed response was synced
+        // by the middleware, and its cookie is StartSession's.
+        if (!self::$synced) {
+            self::emitWantedCookie();
+        }
         self::syncBack(!self::isUnreachable($responseHeaders ?? headers_list()));
     }
 
@@ -480,22 +490,55 @@ class EvoSessionProxy
             self::syncBack();
         }
 
+        self::$cookieEmitted = self::emitCookie() || self::$cookieEmitted;
+    }
+
+    /**
+     * The page relies on the session: its visitor has to come back with the cookie.
+     */
+    public static function wantCookie(): void
+    {
+        self::$cookieWanted = true;
+    }
+
+    /**
+     * Send the cookie a page asked for with wantCookie(), and leave the session open.
+     *
+     * Only for a response that bypasses the StartSession middleware: a document or an early exit.
+     * A routed response gets its cookie from StartSession.
+     */
+    public static function emitWantedCookie(): void
+    {
+        if (self::$initialized && self::$cookieWanted && !isset($_COOKIE[self::getLaravelSessionCookieName()])) {
+            self::emitCookie();
+        }
+    }
+
+    private static function emitCookie(): bool
+    {
         $store = self::getLaravelSessionStore();
         if ($store === null) {
-            return;
+            return false;
         }
 
         $cookieName = self::getLaravelSessionCookieName();
         $sessionId  = $store->getId();
 
         if (!$cookieName || !$sessionId || headers_sent()) {
-            return;
+            return false;
+        }
+
+        // The response may carry this id already.
+        foreach (headers_list() as $header) {
+            if (stripos($header, 'Set-Cookie: ' . $cookieName . '=' . rawurlencode($sessionId) . ';') === 0) {
+                return false;
+            }
         }
 
         // Only emit when the browser does not already carry this exact session id,
         // or when it carries a different one (session was regenerated).
         if (isset($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] === $sessionId) {
-            return;
+            return false;
         }
 
         $config   = function_exists('config') ? (array) config('session', []) : [];
@@ -520,7 +563,7 @@ class EvoSessionProxy
             ]
         );
 
-        self::$cookieEmitted = true;
+        return true;
     }
 
     /**
