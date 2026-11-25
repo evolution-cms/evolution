@@ -23,9 +23,20 @@ class EvoSessionProxy
     private static bool $cookieEmitted = false;
 
     /**
-     * @var array<string, string|null> $_SESSION as init() left it, serialized.
+     * @var array<array-key, mixed> $_SESSION as init() left it.
      */
     private static array $nativeSnapshot = [];
+
+    /**
+     * @var array<array-key, string|null> The arrays and objects of the snapshot, serialized: an object in
+     *                                    them can change in place.
+     */
+    private static array $fingerprints = [];
+
+    /**
+     * @var array<array-key, bool> Whether the store holds the same of them, down to the object instances.
+     */
+    private static array $shared = [];
 
     public static function resetForWorker(): void
     {
@@ -34,6 +45,8 @@ class EvoSessionProxy
         self::$shutdownRegistered = false;
         self::$cookieEmitted = false;
         self::$nativeSnapshot = [];
+        self::$fingerprints = [];
+        self::$shared = [];
     }
 
     /**
@@ -97,6 +110,8 @@ class EvoSessionProxy
     {
         if (self::$initialized || self::disabled()) {
             self::earlyInit();
+            // StartSession reads a store init() has started once more: it has copies of the objects then.
+            self::noteShared();
             return;
         }
 
@@ -143,12 +158,18 @@ class EvoSessionProxy
             }
         }
 
-        self::$nativeSnapshot = [];
+        self::$nativeSnapshot = self::$fingerprints = [];
+        // Key by key: a copy of the whole array would share a key some code holds a reference to.
         foreach ($_SESSION as $key => $value) {
-            if (!self::isInternalKey((string) $key)) {
-                self::$nativeSnapshot[$key] = self::fingerprint($value);
+            if (self::isInternalKey((string) $key)) {
+                continue;
+            }
+            self::$nativeSnapshot[$key] = $value;
+            if (is_array($value) || is_object($value)) {
+                self::$fingerprints[$key] = self::fingerprint($value);
             }
         }
+        self::noteShared();
 
         self::$initialized = true;
 
@@ -200,11 +221,14 @@ class EvoSessionProxy
             }
         }
 
-        foreach (array_keys(self::$nativeSnapshot) as $key) {
-            if (!array_key_exists($key, $_SESSION)) {
+        // Only a key the store still has: forget() takes a missing one with a dot for a nested value.
+        foreach (array_diff_key(self::$nativeSnapshot, $_SESSION) as $key => $value) {
+            if (array_key_exists($key, $store->all())) {
                 $store->forget($key);
             }
         }
+
+        self::expireNestedFlash($store);
 
         // The native session keeps no key the store drops, now or when save() ages the flash data:
         // the next init() would take it for a new one.
@@ -318,6 +342,32 @@ class EvoSessionProxy
         (function () use ($key, $value): void {
             $this->attributes[$key] = $value;
         })->call($store);
+    }
+
+    /**
+     * flash('shop.cart') stores a nested value. Once $_SESSION['shop.cart'] is stored as well, save()
+     * would forget that one instead, and the flashed value would stay for good.
+     *
+     * @param object $store
+     */
+    private static function expireNestedFlash($store): void
+    {
+        $expiring = $store->all()['_flash']['old'] ?? [];
+        $kept = [];
+        foreach ($expiring as $key) {
+            if (str_contains((string) $key, '.') && array_key_exists($key, $store->all())) {
+                $value = $store->all()[$key];
+                $store->forget($key);
+                $store->forget($key);
+                self::put($store, $key, $value);
+                continue;
+            }
+            $kept[] = $key;
+        }
+
+        if ($kept !== $expiring) {
+            $store->put('_flash.old', $kept);
+        }
     }
 
     /**
@@ -532,6 +582,18 @@ class EvoSessionProxy
         return in_array($key, self::LARAVEL_KEYS, true);
     }
 
+    private static function noteShared(): void
+    {
+        if (self::$fingerprints === []) {
+            return;
+        }
+
+        $stored = self::getLaravelSessionStore()?->all() ?? [];
+        foreach (self::$fingerprints as $key => $fingerprint) {
+            self::$shared[$key] = array_key_exists($key, $stored) && $stored[$key] === self::$nativeSnapshot[$key];
+        }
+    }
+
     /**
      * @param mixed $value
      */
@@ -540,13 +602,20 @@ class EvoSessionProxy
         if (!array_key_exists($key, self::$nativeSnapshot)) {
             return true;
         }
-        $before = self::$nativeSnapshot[$key];
+
+        $same = $value === self::$nativeSnapshot[$key];
+        // Changed in place, a shared object is in the store already, unless Laravel code dropped or replaced it.
+        if (!array_key_exists($key, self::$fingerprints) || ($same && self::$shared[$key])) {
+            return !$same;
+        }
+
+        $before = self::$fingerprints[$key];
 
         return $before === null || $before !== self::fingerprint($value);
     }
 
     /**
-     * Serialized, so an object changed in place counts as changed; null when it cannot be serialized.
+     * Serialized; null when it cannot be.
      *
      * @param mixed $value
      */
