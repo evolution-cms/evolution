@@ -130,6 +130,13 @@ class EvoSessionProxy
             $_SESSION[$key] = $value;
         }
 
+        // A session stored before dotted keys were flat has its creation time nested; without it, the
+        // session would look newer than an install it is older than (ManagerTheme::isAuthManager()).
+        $createdAt = $laravelData['evo']['session']['created']['time'] ?? null;
+        if (is_numeric($createdAt)) {
+            $earlyData['evo.session.created.time'] = min((int) $createdAt, (int) ($earlyData['evo.session.created.time'] ?? $createdAt));
+        }
+
         // Merge back early data for keys not present in Laravel.
         foreach ($earlyData as $key => $value) {
             if (!array_key_exists($key, $laravelData)) {

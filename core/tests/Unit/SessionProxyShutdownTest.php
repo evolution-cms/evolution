@@ -161,6 +161,19 @@ test('an object Laravel code changes and then drops or replaces does not come ba
         ->and($seen['reassigned'] ?? null)->toBe('native');
 })->with('kinds of requests');
 
+test('a session stored before dotted keys were flat keeps its creation time', function (string $native, string $routed) {
+    ['upgraded' => $upgraded] = sessionOfRequests($native, $routed);
+
+    foreach ($upgraded['lost native file'] as $seen) {
+        expect($seen['evo.session.created.time'])->toBe(800)
+            ->and($seen['evo']['other'])->toBe('kept');
+    }
+    foreach ($upgraded['native file'] as $seen) {
+        // a worker has no native session file to take the older time from
+        expect($seen['evo.session.created.time'])->toBe($native ? 500 : 800);
+    }
+})->with('kinds of requests');
+
 test('the session is synced before the shutdown decides, and only the shutdown registers the check', function () {
     $proxy = file_get_contents(dirname(__DIR__, 2) . '/functions/session_proxy.php');
     $middleware = file_get_contents(dirname(__DIR__, 2) . '/src/Middleware/SessionProxy.php');

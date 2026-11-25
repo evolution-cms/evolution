@@ -135,4 +135,21 @@ $flashed = $request(static fn () => null, 8000)['seen'];
 $expired = $request(static fn () => null, 9000)['seen'];
 $later = $request(static fn () => null, 10000)['seen'];
 
-echo json_encode(compact('first', 'second', 'third', 'fourth', 'fifth', 'object', 'flashed', 'expired', 'later'));
+// What the proxy stored before it kept keys with a dot flat: the time of the last request, nested.
+$upgraded = [];
+foreach (['lost native file' => [], 'native file' => ['evo.session.created.time' => 500]] as $kind => $nativeFile) {
+    $_COOKIE['evo_session'] = str_repeat($nativeFile === [] ? 'b' : 'c', 40);
+    $_SESSION = [];
+    $old = (new SessionManager($app))->driver();
+    $old->setId($_COOKIE['evo_session']);
+    $old->put('evo.session.created.time', 800);
+    $old->put('evo.other', 'kept');
+    $old->save();
+    $_SESSION = $nativeFile;
+    $upgraded[$kind] = [];
+    foreach ([11000, 12000] as $at) {
+        $upgraded[$kind][] = $request(static fn () => null, $at)['seen'];
+    }
+}
+
+echo json_encode(compact('first', 'second', 'third', 'fourth', 'fifth', 'object', 'flashed', 'expired', 'later', 'upgraded'));
