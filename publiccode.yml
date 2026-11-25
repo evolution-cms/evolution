@@ -15,8 +15,8 @@ categories:
 developmentStatus: stable
 softwareType: standalone/web
 
-softwareVersion: "3.5.9"
-releaseDate: "2026-10-21"
+softwareVersion: "3.5.10"
+releaseDate: "2026-11-25"
 
 isBasedOn:
   - "https://github.com/modxcms/evolution"

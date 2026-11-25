@@ -98,8 +98,14 @@ http_check() {
                 "timeout" => 20,
                 "header" => $headers,
             ]]);
-            $body = @file_get_contents("http://127.0.0.1:{$port}{$path}", false, $context);
-            $status = isset($http_response_header[0]) ? (int) substr($http_response_header[0], 9, 3) : 0;
+            $stream = @fopen("http://127.0.0.1:{$port}{$path}", "r", false, $context);
+            if ($stream === false) {
+                return [0, ""];
+            }
+            $headers = stream_get_meta_data($stream)["wrapper_data"] ?? [];
+            $body = stream_get_contents($stream);
+            fclose($stream);
+            $status = isset($headers[0]) ? (int) substr($headers[0], 9, 3) : 0;
             return [$status, (string) $body];
         };
 
