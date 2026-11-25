@@ -181,5 +181,8 @@ test('only a refresh that worked keeps the session', function () {
     $case = substr($case, 0, strpos($case, "case 'cancel':"));
 
     expect($case)->toContain("if (!empty(\$refreshed['ok'])) {
-                        updaterKeepSessionOfUpdate(");
+                        updaterKeepSessionOfUpdate(")
+        // saved before the answer that lets the window reload the manager
+        ->and(strpos($case, 'updaterSaveSession();'))->toBeLessThan(strpos($case, 'updaterJsonResponse($refreshed);'))
+        ->and($case)->toContain('updaterSaveSession();');
 });
