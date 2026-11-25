@@ -169,6 +169,16 @@ test('abort() with a response answers with that response', function () {
         ->and((string) $response->getBody())->toBe('a response of its own');
 });
 
+test('abort() finishes with a non-removable output buffer', function (string $buffer, string $status, int $expectedStatus) {
+    $response = frontEndVisitor()->get("/routed-abort/$status?locked_buffer=$buffer", ['timeout' => 5]);
+    $body = $status === 'response' ? 'a response of its own' : 'refused <b>here</b>';
+    expect($response->getStatusCode())->toBe($expectedStatus)
+        ->and((string) $response->getBody())->toBe($body);
+})->with(['cleanable', 'opaque'])->with([
+    'HTTP exception' => ['403', 403],
+    'response exception' => ['response', 409],
+]);
+
 test('abort(404) in a route leaves the request to the parser', function () {
     expect((string) frontEndVisitor()->get('/routed-abort/404?do=none')->getBody())->toBe('no form here');
 });
