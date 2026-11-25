@@ -58,11 +58,21 @@ if (!defined('EVO_BASE_PATH') || !defined('EVO_BASE_URL')) {
     // automatically assign base_path and base_url
     $script_name = get_by_key(
         $_SERVER,
-        ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME'] && ('undefined' === php_sapi_name() || is_cli())) ?
+        ($_SERVER['PHP_SELF'] !== $_SERVER['SCRIPT_NAME'] && 'undefined' === php_sapi_name()) ?
             'PHP_SELF' : 'SCRIPT_NAME'
     );
-    // On the console it is the path the command was started by, unless the script set a URL itself.
-    $is_file_path = is_cli() && $script_name === ($_SERVER['SCRIPT_FILENAME'] ?? null);
+    $is_file_path = false;
+    if (is_cli()) {
+        // On the console both are the path the command was started by, unless the script has set
+        // one of them, to stand in for a web request.
+        $urls = array_diff(
+            [$_SERVER['PHP_SELF'], $_SERVER['SCRIPT_NAME']],
+            [$_SERVER['SCRIPT_FILENAME'] ?? '', $_SERVER['argv'][0] ?? '']
+        );
+        $is_file_path = $urls === [];
+        $script_name = $is_file_path ? $script_name : reset($urls);
+        unset($urls);
+    }
     $script_name = str_replace('\\', '/', dirname($script_name));
 
     if (substr($script_name, -1 - strlen(MGR_DIR)) === '/' . MGR_DIR ||
