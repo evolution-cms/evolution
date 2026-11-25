@@ -637,24 +637,41 @@ class ManagerTheme implements ManagerThemeInterface
             }
         }
 
-        if (defined('EVO_INSTALL_TIME')) {
-            if (isset($_SESSION['mgrValidated'])) {
-                $createdKey = 'evo.session.created.time';
-                $createdAt = $_SESSION[$createdKey] ?? null;
-                if ($createdAt !== null && $createdAt < EVO_INSTALL_TIME) {
-                    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                        if (isset($_COOKIE[session_name()])) {
-                            session_unset();
-                            @session_destroy();
-                        }
-                        header('HTTP/1.0 307 Redirect');
-                        header('Location: ' . EVO_MANAGER_URL . 'index.php?installGoingOn=2');
-                    }
-                }
-            }
-        }
+        $this->endSessionFromBeforeInstall();
 
         return isset($_SESSION['mgrValidated']);
+    }
+
+    /**
+     * A manager signed in before the last install or update signs in again.
+     */
+    protected function endSessionFromBeforeInstall(): void
+    {
+        $createdKey = 'evo.session.created.time';
+        $installTime = $this->getInstallTime();
+        $createdAt = $_SESSION[$createdKey] ?? null;
+        if ($createdAt === null || $createdAt >= $installTime) {
+            return;
+        }
+
+        if (!isset($_SESSION['mgrValidated'])) {
+            // The login keeps the data of a guest's session, this time included. The install time
+            // may be ahead of this server's clock.
+            $_SESSION[$createdKey] = max(time(), $installTime);
+            return;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            // Emptied, not destroyed: with EVO_SESSION the Laravel store holds the session.
+            $_SESSION = [];
+            // The login form this request gets now tells why; a redirect would lose its status to the response.
+            $_GET['installGoingOn'] = 2;
+        }
+    }
+
+    protected function getInstallTime(): int
+    {
+        return defined('EVO_INSTALL_TIME') ? (int)EVO_INSTALL_TIME : 0;
     }
 
     /**
