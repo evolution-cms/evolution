@@ -47,7 +47,8 @@ $request = static function (callable $page, int $at = 1000) use ($app, $native, 
         $_SESSION = [];
     }
     $_SERVER['REQUEST_TIME'] = $at;
-    foreach (['initialized' => false, 'synced' => false, 'nativeSnapshot' => []] as $property => $value) {
+    foreach (['initialized' => false, 'synced' => false, 'nativeSnapshot' => [],
+        'fingerprints' => [], 'shared' => []] as $property => $value) {
         (new ReflectionProperty(EvoSessionProxy::class, $property))->setValue(null, $value);
     }
     EvoSessionProxy::earlyInit();
@@ -105,4 +106,33 @@ $object = ($third['seen']['object'] ?? new ArrayObject())->getArrayCopy();
 $fourth = $request(static fn (Store $store) => $store->invalidate());
 $fifth = $request(static fn () => null, 5000);
 
-echo json_encode(compact('first', 'second', 'third', 'fourth', 'fifth', 'object'));
+// The same name in both notations, and objects the store and $_SESSION share.
+$request(static function () {
+    $_SESSION['cart.notice'] = 'native';
+    $_SESSION['cart.now'] = 'native';
+    $_SESSION['cart.total'] = 1;
+    $_SESSION['box'] = new ArrayObject(['n' => 1]);
+    $_SESSION['boxes'] = [new ArrayObject(['n' => 1])];
+    $_SESSION['swapped'] = new ArrayObject(['n' => 1]);
+    $_SESSION['reassigned'] = new ArrayObject(['n' => 1]);
+}, 6000);
+$request(static function (Store $store) {
+    $store->flash('cart.notice', 'saved');
+    $store->now('cart.now', 'laravel');
+    $store->forget('cart.total');
+    $store->put('cart.total', 2);
+    unset($_SESSION['cart.total']);
+    $store->get('box')->offsetSet('n', 2);
+    $store->forget('box');
+    $store->get('boxes')[0]->offsetSet('n', 2);
+    $store->forget('boxes');
+    $store->get('swapped')->offsetSet('n', 2);
+    $store->put('swapped', 'laravel');
+    $_SESSION['reassigned'] = 'native';
+    $store->forget('reassigned');
+}, 7000);
+$flashed = $request(static fn () => null, 8000)['seen'];
+$expired = $request(static fn () => null, 9000)['seen'];
+$later = $request(static fn () => null, 10000)['seen'];
+
+echo json_encode(compact('first', 'second', 'third', 'fourth', 'fifth', 'object', 'flashed', 'expired', 'later'));

@@ -131,6 +131,36 @@ test('an invalidated session stays empty', function (string $native, string $rou
         ->and(array_intersect(['shop', 'shop.cart', 'both', 'laravel', 'object'], array_keys($fifth['seen'])))->toBe([]);
 })->with('kinds of requests');
 
+test('flash data under the dotted name of a native key expires and leaves that key alone', function (string $native, string $routed) {
+    ['flashed' => $flashed, 'expired' => $expired, 'later' => $later] = sessionOfRequests($native, $routed);
+
+    expect($flashed['cart']['notice'] ?? null)->toBe('saved')
+        ->and($flashed['cart'])->not->toHaveKey('now');
+    foreach ([$flashed, $expired, $later] as $seen) {
+        expect($seen['cart.notice'] ?? null)->toBe('native')
+            ->and($seen['cart.now'] ?? null)->toBe('native');
+    }
+    foreach ([$expired, $later] as $seen) {
+        expect($seen['cart'])->not->toHaveKey('notice');
+    }
+})->with('kinds of requests');
+
+test('a removed native key with a dot takes no nested value of Laravel code along', function (string $native, string $routed) {
+    ['flashed' => $seen] = sessionOfRequests($native, $routed);
+
+    expect($seen['cart']['total'] ?? null)->toBe(2)
+        ->and(array_intersect(['cart.total'], array_keys($seen)))->toBe([]);
+})->with('kinds of requests');
+
+test('an object Laravel code changes and then drops or replaces does not come back', function (string $native, string $routed) {
+    ['flashed' => $seen] = sessionOfRequests($native, $routed);
+
+    expect(array_intersect(['box', 'boxes'], array_keys($seen)))->toBe([])
+        ->and($seen['swapped'] ?? null)->toBe('laravel')
+        // what native code assigns still wins
+        ->and($seen['reassigned'] ?? null)->toBe('native');
+})->with('kinds of requests');
+
 test('the session is synced before the shutdown decides, and only the shutdown registers the check', function () {
     $proxy = file_get_contents(dirname(__DIR__, 2) . '/functions/session_proxy.php');
     $middleware = file_get_contents(dirname(__DIR__, 2) . '/src/Middleware/SessionProxy.php');
