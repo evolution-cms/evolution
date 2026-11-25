@@ -148,6 +148,10 @@ must target the same `.x` branch/ref unless the operator explicitly selects anot
 Update migrations, seeders, and data fixes must be trackable or idempotent so repeated
 `make:site update` runs do not break already-updated installations.
 
+`core/.install` holds the time of the last install or update (`EVO_INSTALL_TIME`): both installers and, as its last
+step, `make:site` write it. A manager session from before it ends on its next GET (`ManagerTheme::isAuthManager()`),
+except the one that started a live update (`updaterKeepSessionOfUpdate()` in the updater plugin).
+
 The installer and artisan record migrations in one log, `migrations`
 (`EvolutionCMS\Support\MigrationRepository`). Batch 0 is the installer's baseline: what the
 installer runs, and the rows of `migrations_install`, the installer log up to 3.5.9, which the

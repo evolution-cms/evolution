@@ -337,6 +337,38 @@ if (!function_exists('updaterBuildSystemTaskUiState')) {
     }
 }
 
+if (!function_exists('updaterKeepSessionOfUpdate')) {
+    /**
+     * An update ends every manager session from before it (EVO_INSTALL_TIME). The one that started it
+     * has been brought up to date and reads the result, so it stays.
+     *
+     * @param string $sessionHash hash of the session as its task recorded it
+     * @param int $installTime
+     * @return bool Whether this session started the update the site runs.
+     */
+    function updaterKeepSessionOfUpdate($sessionHash, $installTime)
+    {
+        if ($sessionHash === '') {
+            return false;
+        }
+
+        $task = \EvolutionCMS\Models\SystemCliTask::query()
+            ->where('type', 'site_update')
+            ->where('status', 'succeeded')
+            ->orderByDesc('id')
+            ->first();
+        // the task succeeds after its update has set the install time; a later install is not its own
+        if ($task === null || !$task->finished_at || $task->finished_at->getTimestamp() < $installTime
+            || !hash_equals((string)($task->requested_by_snapshot['session_hash'] ?? ''), $sessionHash)) {
+            return false;
+        }
+
+        $_SESSION['evo.session.created.time'] = max(time(), $installTime);
+
+        return true;
+    }
+}
+
 if (!function_exists('updaterHandleSystemTaskRequest')) {
     function updaterHandleSystemTaskRequest()
     {
@@ -438,7 +470,11 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
                     ));
 
                 case 'refresh_session':
-                    updaterJsonResponse($context->refreshCurrentManagerPermissions());
+                    $refreshed = $context->refreshCurrentManagerPermissions();
+                    if (!empty($refreshed['ok'])) {
+                        updaterKeepSessionOfUpdate((string)($requesterSnapshot['session_hash'] ?? ''), EVO_INSTALL_TIME);
+                    }
+                    updaterJsonResponse($refreshed);
 
                 case 'cancel':
                     updaterJsonResponse($taskService->cancelQueuedTaskPayload(
