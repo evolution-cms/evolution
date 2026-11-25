@@ -1406,6 +1406,7 @@ return array(
     'EvolutionCMS\\Services\\DocumentSave\\DocumentSaveContext' => $baseDir . '/src/Services/DocumentSave/DocumentSaveContext.php',
     'EvolutionCMS\\Services\\DocumentSave\\DocumentSaveDenied' => $baseDir . '/src/Services/DocumentSave/DocumentSaveDenied.php',
     'EvolutionCMS\\Services\\DocumentSave\\DocumentSaveResult' => $baseDir . '/src/Services/DocumentSave/DocumentSaveResult.php',
+    'EvolutionCMS\\Services\\IlluminateCompatibility' => $baseDir . '/src/Services/IlluminateCompatibility.php',
     'EvolutionCMS\\Services\\ManagerActivity' => $baseDir . '/src/Services/ManagerActivity.php',
     'EvolutionCMS\\Services\\PasswordRecoveryService' => $baseDir . '/src/Services/PasswordRecoveryService.php',
     'EvolutionCMS\\Services\\Store\\CatalogService' => $baseDir . '/src/Services/Store/CatalogService.php',

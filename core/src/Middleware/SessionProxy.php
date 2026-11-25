@@ -17,7 +17,12 @@ class SessionProxy
             $response = response($response);
         }
 
-        \EvoSessionProxy::syncBack();
+        // StartSession saves the store it started; a second save would age the flash data twice.
+        if ($request->hasSession()) {
+            \EvoSessionProxy::syncStore();
+        } else {
+            \EvoSessionProxy::syncBack();
+        }
 
         return $response;
     }
