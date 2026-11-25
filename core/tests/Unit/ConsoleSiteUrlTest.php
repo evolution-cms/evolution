@@ -85,12 +85,20 @@ test('a site in a subfolder says so with its site URL or its base URL', function
     ]);
 });
 
-test('a script that stands in for a web request keeps the URL it sets', function () {
-    $urls = consoleUrls('', 'core/command.php', ['EVO_SITE_HOSTNAMES' => 'site.test'], [
-        'SCRIPT_NAME' => '/shop/index.php',
-        'PHP_SELF' => '/shop/index.php',
-    ]);
+test('a script that stands in for a web request keeps the URL it sets', function (array $server) {
+    $urls = consoleUrls('', 'core/command.php', ['EVO_SITE_HOSTNAMES' => 'site.test:8348'], $server);
 
     expect($urls['base'])->toBe('/shop/')
-        ->and($urls['site'])->toBe('http://site.test/shop/');
+        ->and($urls['site'])->toBe('http://site.test:8348/shop/');
+})->with([
+    'SCRIPT_NAME and PHP_SELF' => [['SCRIPT_NAME' => '/shop/index.php', 'PHP_SELF' => '/shop/index.php']],
+    'SCRIPT_NAME alone' => [['SCRIPT_NAME' => '/shop/index.php']],
+    'PHP_SELF alone' => [['PHP_SELF' => '/shop/index.php']],
+    'SCRIPT_NAME and SCRIPT_FILENAME' => [['SCRIPT_NAME' => '/shop/index.php', 'SCRIPT_FILENAME' => '/var/www/shop/index.php']],
+    'the manager of the site' => [['SCRIPT_NAME' => '/shop/manager/index.php']],
+]);
+
+test('a script that sets only the file it stands in for has no URL of its own', function () {
+    expect(consoleUrls('', 'core/command.php', [], ['SCRIPT_FILENAME' => '/var/www/shop/index.php'])['site'])
+        ->toBe('http://localhost/');
 });
