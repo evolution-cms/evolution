@@ -369,6 +369,21 @@ if (!function_exists('updaterKeepSessionOfUpdate')) {
     }
 }
 
+if (!function_exists('updaterSaveSession')) {
+    /**
+     * Save the session now: the window reloads the manager once it has the answer.
+     */
+    function updaterSaveSession()
+    {
+        if (defined('EVO_SESSION') && EVO_SESSION && class_exists('EvoSessionProxy', false)) {
+            \EvoSessionProxy::syncBack();
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+    }
+}
+
 if (!function_exists('updaterHandleSystemTaskRequest')) {
     function updaterHandleSystemTaskRequest()
     {
@@ -473,6 +488,7 @@ if (!function_exists('updaterHandleSystemTaskRequest')) {
                     $refreshed = $context->refreshCurrentManagerPermissions();
                     if (!empty($refreshed['ok'])) {
                         updaterKeepSessionOfUpdate((string)($requesterSnapshot['session_hash'] ?? ''), EVO_INSTALL_TIME);
+                        updaterSaveSession();
                     }
                     updaterJsonResponse($refreshed);
 
@@ -518,7 +534,11 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
     var activeTask = null;
     var lastTaskResult = null;
     var reloadOnClose = false;
-    var sessionRefreshed = false;
+    // '' | 'pending' | 'done': the update ends this session unless the server has dated it anew
+    var sessionRefresh = '';
+    var refreshTimer = null;
+    var refreshDeadline = null;
+    var closeRequested = false;
     // The update replaces the manager that answers the polls, so some of them fail on the way:
     // keep asking for this long before telling the operator to reload.
     var pollRetryWindowMs = 10 * 60 * 1000;
@@ -621,7 +641,51 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         });
     }
 
+    function refreshSession() {
+        if (sessionRefresh !== '') {
+            return;
+        }
+        sessionRefresh = 'pending';
+        // a server that does not confirm must not hold the window: the operator signs in again then
+        refreshDeadline = setTimeout(sessionRefreshSettled, 15000);
+        requestSessionRefresh();
+    }
+
+    function requestSessionRefresh() {
+        request('refresh_session').then(function (response) {
+            if (!response || !response.ok) {
+                throw new Error('refresh_session');
+            }
+            sessionRefreshSettled();
+        }).catch(function () {
+            if (sessionRefresh === 'pending') {
+                refreshTimer = setTimeout(requestSessionRefresh, 2000);
+            }
+        });
+    }
+
+    function sessionRefreshSettled() {
+        if (sessionRefresh !== 'pending') {
+            return;
+        }
+        sessionRefresh = 'done';
+        clearTimeout(refreshTimer);
+        clearTimeout(refreshDeadline);
+
+        if (closeRequested) {
+            close();
+        } else {
+            renderTask(activeTask, lastTaskResult);
+        }
+    }
+
     function close() {
+        // a page requested before the session is saved would be answered with the login form
+        if (sessionRefresh === 'pending') {
+            closeRequested = true;
+            return;
+        }
+
         if (timer) {
             clearTimeout(timer);
             timer = null;
@@ -821,11 +885,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         if (isSucceeded) {
-            // a lost poll has already set reloadOnClose, so it cannot stand for "refreshed"
-            if (!sessionRefreshed) {
-                sessionRefreshed = true;
-                request('refresh_session').catch(function () {});
-            }
+            refreshSession();
             reloadOnClose = true;
         }
 
@@ -871,7 +931,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         if (isFinished || notice) {
-            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close">' + esc(isSucceeded || notice ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
+            html += '<div class="updater-system-task-actions"><button type="button" class="btn btn-primary" data-role="close"' + (sessionRefresh === 'pending' ? ' disabled' : '') + '>' + esc(isSucceeded || notice ? t('close_reload', 'Close and reload') : t('close', 'Close')) + '</button></div>';
         }
 
         setContent(html);
