@@ -1716,7 +1716,7 @@ $_lang['time_unit_day_short'] = 'დ';
 $_lang['time_unit_hour_short'] = 'სთ';
 $_lang['time_unit_minute_short'] = 'წთ';
 $_lang['time_unit_second_short'] = 'წმ';
-$_lang['php_vulnerable_composer'] = 'ამ სერვერზე არსებულ PHP :version ვერსიას აქვს ცნობილი კრიტიკული მოწყვლადობა, ამიტომ Composer უარს ამბობს პაკეტების შეცვლაზე (roave/security-advisories). სთხოვეთ თქვენს ჰოსტინგის პროვაიდერს PHP-ის განახლება :fixed ან უფრო ახალ ვერსიამდე, შემდეგ კვლავ სცადეთ.';
-$_lang['php_vulnerable_composer_no_fix'] = 'ამ სერვერზე არსებულ PHP :version ვერსიას აქვს ცნობილი კრიტიკული მოწყვლადობა, ამიტომ Composer უარს ამბობს პაკეტების შეცვლაზე (roave/security-advisories). სთხოვეთ თქვენს ჰოსტინგის პროვაიდერს PHP-ის განახლება უახლეს ვერსიამდე, რომელსაც არ აქვს ცნობილი მოწყვლადობები, შემდეგ კვლავ სცადეთ.';
+$_lang['php_vulnerable_composer'] = 'Composer-მა პაკეტების შეცვლაზე უარი თქვა: roave/security-advisories ბლოკავს Composer-ის მიერ გამოყენებულ PHP-ის ვერსიას (:version). შეამოწმეთ, რომელი PHP-ით ეშვება Composer და რა არის მითითებული config.platform.php-ში. გამოიყენეთ PHP :fixed ან უფრო ახალი ვერსია და სცადეთ ხელახლა.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer-მა პაკეტების შეცვლაზე უარი თქვა: roave/security-advisories ბლოკავს Composer-ის მიერ გამოყენებულ PHP-ის ვერსიას (:version). შეამოწმეთ, რომელი PHP-ით ეშვება Composer და რა არის მითითებული config.platform.php-ში. გამოიყენეთ მხარდაჭერილი PHP-ის ვერსია, რომელსაც ეს კონფლიქტი არ აქვს, და სცადეთ ხელახლა.';
 
 return $_lang;

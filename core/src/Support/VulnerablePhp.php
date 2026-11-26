@@ -1,12 +1,12 @@
 <?php namespace EvolutionCMS\Support;
 
 /**
- * Composer refusing to work because roave/security-advisories conflicts with the running PHP.
+ * Composer refusing to work because roave/security-advisories conflicts with the PHP version Composer uses.
  *
  * The core requires roave/security-advisories, which conflicts with every PHP release that has a
  * known critical vulnerability. On such a PHP every Composer run that resolves the lock fails, and
- * that is intended: nothing the CMS can change fixes it, only a newer PHP on the server. This turns
- * Composer's problem report into a message that says so.
+ * that is intended. The reported version may come from Composer's platform configuration
+ * instead of the PHP executable. This turns the refusal into an actionable diagnostic.
  *
  * @since 3.5.10
  */
@@ -22,7 +22,7 @@ final class VulnerablePhp
      *
      * @param string $output Composer output, or output of a command that printed it.
      * @return array{version: string, fixed: string}|null null when the output holds no such refusal;
-     *         version is the PHP Composer ran on, fixed the first release of its line without the conflict ('' when unknown).
+     *         version is the effective PHP from the diagnostic (or the local PHP as a fallback), fixed the first release of its line without the conflict ('' when unknown).
      */
     public static function fromComposerOutput(string $output): ?array
     {
@@ -53,7 +53,7 @@ final class VulnerablePhp
      * The upper bound of the conflict range that holds $version: its first release without the conflict.
      *
      * @param string $constraint The conflict, such as "<8.2.36|>=8.3,<8.3.37|>=8.4,<8.4.28".
-     * @param string $version The PHP that hit it.
+     * @param string $version The PHP version Composer evaluated.
      * @return string '' when no range with an upper bound holds it.
      */
     public static function fixedVersion(string $constraint, string $version): string
@@ -109,8 +109,8 @@ final class VulnerablePhp
             }
         }
         $text ??= $fixed !== ''
-            ? 'PHP :version on this server has a known critical vulnerability, so Composer refuses to change packages (roave/security-advisories). Ask your hosting provider to update PHP to :fixed or newer, then try again.'
-            : 'PHP :version on this server has a known critical vulnerability, so Composer refuses to change packages (roave/security-advisories). Ask your hosting provider to update PHP to the latest release without known vulnerabilities, then try again.';
+            ? 'Composer refused to change packages: roave/security-advisories blocks its effective PHP version (:version). Check the PHP executable Composer uses and any config.platform.php override. Use PHP :fixed or newer, then retry.'
+            : 'Composer refused to change packages: roave/security-advisories blocks its effective PHP version (:version). Check the PHP executable Composer uses and any config.platform.php override. Use a supported PHP release without this conflict, then retry.';
 
         return strtr($text, $replace);
     }

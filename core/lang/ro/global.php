@@ -1716,7 +1716,7 @@ $_lang['time_unit_day_short'] = 'z';
 $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'm';
 $_lang['time_unit_second_short'] = 's';
-$_lang['php_vulnerable_composer'] = 'PHP :version de pe acest server are o vulnerabilitate critică cunoscută, așa că Composer refuză să modifice pachetele (roave/security-advisories). Cereți furnizorului de găzduire să actualizeze PHP la :fixed sau o versiune mai nouă, apoi încercați din nou.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version de pe acest server are o vulnerabilitate critică cunoscută, așa că Composer refuză să modifice pachetele (roave/security-advisories). Cereți furnizorului de găzduire să actualizeze PHP la cea mai recentă versiune fără vulnerabilități cunoscute, apoi încercați din nou.';
+$_lang['php_vulnerable_composer'] = 'Composer a refuzat modificarea pachetelor: roave/security-advisories blochează versiunea PHP folosită de Composer (:version). Verificați cu ce PHP rulează Composer și setarea config.platform.php. Folosiți PHP :fixed sau o versiune mai nouă și încercați din nou.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer a refuzat modificarea pachetelor: roave/security-advisories blochează versiunea PHP folosită de Composer (:version). Verificați cu ce PHP rulează Composer și setarea config.platform.php. Folosiți o versiune PHP acceptată fără acest conflict și încercați din nou.';
 
 return $_lang;

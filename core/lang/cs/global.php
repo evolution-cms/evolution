@@ -1425,7 +1425,7 @@ $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Účet správce může změnit nebo smazat pouze správce';
 $_lang["sort_select_group_msg"] = 'Shift+kliknutím, nebo na dotykové obrazovce přejetím do strany (či dotykem a podržením) a posunutím přes ně, vyberete několik sousedních prvků a přetáhnete je společně. Ctrl+kliknutí přidá nebo odebere jednotlivé prvky: přetáhněte jeden z nich a ostatní se k němu připojí jako jeden blok ve svém pořadí.';
-$_lang['php_vulnerable_composer'] = 'PHP :version na tomto serveru má známou kritickou zranitelnost, proto Composer odmítá měnit balíčky (roave/security-advisories). Požádejte svého poskytovatele hostingu o aktualizaci PHP na :fixed nebo novější a zkuste to znovu.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version na tomto serveru má známou kritickou zranitelnost, proto Composer odmítá měnit balíčky (roave/security-advisories). Požádejte svého poskytovatele hostingu o aktualizaci PHP na nejnovější verzi bez známých zranitelností a zkuste to znovu.';
+$_lang['php_vulnerable_composer'] = 'Composer odmítl změnit balíčky: roave/security-advisories blokuje verzi PHP, kterou Composer používá (:version). Zkontrolujte PHP, se kterým Composer běží, a nastavení config.platform.php. Použijte PHP :fixed nebo novější a zkuste to znovu.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer odmítl změnit balíčky: roave/security-advisories blokuje verzi PHP, kterou Composer používá (:version). Zkontrolujte PHP, se kterým Composer běží, a nastavení config.platform.php. Použijte podporovanou verzi PHP bez tohoto konfliktu a zkuste to znovu.';
 
 return $_lang;

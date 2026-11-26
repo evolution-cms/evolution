@@ -1716,7 +1716,7 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'm';
 $_lang['time_unit_second_short'] = 's';
-$_lang['php_vulnerable_composer'] = 'PHP :version on this server has a known critical vulnerability, so Composer refuses to change packages (roave/security-advisories). Ask your hosting provider to update PHP to :fixed or newer, then try again.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version on this server has a known critical vulnerability, so Composer refuses to change packages (roave/security-advisories). Ask your hosting provider to update PHP to the latest release without known vulnerabilities, then try again.';
+$_lang['php_vulnerable_composer'] = 'Composer refused to change packages: roave/security-advisories blocks its effective PHP version (:version). Check the PHP executable Composer uses and any config.platform.php override. Use PHP :fixed or newer, then retry.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer refused to change packages: roave/security-advisories blocks its effective PHP version (:version). Check the PHP executable Composer uses and any config.platform.php override. Use a supported PHP release without this conflict, then retry.';
 
 return $_lang;

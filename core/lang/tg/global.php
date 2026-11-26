@@ -1713,7 +1713,7 @@ $_lang['time_unit_day_short'] = 'р';
 $_lang['time_unit_hour_short'] = 'с';
 $_lang['time_unit_minute_short'] = 'д';
 $_lang['time_unit_second_short'] = 'сн';
-$_lang['php_vulnerable_composer'] = 'PHP :version дар ин сервер осебпазирии маълуми ҷиддӣ дорад, бинобар ин Composer аз тағйир додани бастаҳо худдорӣ мекунад (roave/security-advisories). Аз провайдери хостинги худ хоҳиш кунед, ки PHP-ро то :fixed ё версияи навтар нав кунад, сипас дубора кӯшиш кунед.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version дар ин сервер осебпазирии маълуми ҷиддӣ дорад, бинобар ин Composer аз тағйир додани бастаҳо худдорӣ мекунад (roave/security-advisories). Аз провайдери хостинги худ хоҳиш кунед, ки PHP-ро то охирин версияи бе осебпазириҳои маълум нав кунад, сипас дубора кӯшиш кунед.';
+$_lang['php_vulnerable_composer'] = 'Composer аз тағйир додани бастаҳо худдорӣ кард: roave/security-advisories нусхаи PHP-ро, ки Composer истифода мебарад (:version), масдуд мекунад. Санҷед, ки Composer бо кадом PHP кор мекунад ва config.platform.php чӣ гуна танзим шудааст. PHP :fixed ё навтарро истифода баред ва дубора кӯшиш кунед.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer аз тағйир додани бастаҳо худдорӣ кард: roave/security-advisories нусхаи PHP-ро, ки Composer истифода мебарад (:version), масдуд мекунад. Санҷед, ки Composer бо кадом PHP кор мекунад ва config.platform.php чӣ гуна танзим шудааст. Нусхаи дастгиришавандаи PHP-ро бе ин ихтилоф истифода баред ва дубора кӯшиш кунед.';
 
 return $_lang;
