@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'Archiwum zawiera pakiet Composer %
 $_Lang['install_file_artifact_failed'] = 'Nie udało się dodać pakietu Composer %1$s do kolejki: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Archiwum wygląda jak pakiet Composer, ale %1$s nie jest poprawnym JSON z nazwą pakietu "name". Nic nie zostało zainstalowane.';
 
+$_Lang['more'] = 'Więcej';
 $_Lang['check_updates'] = 'Sprawdź aktualizacje';
 $_Lang['check_updates_title'] = 'Wyszukaj teraz nowe wersje Evolution CMS i dodatków, bez czekania na codzienne sprawdzenie';
 $_Lang['check_updates_done'] = 'Informacje o aktualizacjach zostały odświeżone: lista pakietów pokazuje najnowsze wersje. Otwórz stronę startową, aby zobaczyć wersję systemu i nieaktualne dodatki:';

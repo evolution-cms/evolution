@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'بایگانی شامل بسته C
 $_Lang['install_file_artifact_failed'] = 'بسته Composer %1$s در صف قرار نگرفت: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'بایگانی شبیه یک بسته Composer است، اما %1$s یک JSON معتبر با نام بسته "name" نیست. چیزی نصب نشد.';
 
+$_Lang['more'] = 'بیشتر';
 $_Lang['check_updates'] = 'بررسی به‌روزرسانی‌ها';
 $_Lang['check_updates_title'] = 'هم‌اکنون، بدون انتظار برای بررسی روزانه، نسخه‌های جدید Evolution CMS و افزونه‌ها را جستجو کنید';
 $_Lang['check_updates_done'] = 'اطلاعات به‌روزرسانی تازه شد: فهرست بسته‌ها جدیدترین نسخه‌ها را نشان می‌دهد. برای دیدن نسخه سیستم و افزونه‌های قدیمی، پیشخوان را باز کنید:';
