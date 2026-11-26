@@ -1590,6 +1590,10 @@ EXAMPLES;
             if (!empty($output)) {
                 $message .= '. ' . implode("\n", array_slice($output, -8));
             }
+            $vulnerablePhp = \EvolutionCMS\Support\VulnerablePhp::fromComposerOutput(implode("\n", (array) $output));
+            if ($vulnerablePhp !== null) {
+                $message = \EvolutionCMS\Support\VulnerablePhp::message($vulnerablePhp) . "\n" . $message;
+            }
 
             throw new \RuntimeException($message);
         }

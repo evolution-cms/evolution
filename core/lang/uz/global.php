@@ -1716,5 +1716,7 @@ $_lang['time_unit_day_short'] = 'k';
 $_lang['time_unit_hour_short'] = 's';
 $_lang['time_unit_minute_short'] = 'daq';
 $_lang['time_unit_second_short'] = 'son';
+$_lang['php_vulnerable_composer'] = 'Ushbu serverdagi PHP :version versiyasida ma’lum kritik zaiflik bor, shuning uchun Composer paketlarni oʻzgartirishni rad etadi (roave/security-advisories). Hosting provayderingizdan PHP ni :fixed yoki undan yangi versiyaga yangilashni soʻrang, soʻngra qayta urinib koʻring.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Ushbu serverdagi PHP :version versiyasida ma’lum kritik zaiflik bor, shuning uchun Composer paketlarni oʻzgartirishni rad etadi (roave/security-advisories). Hosting provayderingizdan PHP ni ma’lum zaifliklari boʻlmagan eng soʻnggi versiyaga yangilashni soʻrang, soʻngra qayta urinib koʻring.';
 
 return $_lang;

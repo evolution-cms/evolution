@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use EvolutionCMS\Models\SystemCliTask;
 use EvolutionCMS\Models\SystemCliTaskLog;
 use EvolutionCMS\Services\Store\CatalogService;
+use EvolutionCMS\Support\VulnerablePhp;
 use Illuminate\Support\Str;
 
 class SystemTaskService
@@ -623,7 +624,8 @@ class SystemTaskService
         $task->fill([
             'status' => 'failed',
             'step' => 'failed',
-            'message' => trim((string) $message),
+            // the column holds the start; the log and the event log keep the whole text
+            'message' => mb_substr(trim((string) $message), 0, self::MESSAGE_LENGTH),
             'error_code' => trim((string) $errorCode),
             'result_json' => $result,
             'heartbeat_at' => $now,
@@ -800,6 +802,15 @@ class SystemTaskService
     {
         $payload = is_array($task->payload_json) ? $task->payload_json : [];
         $displayTitle = trim((string) ($payload['display_title'] ?? $payload['package_name'] ?? ''));
+        $message = (string) $task->message;
+        if ((string) $task->error_code === VulnerablePhp::ERROR_CODE) {
+            // The worker stores English; the manager reads it in its own language.
+            $result = is_array($task->result_json) ? $task->result_json : [];
+            $message = VulnerablePhp::message([
+                'version' => (string) ($result['php_version'] ?? PHP_VERSION),
+                'fixed' => (string) ($result['php_fixed_version'] ?? ''),
+            ]);
+        }
 
         return [
             'id' => (int) $task->id,
@@ -813,7 +824,7 @@ class SystemTaskService
             'status' => (string) $task->status,
             'step' => (string) $task->step,
             'progress' => (int) $task->progress,
-            'message' => (string) $task->message,
+            'message' => $message,
             'error_code' => (string) $task->error_code,
             'created_at' => $task->created_at ? $task->created_at->toAtomString() : null,
             'started_at' => $task->started_at ? $task->started_at->toAtomString() : null,
