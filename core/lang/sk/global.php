@@ -1645,7 +1645,7 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
-$_lang['php_vulnerable_composer'] = 'PHP :version na tomto serveri má známu kritickú zraniteľnosť, preto Composer odmieta meniť balíky (roave/security-advisories). Požiadajte svojho poskytovateľa hostingu o aktualizáciu PHP na :fixed alebo novšiu verziu a potom to skúste znova.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version na tomto serveri má známu kritickú zraniteľnosť, preto Composer odmieta meniť balíky (roave/security-advisories). Požiadajte svojho poskytovateľa hostingu o aktualizáciu PHP na najnovšiu verziu bez známych zraniteľností a potom to skúste znova.';
+$_lang['php_vulnerable_composer'] = 'Composer odmietol zmeniť balíky: roave/security-advisories blokuje verziu PHP, ktorú používa Composer (:version). Skontrolujte, s ktorým PHP sa spúšťa Composer, a nastavenie config.platform.php. Použite PHP :fixed alebo novšiu verziu a skúste to znova.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer odmietol zmeniť balíky: roave/security-advisories blokuje verziu PHP, ktorú používa Composer (:version). Skontrolujte, s ktorým PHP sa spúšťa Composer, a nastavenie config.platform.php. Použite podporovanú verziu PHP bez tohto konfliktu a skúste to znova.';
 
 return $_lang;

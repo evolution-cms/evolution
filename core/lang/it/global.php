@@ -1602,7 +1602,7 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Solo un amministratore può modificare o eliminare un account amministratore';
-$_lang['php_vulnerable_composer'] = 'PHP :version su questo server ha una vulnerabilità critica nota, quindi Composer si rifiuta di modificare i pacchetti (roave/security-advisories). Chiedi al tuo provider di hosting di aggiornare PHP alla versione :fixed o successiva, quindi riprova.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version su questo server ha una vulnerabilità critica nota, quindi Composer si rifiuta di modificare i pacchetti (roave/security-advisories). Chiedi al tuo provider di hosting di aggiornare PHP all\'ultima versione senza vulnerabilità note, quindi riprova.';
+$_lang['php_vulnerable_composer'] = 'Composer ha rifiutato di modificare i pacchetti: roave/security-advisories blocca la versione di PHP usata da Composer (:version). Controlla con quale PHP viene eseguito Composer e l’impostazione config.platform.php. Usa PHP :fixed o una versione successiva e riprova.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer ha rifiutato di modificare i pacchetti: roave/security-advisories blocca la versione di PHP usata da Composer (:version). Controlla con quale PHP viene eseguito Composer e l’impostazione config.platform.php. Usa una versione di PHP supportata senza questo conflitto e riprova.';
 
 return $_lang;

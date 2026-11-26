@@ -1037,7 +1037,7 @@ test('a worker task that Composer refuses for a vulnerable PHP fails as PHP_VULN
         ->and($task->result_json['php_fixed_version'])->toBe('8.4.28')
         ->and(mb_strlen($task->message))->toBeLessThanOrEqual(SystemTaskService::MESSAGE_LENGTH)
         // the log keeps the notice and the technical reason
-        ->and($log)->toContain('PHP 8.4.27')
+        ->and($log)->toContain('effective PHP version (8.4.27)')
         ->and($log)->toContain('package:installrequire failed with exit code 2.')
         // the manager shows the whole notice, not the cut column
         ->and($payload['error_code'])->toBe('PHP_VULNERABLE')

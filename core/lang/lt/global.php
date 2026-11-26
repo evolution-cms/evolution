@@ -1645,7 +1645,7 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'val';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
-$_lang['php_vulnerable_composer'] = 'Šio serverio PHP :version turi žinomą kritinį pažeidžiamumą, todėl Composer atsisako keisti paketus (roave/security-advisories). Paprašykite savo prieglobos paslaugų teikėjo atnaujinti PHP iki :fixed ar naujesnės versijos, tada bandykite dar kartą.';
-$_lang['php_vulnerable_composer_no_fix'] = 'Šio serverio PHP :version turi žinomą kritinį pažeidžiamumą, todėl Composer atsisako keisti paketus (roave/security-advisories). Paprašykite savo prieglobos paslaugų teikėjo atnaujinti PHP iki naujausios versijos be žinomų pažeidžiamumų, tada bandykite dar kartą.';
+$_lang['php_vulnerable_composer'] = 'Composer atsisakė keisti paketus: roave/security-advisories blokuoja Composer naudojamą PHP versiją (:version). Patikrinkite, su kuriuo PHP paleidžiamas Composer, ir nustatymą config.platform.php. Naudokite PHP :fixed arba naujesnę versiją ir bandykite dar kartą.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer atsisakė keisti paketus: roave/security-advisories blokuoja Composer naudojamą PHP versiją (:version). Patikrinkite, su kuriuo PHP paleidžiamas Composer, ir nustatymą config.platform.php. Naudokite palaikomą PHP versiją be šio konflikto ir bandykite dar kartą.';
 
 return $_lang;
