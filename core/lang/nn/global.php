@@ -1324,5 +1324,7 @@ $_lang['time_unit_hour_short'] = 't';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Berre ein administrator kan endre eller slette ein administratorkonto';
+$_lang['php_vulnerable_composer'] = 'PHP :version på denne tenaren har ein kjend kritisk sårbarheit, så Composer nektar å endre pakkar (roave/security-advisories). Be leverandøren av webhotellet om å oppdatere PHP til :fixed eller nyare, og prøv så på nytt.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version på denne tenaren har ein kjend kritisk sårbarheit, så Composer nektar å endre pakkar (roave/security-advisories). Be leverandøren av webhotellet om å oppdatere PHP til den nyaste utgåva utan kjende sårbarheiter, og prøv så på nytt.';
 
 return $_lang;

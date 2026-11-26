@@ -2,6 +2,7 @@
 
 use EvolutionCMS\Services\SystemTasks\SystemTaskService;
 use EvolutionCMS\Services\SystemTasks\SystemTaskRegistry;
+use EvolutionCMS\Services\SystemTasks\TaskFailedException;
 use EvolutionCMS\Services\SystemTasks\WorkerHealthService;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
@@ -72,8 +73,9 @@ class TaskWorkerCommand extends Command
             $this->info('[system:task-worker] ' . $type . ' task completed');
             return self::SUCCESS;
         } catch (\Throwable $exception) {
-            $errorCode = 'TASK_EXECUTION_FAILED';
-            $taskService->markTaskFailed($task, $errorCode, $exception->getMessage(), [
+            $named = $exception instanceof TaskFailedException;
+            $errorCode = $named ? $exception->errorCode() : 'TASK_EXECUTION_FAILED';
+            $taskService->markTaskFailed($task, $errorCode, $exception->getMessage(), ($named ? $exception->result() : []) + [
                 'exception' => get_class($exception),
             ]);
             $workerHealth->markFailure($errorCode, $host, $pid);

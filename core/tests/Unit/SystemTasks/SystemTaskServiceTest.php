@@ -985,3 +985,78 @@ test('task progress keeps the message within its column and the whole text in th
     expect(mb_strlen($task->message))->toBe(SystemTaskService::MESSAGE_LENGTH)
         ->and(\EvolutionCMS\Models\SystemCliTaskLog::query()->where('task_id', $task->id)->value('message'))->toBe($long);
 });
+
+test('a failed task keeps its message within the column and the whole text in the log', function () {
+    $task = seedSiteUpdateTask();
+    $long = str_repeat('y', 400);
+
+    $task = (new SystemTaskService())->markTaskFailed($task, 'TASK_EXECUTION_FAILED', $long);
+
+    expect(mb_strlen($task->message))->toBe(SystemTaskService::MESSAGE_LENGTH)
+        ->and(\EvolutionCMS\Models\SystemCliTaskLog::query()->where('task_id', $task->id)->where('step', 'failed')->value('message'))->toBe($long);
+});
+
+test('a worker task that Composer refuses for a vulnerable PHP fails as PHP_VULNERABLE with the versions', function () {
+    $handler = new class implements SystemTaskHandlerInterface {
+        use \EvolutionCMS\Services\SystemTasks\ReportsProcessFailure;
+
+        public function execute(SystemCliTask $task, ?callable $report = null)
+        {
+            $output = "Your requirements could not be resolved to an installable set of packages.\n\n  Problem 1\n"
+                . "    - php is present at version 8.4.27 and cannot be modified by Composer\n"
+                . "    - roave/security-advisories is locked to version dev-master and an update of this package was not requested.\n"
+                . "    - roave/security-advisories dev-master conflicts with php <8.2.36|>=8.3,<8.3.37|>=8.4,<8.4.28|>=8.5,<8.5.13.\n";
+
+            throw $this->processFailureException('package:installrequire failed with exit code 2.', $output, 'Nothing to install');
+        }
+    };
+    SystemTaskRegistry::register('custom.worker_test', $handler, ['label' => 'Custom worker test']);
+    $task = seedSiteUpdateTask(['type' => 'custom.worker_test', 'status' => 'queued', 'step' => 'queued', 'locked_by' => '', 'lease_expires_at' => null]);
+
+    // the failure branch writes to the Laravel log, which this container lacks
+    \Illuminate\Support\Facades\Log::swap(new class {
+        public function __call($method, $arguments)
+        {
+        }
+    });
+    $command = new TaskWorkerCommand();
+    $command->setLaravel(new SystemTaskWorkerTestContainer());
+    try {
+        (new CommandTester($command))->execute(['--once' => true]);
+    } finally {
+        \Illuminate\Support\Facades\Log::clearResolvedInstance('log');
+    }
+    $task->refresh();
+
+    $log =(string) \EvolutionCMS\Models\SystemCliTaskLog::query()->where('task_id', $task->id)->where('step', 'failed')->value('message');
+    $payload = invokeSystemTaskServiceMethod(new SystemTaskService(), 'buildTaskStatusPayload', [$task]);
+
+    expect($task->status)->toBe('failed')
+        ->and($task->error_code)->toBe('PHP_VULNERABLE')
+        ->and($task->result_json['php_version'])->toBe('8.4.27')
+        ->and($task->result_json['php_fixed_version'])->toBe('8.4.28')
+        ->and(mb_strlen($task->message))->toBeLessThanOrEqual(SystemTaskService::MESSAGE_LENGTH)
+        // the log keeps the notice and the technical reason
+        ->and($log)->toContain('PHP 8.4.27')
+        ->and($log)->toContain('package:installrequire failed with exit code 2.')
+        // the manager shows the whole notice, not the cut column
+        ->and($payload['error_code'])->toBe('PHP_VULNERABLE')
+        ->and($payload['message'])->toBe(\EvolutionCMS\Support\VulnerablePhp::message(['version' => '8.4.27', 'fixed' => '8.4.28']))
+        ->and($payload['message'])->toContain('8.4.28 or newer');
+});
+
+test('a failed child process that is not the roave refusal stays a plain task failure', function () {
+    $handler = new class {
+        use \EvolutionCMS\Services\SystemTasks\ReportsProcessFailure;
+
+        public function fail(string $output): \RuntimeException
+        {
+            return $this->processFailureException('migrate failed with exit code 1.', $output, 'SQLSTATE[HY000]');
+        }
+    };
+
+    $exception = $handler->fail("SQLSTATE[HY000]: General error\n");
+
+    expect($exception)->not->toBeInstanceOf(\EvolutionCMS\Services\SystemTasks\TaskFailedException::class)
+        ->and($exception->getMessage())->toBe('migrate failed with exit code 1. SQLSTATE[HY000]');
+});

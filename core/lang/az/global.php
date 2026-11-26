@@ -1731,5 +1731,7 @@ $_lang['time_unit_day_short'] = 'g';
 $_lang['time_unit_hour_short'] = 'saat';
 $_lang['time_unit_minute_short'] = 'dəq';
 $_lang['time_unit_second_short'] = 'san';
+$_lang['php_vulnerable_composer'] = 'Bu serverdəki PHP :version məlum kritik zəifliyə malikdir, buna görə Composer paketləri dəyişməkdən imtina edir (roave/security-advisories). Hostinq provayderinizdən PHP-ni :fixed və ya daha yeni versiyaya yeniləməsini xahiş edin, sonra yenidən cəhd edin.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Bu serverdəki PHP :version məlum kritik zəifliyə malikdir, buna görə Composer paketləri dəyişməkdən imtina edir (roave/security-advisories). Hostinq provayderinizdən PHP-ni məlum zəiflikləri olmayan ən son buraxılışa yeniləməsini xahiş edin, sonra yenidən cəhd edin.';
 
 return $_lang;

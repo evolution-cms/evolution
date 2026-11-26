@@ -1360,5 +1360,7 @@ $_lang['time_unit_hour_short'] = 't';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 'sek';
 $_lang['admin_account_protected'] = 'Kun en administrator kan ændre eller slette en administratorkonto';
+$_lang['php_vulnerable_composer'] = 'PHP :version på denne server har en kendt kritisk sårbarhed, så Composer nægter at ændre pakker (roave/security-advisories). Bed din hostingudbyder om at opdatere PHP til :fixed eller nyere, og prøv derefter igen.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version på denne server har en kendt kritisk sårbarhed, så Composer nægter at ændre pakker (roave/security-advisories). Bed din hostingudbyder om at opdatere PHP til den nyeste version uden kendte sårbarheder, og prøv derefter igen.';
 
 return $_lang;

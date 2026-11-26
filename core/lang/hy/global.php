@@ -1645,5 +1645,7 @@ $_lang['time_unit_day_short'] = 'օր';
 $_lang['time_unit_hour_short'] = 'ժ';
 $_lang['time_unit_minute_short'] = 'ր';
 $_lang['time_unit_second_short'] = 'վ';
+$_lang['php_vulnerable_composer'] = 'Այս սերվերի PHP :version տարբերակն ունի հայտնի կրիտիկական խոցելիություն, ուստի Composer-ը հրաժարվում է փոխել փաթեթները (roave/security-advisories)։ Խնդրեք ձեր հոսթինգ մատակարարին թարմացնել PHP-ն մինչև :fixed կամ ավելի նոր տարբերակ, ապա նորից փորձեք։';
+$_lang['php_vulnerable_composer_no_fix'] = 'Այս սերվերի PHP :version տարբերակն ունի հայտնի կրիտիկական խոցելիություն, ուստի Composer-ը հրաժարվում է փոխել փաթեթները (roave/security-advisories)։ Խնդրեք ձեր հոսթինգ մատակարարին թարմացնել PHP-ն մինչև առանց հայտնի խոցելիությունների վերջին թողարկումը, ապա նորից փորձեք։';
 
 return $_lang;

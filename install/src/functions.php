@@ -1244,7 +1244,10 @@ function restoreCustomComposerPackages(?callable $run = null, ?callable $discove
         !$composer['standalone']
     );
     if (!$plan['ok']) {
-        $result['output'] = \EvolutionCMS\Services\CustomComposerPackages::describeRefusal($plan);
+        $result['output'] = \EvolutionCMS\Services\CustomComposerPackages::describeRefusal(
+            $plan,
+            isset($GLOBALS['_lang']) && is_array($GLOBALS['_lang']) ? $GLOBALS['_lang'] : null
+        );
         if ($plan['reason'] === 'changes') {
             // Running it by hand is the decision to accept other versions.
             $result['consent'] = true;
