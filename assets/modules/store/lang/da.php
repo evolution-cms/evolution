@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'Arkivet indeholder Composer-pakken
 $_Lang['install_file_artifact_failed'] = 'Composer-pakken %1$s kunne ikke sættes i kø: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Arkivet ligner en Composer-pakke, men %1$s er ikke gyldig JSON med et pakkenavn "name". Intet blev installeret.';
 
+$_Lang['more'] = 'Mere';
 $_Lang['check_updates'] = 'Søg efter opdateringer';
 $_Lang['check_updates_title'] = 'Søg efter nye versioner af Evolution CMS og udvidelserne nu uden at vente på den daglige kontrol';
 $_Lang['check_updates_done'] = 'Opdateringsoplysningerne er genindlæst: pakkelisten viser de nyeste versioner. Åbn startsiden for at se systemversionen og forældede udvidelser:';

@@ -3,7 +3,7 @@
 $_Lang['version'] = "Версія";
 $_Lang['date'] = "Випущено";
 $_Lang['downloads'] = "Завантажено";
-$_Lang['more'] = "more";
+$_Lang['more'] = "Детальніше";
 $_Lang['install'] = "Встановити";
 $_Lang['reinstall'] = "Перевстановити";
 $_Lang['update'] = "Оновити";
