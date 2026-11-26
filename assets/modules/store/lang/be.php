@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'Архіў змяшчае Composer
 $_Lang['install_file_artifact_failed'] = 'Не атрымалася паставіць Composer-пакет %1$s у чаргу: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Архіў падобны на Composer-пакет, але %1$s не з\'яўляецца карэктным JSON з назвай пакета "name". Нічога не ўсталявана.';
 
+$_Lang['more'] = 'Падрабязней';
 $_Lang['check_updates'] = 'Праверыць абнаўленні';
 $_Lang['check_updates_title'] = 'Шукаць новыя версіі Evolution CMS і дапаўненняў зараз, не чакаючы штодзённай праверкі';
 $_Lang['check_updates_done'] = 'Звесткі пра абнаўленні абноўлены: у спісе пакетаў паказаны найноўшыя версіі. Адкрыйце галоўную старонку, каб убачыць версію сістэмы і састарэлыя дапаўненні:';

@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'Arkisto sisältää Composer-paket
 $_Lang['install_file_artifact_failed'] = 'Composer-pakettia %1$s ei voitu lisätä jonoon: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Arkisto näyttää Composer-paketilta, mutta %1$s ei ole kelvollista JSONia, jossa on paketin nimi "name". Mitään ei asennettu.';
 
+$_Lang['more'] = 'Lisää';
 $_Lang['check_updates'] = 'Tarkista päivitykset';
 $_Lang['check_updates_title'] = 'Etsi Evolution CMS:n ja lisäosien uusia versioita nyt odottamatta päivittäistä tarkistusta';
 $_Lang['check_updates_done'] = 'Päivitystiedot päivitetty: pakettiluettelo näyttää uusimmat versiot. Avaa etusivu nähdäksesi järjestelmän version ja vanhentuneet lisäosat:';
