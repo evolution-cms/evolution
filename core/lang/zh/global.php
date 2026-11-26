@@ -1358,7 +1358,7 @@ $_lang['time_unit_hour_short'] = '时';
 $_lang['time_unit_minute_short'] = '分';
 $_lang['time_unit_second_short'] = '秒';
 $_lang['admin_account_protected'] = '只有管理员才能更改或删除管理员账户';
-$_lang['php_vulnerable_composer'] = '此服务器上的 PHP :version 存在已知的严重漏洞，因此 Composer 拒绝更改软件包 (roave/security-advisories)。请联系您的主机服务商将 PHP 更新到 :fixed 或更高版本，然后重试。';
-$_lang['php_vulnerable_composer_no_fix'] = '此服务器上的 PHP :version 存在已知的严重漏洞，因此 Composer 拒绝更改软件包 (roave/security-advisories)。请联系您的主机服务商将 PHP 更新到没有已知漏洞的最新版本，然后重试。';
+$_lang['php_vulnerable_composer'] = 'Composer 拒绝更改软件包：roave/security-advisories 阻止了 Composer 使用的 PHP 版本（:version）。请检查运行 Composer 的 PHP 以及 config.platform.php 配置。 请使用 PHP :fixed 或更高版本，然后重试。';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer 拒绝更改软件包：roave/security-advisories 阻止了 Composer 使用的 PHP 版本（:version）。请检查运行 Composer 的 PHP 以及 config.platform.php 配置。 请使用没有此冲突且仍受支持的 PHP 版本，然后重试。';
 
 return $_lang;

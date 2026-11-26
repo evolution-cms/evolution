@@ -1583,7 +1583,7 @@ $_lang['time_unit_hour_short'] = 'Std';
 $_lang['time_unit_minute_short'] = 'Min';
 $_lang['time_unit_second_short'] = 'Sek';
 $_lang['admin_account_protected'] = 'Nur ein Administrator kann ein Administratorkonto ändern oder löschen';
-$_lang['php_vulnerable_composer'] = 'PHP :version auf diesem Server hat eine bekannte kritische Sicherheitslücke, daher verweigert Composer Änderungen an Paketen (roave/security-advisories). Bitten Sie Ihren Hosting-Anbieter, PHP auf :fixed oder neuer zu aktualisieren, und versuchen Sie es dann erneut.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version auf diesem Server hat eine bekannte kritische Sicherheitslücke, daher verweigert Composer Änderungen an Paketen (roave/security-advisories). Bitten Sie Ihren Hosting-Anbieter, PHP auf die neueste Version ohne bekannte Sicherheitslücken zu aktualisieren, und versuchen Sie es dann erneut.';
+$_lang['php_vulnerable_composer'] = 'Composer hat die Paketänderung abgelehnt: roave/security-advisories blockiert die von Composer verwendete PHP-Version (:version). Prüfen Sie, mit welchem PHP Composer ausgeführt wird und ob config.platform.php gesetzt ist. Verwenden Sie PHP :fixed oder neuer und versuchen Sie es erneut.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer hat die Paketänderung abgelehnt: roave/security-advisories blockiert die von Composer verwendete PHP-Version (:version). Prüfen Sie, mit welchem PHP Composer ausgeführt wird und ob config.platform.php gesetzt ist. Verwenden Sie eine unterstützte PHP-Version ohne diesen Konflikt und versuchen Sie es erneut.';
 
 return $_lang;

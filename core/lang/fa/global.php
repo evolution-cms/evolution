@@ -1358,7 +1358,7 @@ $_lang['time_unit_hour_short'] = 'ساعت';
 $_lang['time_unit_minute_short'] = 'دقیقه';
 $_lang['time_unit_second_short'] = 'ثانیه';
 $_lang['admin_account_protected'] = 'فقط یک مدیر می‌تواند حساب کاربری مدیر را تغییر دهد یا حذف کند';
-$_lang['php_vulnerable_composer'] = 'PHP :version روی این سرور یک آسیب‌پذیری بحرانی شناخته‌شده دارد، به همین دلیل Composer از تغییر بسته‌ها خودداری می‌کند (roave/security-advisories). از ارائه‌دهنده هاستینگ خود بخواهید PHP را به نسخه :fixed یا جدیدتر به‌روزرسانی کند، سپس دوباره تلاش کنید.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version روی این سرور یک آسیب‌پذیری بحرانی شناخته‌شده دارد، به همین دلیل Composer از تغییر بسته‌ها خودداری می‌کند (roave/security-advisories). از ارائه‌دهنده هاستینگ خود بخواهید PHP را به آخرین نسخه بدون آسیب‌پذیری شناخته‌شده به‌روزرسانی کند، سپس دوباره تلاش کنید.';
+$_lang['php_vulnerable_composer'] = 'Composer از تغییر بسته‌ها خودداری کرد: roave/security-advisories نسخهٔ PHP مورد استفادهٔ Composer (:version) را مسدود می‌کند. بررسی کنید Composer با کدام PHP اجرا می‌شود و تنظیم config.platform.php چیست. از PHP نسخهٔ :fixed یا جدیدتر استفاده کنید و دوباره تلاش کنید.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer از تغییر بسته‌ها خودداری کرد: roave/security-advisories نسخهٔ PHP مورد استفادهٔ Composer (:version) را مسدود می‌کند. بررسی کنید Composer با کدام PHP اجرا می‌شود و تنظیم config.platform.php چیست. از نسخهٔ پشتیبانی‌شدهٔ PHP بدون این تداخل استفاده کنید و دوباره تلاش کنید.';
 
 return $_lang;
