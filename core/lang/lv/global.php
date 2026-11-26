@@ -1645,5 +1645,7 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'st';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
+$_lang['php_vulnerable_composer'] = 'Šī servera PHP :version ir zināma kritiska ievainojamība, tāpēc Composer atsakās mainīt pakotnes (roave/security-advisories). Lūdziet savam hostinga pakalpojumu sniedzējam atjaunināt PHP uz :fixed vai jaunāku versiju, pēc tam mēģiniet vēlreiz.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Šī servera PHP :version ir zināma kritiska ievainojamība, tāpēc Composer atsakās mainīt pakotnes (roave/security-advisories). Lūdziet savam hostinga pakalpojumu sniedzējam atjaunināt PHP uz jaunāko laidienu bez zināmām ievainojamībām, pēc tam mēģiniet vēlreiz.';
 
 return $_lang;

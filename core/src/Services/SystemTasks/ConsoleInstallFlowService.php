@@ -115,12 +115,7 @@ class ConsoleInstallFlowService implements SystemTaskHandlerInterface
         if ((int) $exitCode !== 0) {
             $this->reportProcessFailure($report, $step, $progress, $command, $exitCode, $output);
 
-            $reason = $this->summarizeOutput($output, true);
-            if ($reason !== '') {
-                throw new \RuntimeException($command . ' failed with exit code ' . (int) $exitCode . '. ' . $reason);
-            }
-
-            throw new \RuntimeException($command . ' failed with exit code ' . (int) $exitCode . '.');
+            throw $this->processFailureException($command . ' failed with exit code ' . (int) $exitCode . '.', $output, $this->summarizeOutput($output, true));
         }
     }
 

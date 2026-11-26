@@ -1357,5 +1357,7 @@ $_lang['time_unit_hour_short'] = 'ч';
 $_lang['time_unit_minute_short'] = 'мин';
 $_lang['time_unit_second_short'] = 'сек';
 $_lang['admin_account_protected'] = 'Само администратор може да променя или изтрива администраторски акаунт';
+$_lang['php_vulnerable_composer'] = 'PHP :version на този сървър има известна критична уязвимост, затова Composer отказва да променя пакети (roave/security-advisories). Помолете хостинг доставчика си да обнови PHP до :fixed или по-нова версия, след което опитайте отново.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version на този сървър има известна критична уязвимост, затова Composer отказва да променя пакети (roave/security-advisories). Помолете хостинг доставчика си да обнови PHP до последната версия без известни уязвимости, след което опитайте отново.';
 
 return $_lang;

@@ -2,6 +2,8 @@
 
 namespace EvolutionCMS\Services;
 
+use EvolutionCMS\Support\VulnerablePhp;
+
 /**
  * Packages a site adds through core/custom/composer.json (merged by
  * wikimedia/composer-merge-plugin).
@@ -370,10 +372,17 @@ final class CustomComposerPackages
      * Explain in a few lines why plan() or planInstall() refused.
      *
      * @param array{reason: string, changes: list<string>, runtime: list<string>, pinsFit: bool, output: string} $plan
+     * @param array<string, string>|null $lang Lexicon for the PHP vulnerability notice (VulnerablePhp::message()).
      * @return string
      */
-    public static function describeRefusal(array $plan): string
+    public static function describeRefusal(array $plan, ?array $lang = null): string
     {
+        // Not the custom packages: no version of anything fits a PHP that roave/security-advisories refuses.
+        $vulnerablePhp = $plan['reason'] === 'unresolvable' ? VulnerablePhp::fromComposerOutput((string) $plan['output']) : null;
+        if ($vulnerablePhp !== null) {
+            return VulnerablePhp::message($vulnerablePhp, $lang) . "\n" . $plan['output'];
+        }
+
         switch ($plan['reason']) {
             case 'changes':
                 return ($plan['pinsFit']

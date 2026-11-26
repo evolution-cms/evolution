@@ -146,3 +146,46 @@ test('the web installer never runs Composer through the FPM binary', function ()
     expect($finder)->toContain("PHP_SAPI === 'cli' ? PHP_BINARY : ''")
         ->and($finder)->toContain('PHP_BINDIR');
 });
+
+test('a Composer that refuses a vulnerable PHP tells the operator to update PHP, in the installer language', function () use ($root) {
+    $core = webRestoreCore(['league/csv' => '^9.0']);
+    file_put_contents($core . 'fake-composer.php', '<?php echo implode("\n", ['
+        . '"Your requirements could not be resolved to an installable set of packages.", "", "  Problem 1",'
+        . '"    - php is present at version 8.4.27 and cannot be modified by Composer",'
+        . '"    - roave/security-advisories is locked to version dev-master and an update of this package was not requested.",'
+        . '"    - roave/security-advisories dev-master conflicts with php <8.2.36|>=8.3,<8.3.37|>=8.4,<8.4.28|>=8.5,<8.5.13.",'
+        . ']), "\n"; exit(2);');
+    $composer = $core . (PHP_OS_FAMILY === 'Windows' ? 'composer.bat' : 'composer.sh');
+    file_put_contents($composer, PHP_OS_FAMILY === 'Windows'
+        ? '@"' . PHP_BINARY . '" "%~dp0fake-composer.php" %*' . "\r\n@exit /b %ERRORLEVEL%\r\n"
+        : "#!/bin/sh\nexec " . escapeshellarg(PHP_BINARY) . ' "$(dirname "$0")/fake-composer.php" "$@"' . "\n");
+    chmod($composer, 0755);
+
+    $probe = tempnam(sys_get_temp_dir(), 'evo_web_restore_');
+    file_put_contents($probe, '<?php'
+        . ' define("EVO_CORE_PATH", ' . var_export($core, true) . ');'
+        . ' require ' . var_export($root . '/core/vendor/autoload.php', true) . ';'
+        . ' require ' . var_export($root . '/install/src/functions.php', true) . ';'
+        . ' $_lang = ["php_vulnerable_composer" => "Оновіть PHP :version до :fixed."];'
+        . ' putenv("COMPOSER_BINARY=" . ' . var_export($composer, true) . ');'
+        . ' echo json_encode(restoreCustomComposerPackages());');
+
+    try {
+        $result = json_decode(trim(evoRunPhp($probe)), true, flags: JSON_THROW_ON_ERROR);
+
+        expect($result['restored'])->toBeFalse()
+            ->and($result['output'])->toStartWith("Оновіть PHP 8.4.27 до 8.4.28.\n")
+            ->and($result['output'])->toContain('roave/security-advisories dev-master conflicts with php')
+            ->and($result['output'])->not->toContain('together with core/custom/composer.json');
+    } finally {
+        unlink($probe);
+        (new Illuminate\Filesystem\Filesystem())->deleteDirectory($core);
+    }
+});
+
+test('the installer lexicon carries the PHP vulnerability notice', function () use ($root) {
+    $lang = (string) file_get_contents($root . '/install/src/lang/en.inc.php');
+
+    expect($lang)->toContain("'php_vulnerable_composer' =>")
+        ->and($lang)->toContain("'php_vulnerable_composer_no_fix' =>");
+});

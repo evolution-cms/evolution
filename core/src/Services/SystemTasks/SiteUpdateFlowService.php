@@ -110,12 +110,7 @@ class SiteUpdateFlowService implements SystemTaskHandlerInterface
         if ((int) $exitCode !== 0) {
             $this->reportProcessFailure($report, 'site_update', 80, 'make:site', $exitCode, $output, $reportContext);
 
-            $reason = $this->summarizeOutput($output, true);
-            if ($reason !== '') {
-                throw new \RuntimeException('Site update failed with exit code ' . (int) $exitCode . '. ' . $reason);
-            }
-
-            throw new \RuntimeException('Site update failed with exit code ' . (int) $exitCode . '.');
+            throw $this->processFailureException('Site update failed with exit code ' . (int) $exitCode . '.', $output, $this->summarizeOutput($output, true));
         }
 
         $this->report($report, 'finalize', 95, 'Site update flow completed.', 'info', $reportContext);

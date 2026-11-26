@@ -1583,5 +1583,7 @@ $_lang['time_unit_hour_short'] = 'Std';
 $_lang['time_unit_minute_short'] = 'Min';
 $_lang['time_unit_second_short'] = 'Sek';
 $_lang['admin_account_protected'] = 'Nur ein Administrator kann ein Administratorkonto ändern oder löschen';
+$_lang['php_vulnerable_composer'] = 'PHP :version auf diesem Server hat eine bekannte kritische Sicherheitslücke, daher verweigert Composer Änderungen an Paketen (roave/security-advisories). Bitten Sie Ihren Hosting-Anbieter, PHP auf :fixed oder neuer zu aktualisieren, und versuchen Sie es dann erneut.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version auf diesem Server hat eine bekannte kritische Sicherheitslücke, daher verweigert Composer Änderungen an Paketen (roave/security-advisories). Bitten Sie Ihren Hosting-Anbieter, PHP auf die neueste Version ohne bekannte Sicherheitslücken zu aktualisieren, und versuchen Sie es dann erneut.';
 
 return $_lang;

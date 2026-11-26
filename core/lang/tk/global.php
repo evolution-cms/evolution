@@ -1645,5 +1645,7 @@ $_lang['time_unit_day_short'] = 'g';
 $_lang['time_unit_hour_short'] = 'sag';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 'sek';
+$_lang['php_vulnerable_composer'] = 'Bu serwerdäki PHP :version belli bolan howply gowşaklyga eýe, şonuň üçin Composer paketleri üýtgetmekden ýüz öwürýär (roave/security-advisories). Hosting üpjünçiňizden PHP-ni :fixed ýa-da has täze wersiýa çenli täzelemegi haýyş ediň, soňra täzeden synanyşyň.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Bu serwerdäki PHP :version belli bolan howply gowşaklyga eýe, şonuň üçin Composer paketleri üýtgetmekden ýüz öwürýär (roave/security-advisories). Hosting üpjünçiňizden PHP-ni belli gowşaklyklary bolmadyk iň soňky wersiýa çenli täzelemegi haýyş ediň, soňra täzeden synanyşyň.';
 
 return $_lang;

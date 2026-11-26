@@ -1588,5 +1588,7 @@ $_lang['time_unit_hour_short'] = 'godz';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Tylko administrator może zmienić lub usunąć konto administratora';
+$_lang['php_vulnerable_composer'] = 'PHP :version na tym serwerze ma znaną krytyczną lukę bezpieczeństwa, dlatego Composer odmawia zmiany pakietów (roave/security-advisories). Poproś dostawcę hostingu o aktualizację PHP do wersji :fixed lub nowszej, a następnie spróbuj ponownie.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version na tym serwerze ma znaną krytyczną lukę bezpieczeństwa, dlatego Composer odmawia zmiany pakietów (roave/security-advisories). Poproś dostawcę hostingu o aktualizację PHP do najnowszej wersji bez znanych luk bezpieczeństwa, a następnie spróbuj ponownie.';
 
 return $_lang;

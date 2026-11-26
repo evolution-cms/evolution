@@ -1645,5 +1645,7 @@ $_lang['time_unit_day_short'] = 'p';
 $_lang['time_unit_hour_short'] = 't';
 $_lang['time_unit_minute_short'] = 'm';
 $_lang['time_unit_second_short'] = 's';
+$_lang['php_vulnerable_composer'] = 'Selle serveri PHP :version sisaldab teadaolevat kriitilist turvaauku, seetõttu keeldub Composer pakette muutmast (roave/security-advisories). Paluge oma majutusteenuse pakkujal uuendada PHP versioonini :fixed või uuemale ning proovige seejärel uuesti.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Selle serveri PHP :version sisaldab teadaolevat kriitilist turvaauku, seetõttu keeldub Composer pakette muutmast (roave/security-advisories). Paluge oma majutusteenuse pakkujal uuendada PHP uusimale väljalaskele, millel pole teadaolevaid turvaauke, ning proovige seejärel uuesti.';
 
 return $_lang;

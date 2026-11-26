@@ -1729,5 +1729,7 @@ $_lang['time_unit_day_short'] = 'д';
 $_lang['time_unit_hour_short'] = 'г';
 $_lang['time_unit_minute_short'] = 'хв';
 $_lang['time_unit_second_short'] = 'с';
+$_lang['php_vulnerable_composer'] = 'PHP :version на гэтым серверы мае вядомую крытычную ўразлівасць, таму Composer адмаўляецца змяняць пакеты (roave/security-advisories). Папрасіце хостынг-правайдара абнавіць PHP да :fixed або навейшай версіі, затым паспрабуйце зноў.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version на гэтым серверы мае вядомую крытычную ўразлівасць, таму Composer адмаўляецца змяняць пакеты (roave/security-advisories). Папрасіце хостынг-правайдара абнавіць PHP да апошняга выпуску без вядомых уразлівасцей, затым паспрабуйце зноў.';
 
 return $_lang;

@@ -1356,5 +1356,7 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Vain ylläpitäjä voi muuttaa tai poistaa ylläpitäjän tilin';
+$_lang['php_vulnerable_composer'] = 'Tämän palvelimen PHP :version sisältää tunnetun kriittisen haavoittuvuuden, joten Composer kieltäytyy muuttamasta paketteja (roave/security-advisories). Pyydä hosting-palveluntarjoajaasi päivittämään PHP versioon :fixed tai uudempaan ja yritä sitten uudelleen.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Tämän palvelimen PHP :version sisältää tunnetun kriittisen haavoittuvuuden, joten Composer kieltäytyy muuttamasta paketteja (roave/security-advisories). Pyydä hosting-palveluntarjoajaasi päivittämään PHP uusimpaan versioon, jossa ei ole tunnettuja haavoittuvuuksia, ja yritä sitten uudelleen.';
 
 return $_lang;

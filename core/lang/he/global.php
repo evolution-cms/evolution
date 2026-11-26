@@ -1358,5 +1358,7 @@ $_lang['time_unit_hour_short'] = 'ש׳';
 $_lang['time_unit_minute_short'] = 'דק׳';
 $_lang['time_unit_second_short'] = 'שנ׳';
 $_lang['admin_account_protected'] = 'רק מנהל מערכת יכול לשנות או למחוק חשבון מנהל מערכת';
+$_lang['php_vulnerable_composer'] = 'ל-PHP :version בשרת זה יש פגיעות קריטית ידועה, ולכן Composer מסרב לשנות חבילות (roave/security-advisories). בקשו מספק האחסון שלכם לעדכן את PHP לגרסה :fixed ומעלה, ולאחר מכן נסו שוב.';
+$_lang['php_vulnerable_composer_no_fix'] = 'ל-PHP :version בשרת זה יש פגיעות קריטית ידועה, ולכן Composer מסרב לשנות חבילות (roave/security-advisories). בקשו מספק האחסון שלכם לעדכן את PHP לגרסה האחרונה ללא פגיעויות ידועות, ולאחר מכן נסו שוב.';
 
 return $_lang;

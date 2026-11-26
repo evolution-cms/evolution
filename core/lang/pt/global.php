@@ -1357,5 +1357,7 @@ $_lang['time_unit_hour_short'] = 'h';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Apenas um administrador pode alterar ou eliminar uma conta de administrador';
+$_lang['php_vulnerable_composer'] = 'O PHP :version neste servidor tem uma vulnerabilidade crítica conhecida, pelo que o Composer recusa alterar pacotes (roave/security-advisories). Peça ao seu fornecedor de alojamento para atualizar o PHP para a versão :fixed ou mais recente e tente novamente.';
+$_lang['php_vulnerable_composer_no_fix'] = 'O PHP :version neste servidor tem uma vulnerabilidade crítica conhecida, pelo que o Composer recusa alterar pacotes (roave/security-advisories). Peça ao seu fornecedor de alojamento para atualizar o PHP para a versão mais recente sem vulnerabilidades conhecidas e tente novamente.';
 
 return $_lang;
