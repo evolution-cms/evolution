@@ -1718,5 +1718,7 @@ $_lang['time_unit_day_short'] = 'к';
 $_lang['time_unit_hour_short'] = 'с';
 $_lang['time_unit_minute_short'] = 'м';
 $_lang['time_unit_second_short'] = 'сек';
+$_lang['php_vulnerable_composer'] = 'Бул сервердеги PHP :version версиясында белгилүү критикалык аялуулук бар, ошондуктан Composer пакеттерди өзгөртүүдөн баш тартат (roave/security-advisories). Хостинг провайдериңизден PHP версиясын :fixed же андан жаңырагына жаңыртууну сураныңыз, андан кийин кайра аракет кылыңыз.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Бул сервердеги PHP :version версиясында белгилүү критикалык аялуулук бар, ошондуктан Composer пакеттерди өзгөртүүдөн баш тартат (roave/security-advisories). Хостинг провайдериңизден PHP версиясын белгилүү аялуулуктары жок акыркы чыгарылышка жаңыртууну сураныңыз, андан кийин кайра аракет кылыңыз.';
 
 return $_lang;

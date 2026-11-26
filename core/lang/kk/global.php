@@ -1746,5 +1746,7 @@ $_lang['time_unit_day_short'] = 'к';
 $_lang['time_unit_hour_short'] = 'сағ';
 $_lang['time_unit_minute_short'] = 'мин';
 $_lang['time_unit_second_short'] = 'с';
+$_lang['php_vulnerable_composer'] = 'Бұл сервердегі PHP :version нұсқасында белгілі сыни осалдық бар, сондықтан Composer пакеттерді өзгертуден бас тартады (roave/security-advisories). Хостинг провайдеріңізден PHP-ді :fixed немесе одан жаңа нұсқаға жаңартуды сұраңыз, содан кейін қайталап көріңіз.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Бұл сервердегі PHP :version нұсқасында белгілі сыни осалдық бар, сондықтан Composer пакеттерді өзгертуден бас тартады (roave/security-advisories). Хостинг провайдеріңізден PHP-ді белгілі осалдықтары жоқ соңғы шығарылымға жаңартуды сұраңыз, содан кейін қайталап көріңіз.';
 
 return $_lang;

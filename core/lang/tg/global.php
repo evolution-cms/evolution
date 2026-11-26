@@ -1713,5 +1713,7 @@ $_lang['time_unit_day_short'] = 'р';
 $_lang['time_unit_hour_short'] = 'с';
 $_lang['time_unit_minute_short'] = 'д';
 $_lang['time_unit_second_short'] = 'сн';
+$_lang['php_vulnerable_composer'] = 'PHP :version дар ин сервер осебпазирии маълуми ҷиддӣ дорад, бинобар ин Composer аз тағйир додани бастаҳо худдорӣ мекунад (roave/security-advisories). Аз провайдери хостинги худ хоҳиш кунед, ки PHP-ро то :fixed ё версияи навтар нав кунад, сипас дубора кӯшиш кунед.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version дар ин сервер осебпазирии маълуми ҷиддӣ дорад, бинобар ин Composer аз тағйир додани бастаҳо худдорӣ мекунад (roave/security-advisories). Аз провайдери хостинги худ хоҳиш кунед, ки PHP-ро то охирин версияи бе осебпазириҳои маълум нав кунад, сипас дубора кӯшиш кунед.';
 
 return $_lang;

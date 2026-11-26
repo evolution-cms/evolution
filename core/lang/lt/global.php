@@ -1716,5 +1716,7 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'val';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
+$_lang['php_vulnerable_composer'] = 'Šio serverio PHP :version turi žinomą kritinį pažeidžiamumą, todėl Composer atsisako keisti paketus (roave/security-advisories). Paprašykite savo prieglobos paslaugų teikėjo atnaujinti PHP iki :fixed ar naujesnės versijos, tada bandykite dar kartą.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Šio serverio PHP :version turi žinomą kritinį pažeidžiamumą, todėl Composer atsisako keisti paketus (roave/security-advisories). Paprašykite savo prieglobos paslaugų teikėjo atnaujinti PHP iki naujausios versijos be žinomų pažeidžiamumų, tada bandykite dar kartą.';
 
 return $_lang;

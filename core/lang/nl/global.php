@@ -1616,5 +1616,7 @@ $_lang['time_unit_hour_short'] = 'u';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Alleen een beheerder kan een beheerdersaccount wijzigen of verwijderen';
+$_lang['php_vulnerable_composer'] = 'PHP :version op deze server bevat een bekende kritieke kwetsbaarheid, daarom weigert Composer pakketten te wijzigen (roave/security-advisories). Vraag uw hostingprovider om PHP bij te werken naar :fixed of nieuwer en probeer het daarna opnieuw.';
+$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version op deze server bevat een bekende kritieke kwetsbaarheid, daarom weigert Composer pakketten te wijzigen (roave/security-advisories). Vraag uw hostingprovider om PHP bij te werken naar de nieuwste versie zonder bekende kwetsbaarheden en probeer het daarna opnieuw.';
 
 return $_lang;

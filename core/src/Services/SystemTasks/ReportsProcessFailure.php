@@ -27,6 +27,33 @@ trait ReportsProcessFailure
     }
 
     /**
+     * The exception for a failed child process.
+     *
+     * Composer refusing a PHP with known vulnerabilities is named (VulnerablePhp::ERROR_CODE), so the
+     * manager can tell the operator to update PHP rather than show Composer's problem report.
+     *
+     * @since 3.5.10
+     * @param string $prefix Start of the message, such as "migrate failed with exit code 1."
+     * @param string $output Output of the process.
+     * @param string $reason summarizeOutput() of it, '' for none.
+     * @return \RuntimeException
+     */
+    protected function processFailureException(string $prefix, string $output, string $reason): \RuntimeException
+    {
+        $message = $reason !== '' ? $prefix . ' ' . $reason : $prefix;
+        $vulnerablePhp = \EvolutionCMS\Support\VulnerablePhp::fromComposerOutput($output);
+        if ($vulnerablePhp !== null) {
+            return new TaskFailedException(
+                \EvolutionCMS\Support\VulnerablePhp::ERROR_CODE,
+                \EvolutionCMS\Support\VulnerablePhp::message($vulnerablePhp, []) . ' ' . $message,
+                ['php_version' => $vulnerablePhp['version'], 'php_fixed_version' => $vulnerablePhp['fixed']]
+            );
+        }
+
+        return new \RuntimeException($message);
+    }
+
+    /**
      * The one-line reason for the exception: last lines on failure, first lines otherwise.
      */
     protected function pickSummaryLines(array $lines, bool $fromEnd, int $count)

@@ -1702,5 +1702,7 @@ $_lang['time_unit_day_short'] = '日';
 $_lang['time_unit_hour_short'] = '時間';
 $_lang['time_unit_minute_short'] = '分';
 $_lang['time_unit_second_short'] = '秒';
+$_lang['php_vulnerable_composer'] = 'このサーバーの PHP :version には既知の重大な脆弱性があるため、Composer はパッケージの変更を拒否します (roave/security-advisories)。ホスティング事業者に PHP を :fixed 以降に更新するよう依頼してから、もう一度お試しください。';
+$_lang['php_vulnerable_composer_no_fix'] = 'このサーバーの PHP :version には既知の重大な脆弱性があるため、Composer はパッケージの変更を拒否します (roave/security-advisories)。ホスティング事業者に PHP を既知の脆弱性のない最新リリースに更新するよう依頼してから、もう一度お試しください。';
 
 return $_lang;

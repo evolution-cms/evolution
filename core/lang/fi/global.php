@@ -1420,5 +1420,7 @@ $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Vain ylläpitäjä voi muuttaa tai poistaa ylläpitäjän tilin';
 $_lang["sort_select_group_msg"] = 'Valitse useita vierekkäisiä elementtejä ja vedä ne yhdessä Shift+napsautuksella, tai kosketusnäytöllä pyyhkäisemällä sivulle (tai koskettamalla pitkään) ja liu\'uttamalla niiden yli. Ctrl+napsautus lisää tai poistaa yksittäisiä elementtejä: vedä yhtä niistä, niin muut liittyvät siihen yhtenä lohkona omassa järjestyksessään.';
+$_lang['php_vulnerable_composer'] = 'Tämän palvelimen PHP :version sisältää tunnetun kriittisen haavoittuvuuden, joten Composer kieltäytyy muuttamasta paketteja (roave/security-advisories). Pyydä hosting-palveluntarjoajaasi päivittämään PHP versioon :fixed tai uudempaan ja yritä sitten uudelleen.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Tämän palvelimen PHP :version sisältää tunnetun kriittisen haavoittuvuuden, joten Composer kieltäytyy muuttamasta paketteja (roave/security-advisories). Pyydä hosting-palveluntarjoajaasi päivittämään PHP uusimpaan versioon, jossa ei ole tunnettuja haavoittuvuuksia, ja yritä sitten uudelleen.';
 
 return $_lang;
