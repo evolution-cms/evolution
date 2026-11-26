@@ -1420,7 +1420,7 @@ $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Vain ylläpitäjä voi muuttaa tai poistaa ylläpitäjän tilin';
 $_lang["sort_select_group_msg"] = 'Valitse useita vierekkäisiä elementtejä ja vedä ne yhdessä Shift+napsautuksella, tai kosketusnäytöllä pyyhkäisemällä sivulle (tai koskettamalla pitkään) ja liu\'uttamalla niiden yli. Ctrl+napsautus lisää tai poistaa yksittäisiä elementtejä: vedä yhtä niistä, niin muut liittyvät siihen yhtenä lohkona omassa järjestyksessään.';
-$_lang['php_vulnerable_composer'] = 'Tämän palvelimen PHP :version sisältää tunnetun kriittisen haavoittuvuuden, joten Composer kieltäytyy muuttamasta paketteja (roave/security-advisories). Pyydä hosting-palveluntarjoajaasi päivittämään PHP versioon :fixed tai uudempaan ja yritä sitten uudelleen.';
-$_lang['php_vulnerable_composer_no_fix'] = 'Tämän palvelimen PHP :version sisältää tunnetun kriittisen haavoittuvuuden, joten Composer kieltäytyy muuttamasta paketteja (roave/security-advisories). Pyydä hosting-palveluntarjoajaasi päivittämään PHP uusimpaan versioon, jossa ei ole tunnettuja haavoittuvuuksia, ja yritä sitten uudelleen.';
+$_lang['php_vulnerable_composer'] = 'Composer kieltäytyi muuttamasta paketteja: roave/security-advisories estää Composerin käyttämän PHP-version (:version). Tarkista, millä PHP:llä Composer ajetaan, ja config.platform.php-asetus. Käytä PHP-versiota :fixed tai uudempaa ja yritä uudelleen.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer kieltäytyi muuttamasta paketteja: roave/security-advisories estää Composerin käyttämän PHP-version (:version). Tarkista, millä PHP:llä Composer ajetaan, ja config.platform.php-asetus. Käytä tuettua PHP-versiota, jossa tätä ristiriitaa ei ole, ja yritä uudelleen.';
 
 return $_lang;

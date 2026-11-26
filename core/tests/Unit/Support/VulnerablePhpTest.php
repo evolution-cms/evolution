@@ -56,11 +56,11 @@ test('other Composer failures are not taken for it', function (string $output) {
 
 test('the notice names the PHP and the release to update to', function () {
     expect(VulnerablePhp::message(['version' => '8.4.27', 'fixed' => '8.4.28'], []))
-        ->toContain('PHP 8.4.27')
+        ->toContain('effective PHP version (8.4.27)')
         ->toContain('8.4.28 or newer')
         ->and(VulnerablePhp::message(['version' => '8.4.27', 'fixed' => ''], []))
-        ->toContain('PHP 8.4.27')
-        ->toContain('latest release without known vulnerabilities')
+        ->toContain('effective PHP version (8.4.27)')
+        ->toContain('supported PHP release without this conflict')
         ->not->toContain(':fixed');
 });
 
@@ -71,7 +71,19 @@ test('the notice takes its text from the lexicon it is given', function () {
         ->toBe('Оновіть PHP 8.4.27 до 8.4.28 або новішої.')
         // a key the lexicon lacks falls back to English
         ->and(VulnerablePhp::message(['version' => '8.4.27', 'fixed' => ''], $lang))
-        ->toStartWith('PHP 8.4.27 on this server has a known critical vulnerability');
+        ->toStartWith('Composer refused to change packages:');
+});
+
+test('the notice distinguishes the PHP version Composer reports from the local runtime', function () {
+    $reported = PHP_VERSION_ID >= 80500 ? '8.4.27' : '8.5.12';
+    $details = VulnerablePhp::fromComposerOutput(vulnerablePhpComposerOutput($reported));
+
+    expect($details['version'] ?? null)->toBe($reported)
+        ->and(VulnerablePhp::message($details ?? [], []))
+        ->toContain('effective PHP version (' . $reported . ')')
+        ->toContain('PHP executable Composer uses')
+        ->toContain('config.platform.php')
+        ->not->toContain('on this server');
 });
 
 test('the English notice is the one in the core lexicon', function () {

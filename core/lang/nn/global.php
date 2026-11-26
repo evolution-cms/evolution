@@ -1388,7 +1388,7 @@ $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
 $_lang['admin_account_protected'] = 'Berre ein administrator kan endre eller slette ein administratorkonto';
 $_lang["sort_select_group_msg"] = 'Shift+klikk, eller sveip sidelengs på ein berøringsskjerm (eller trykk og hald) og dra over dei, for å velje fleire element som står ved sida av kvarandre og dra dei saman. Ctrl+klikk legg til eller fjernar enkeltelement: dra eitt av dei, så følgjer dei andre med som éin blokk, i si rekkjefølgje.';
-$_lang['php_vulnerable_composer'] = 'PHP :version på denne tenaren har ein kjend kritisk sårbarheit, så Composer nektar å endre pakkar (roave/security-advisories). Be leverandøren av webhotellet om å oppdatere PHP til :fixed eller nyare, og prøv så på nytt.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version på denne tenaren har ein kjend kritisk sårbarheit, så Composer nektar å endre pakkar (roave/security-advisories). Be leverandøren av webhotellet om å oppdatere PHP til den nyaste utgåva utan kjende sårbarheiter, og prøv så på nytt.';
+$_lang['php_vulnerable_composer'] = 'Composer nekta å endre pakkane: roave/security-advisories blokkerer PHP-versjonen Composer brukar (:version). Kontroller kva PHP Composer køyrer med, og innstillinga config.platform.php. Bruk PHP :fixed eller nyare, og prøv på nytt.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer nekta å endre pakkane: roave/security-advisories blokkerer PHP-versjonen Composer brukar (:version). Kontroller kva PHP Composer køyrer med, og innstillinga config.platform.php. Bruk ein støtta PHP-versjon utan denne konflikten, og prøv på nytt.';
 
 return $_lang;

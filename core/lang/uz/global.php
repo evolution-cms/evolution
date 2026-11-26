@@ -1716,7 +1716,7 @@ $_lang['time_unit_day_short'] = 'k';
 $_lang['time_unit_hour_short'] = 's';
 $_lang['time_unit_minute_short'] = 'daq';
 $_lang['time_unit_second_short'] = 'son';
-$_lang['php_vulnerable_composer'] = 'Ushbu serverdagi PHP :version versiyasida ma’lum kritik zaiflik bor, shuning uchun Composer paketlarni oʻzgartirishni rad etadi (roave/security-advisories). Hosting provayderingizdan PHP ni :fixed yoki undan yangi versiyaga yangilashni soʻrang, soʻngra qayta urinib koʻring.';
-$_lang['php_vulnerable_composer_no_fix'] = 'Ushbu serverdagi PHP :version versiyasida ma’lum kritik zaiflik bor, shuning uchun Composer paketlarni oʻzgartirishni rad etadi (roave/security-advisories). Hosting provayderingizdan PHP ni ma’lum zaifliklari boʻlmagan eng soʻnggi versiyaga yangilashni soʻrang, soʻngra qayta urinib koʻring.';
+$_lang['php_vulnerable_composer'] = 'Composer paketlarni o‘zgartirishni rad etdi: roave/security-advisories Composer ishlatadigan PHP versiyasini (:version) bloklaydi. Composer qaysi PHP bilan ishlashini va config.platform.php sozlamasini tekshiring. PHP :fixed yoki undan yangi versiyadan foydalanib, qayta urinib ko‘ring.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer paketlarni o‘zgartirishni rad etdi: roave/security-advisories Composer ishlatadigan PHP versiyasini (:version) bloklaydi. Composer qaysi PHP bilan ishlashini va config.platform.php sozlamasini tekshiring. Bu ziddiyat bo‘lmagan, qo‘llab-quvvatlanadigan PHP versiyasidan foydalanib, qayta urinib ko‘ring.';
 
 return $_lang;

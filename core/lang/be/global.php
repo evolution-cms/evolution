@@ -1793,7 +1793,7 @@ $_lang['time_unit_day_short'] = 'д';
 $_lang['time_unit_hour_short'] = 'г';
 $_lang['time_unit_minute_short'] = 'хв';
 $_lang['time_unit_second_short'] = 'с';
-$_lang['php_vulnerable_composer'] = 'PHP :version на гэтым серверы мае вядомую крытычную ўразлівасць, таму Composer адмаўляецца змяняць пакеты (roave/security-advisories). Папрасіце хостынг-правайдара абнавіць PHP да :fixed або навейшай версіі, затым паспрабуйце зноў.';
-$_lang['php_vulnerable_composer_no_fix'] = 'PHP :version на гэтым серверы мае вядомую крытычную ўразлівасць, таму Composer адмаўляецца змяняць пакеты (roave/security-advisories). Папрасіце хостынг-правайдара абнавіць PHP да апошняга выпуску без вядомых уразлівасцей, затым паспрабуйце зноў.';
+$_lang['php_vulnerable_composer'] = 'Composer адмовіўся змяняць пакеты: roave/security-advisories блакуе версію PHP, якую выкарыстоўвае Composer (:version). Праверце, з якім PHP запускаецца Composer, і наладу config.platform.php. Выкарыстайце PHP :fixed або навейшую версію і паўтарыце спробу.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer адмовіўся змяняць пакеты: roave/security-advisories блакуе версію PHP, якую выкарыстоўвае Composer (:version). Праверце, з якім PHP запускаецца Composer, і наладу config.platform.php. Выкарыстайце версію PHP, якая падтрымліваецца і не выклікае гэтага канфлікту, і паўтарыце спробу.';
 
 return $_lang;

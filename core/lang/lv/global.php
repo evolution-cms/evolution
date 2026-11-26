@@ -1716,7 +1716,7 @@ $_lang['time_unit_day_short'] = 'd';
 $_lang['time_unit_hour_short'] = 'st';
 $_lang['time_unit_minute_short'] = 'min';
 $_lang['time_unit_second_short'] = 's';
-$_lang['php_vulnerable_composer'] = 'Šī servera PHP :version ir zināma kritiska ievainojamība, tāpēc Composer atsakās mainīt pakotnes (roave/security-advisories). Lūdziet savam hostinga pakalpojumu sniedzējam atjaunināt PHP uz :fixed vai jaunāku versiju, pēc tam mēģiniet vēlreiz.';
-$_lang['php_vulnerable_composer_no_fix'] = 'Šī servera PHP :version ir zināma kritiska ievainojamība, tāpēc Composer atsakās mainīt pakotnes (roave/security-advisories). Lūdziet savam hostinga pakalpojumu sniedzējam atjaunināt PHP uz jaunāko laidienu bez zināmām ievainojamībām, pēc tam mēģiniet vēlreiz.';
+$_lang['php_vulnerable_composer'] = 'Composer atteicās mainīt pakotnes: roave/security-advisories bloķē Composer izmantoto PHP versiju (:version). Pārbaudiet, ar kuru PHP tiek palaists Composer, un config.platform.php iestatījumu. Izmantojiet PHP :fixed vai jaunāku versiju un mēģiniet vēlreiz.';
+$_lang['php_vulnerable_composer_no_fix'] = 'Composer atteicās mainīt pakotnes: roave/security-advisories bloķē Composer izmantoto PHP versiju (:version). Pārbaudiet, ar kuru PHP tiek palaists Composer, un config.platform.php iestatījumu. Izmantojiet atbalstītu PHP versiju bez šī konflikta un mēģiniet vēlreiz.';
 
 return $_lang;
