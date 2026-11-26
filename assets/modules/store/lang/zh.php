@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = '归档中包含 Composer 包 %1$s�
 $_Lang['install_file_artifact_failed'] = '无法将 Composer 包 %1$s 加入队列：%2$s';
 $_Lang['install_file_artifact_invalid'] = '该归档看起来像 Composer 包，但 %1$s 不是包含包名 "name" 的有效 JSON。未安装任何内容。';
 
+$_Lang['more'] = '更多';
 $_Lang['check_updates'] = '检查更新';
 $_Lang['check_updates_title'] = '立即查找 Evolution CMS 和扩展的新版本，无需等待每日检查';
 $_Lang['check_updates_done'] = '更新信息已刷新：软件包列表显示最新版本。打开主页可查看系统版本和过时的扩展:';

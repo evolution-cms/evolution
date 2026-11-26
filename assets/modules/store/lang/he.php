@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'הארכיון מכיל את חב�
 $_Lang['install_file_artifact_failed'] = 'לא ניתן היה להוסיף את חבילת Composer %1$s לתור: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'הארכיון נראה כמו חבילת Composer, אך %1$s אינו JSON תקין עם שם חבילה "name". דבר לא הותקן.';
 
+$_Lang['more'] = 'עוד';
 $_Lang['check_updates'] = 'בדיקת עדכונים';
 $_Lang['check_updates_title'] = 'חיפוש גרסאות חדשות של Evolution CMS ושל התוספים עכשיו, בלי לחכות לבדיקה היומית';
 $_Lang['check_updates_done'] = 'מידע העדכונים רוענן: רשימת החבילות מציגה את הגרסאות החדשות ביותר. פתחו את הדף הראשי כדי לראות את גרסת המערכת ואת התוספים המיושנים:';

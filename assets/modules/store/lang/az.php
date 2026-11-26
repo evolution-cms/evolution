@@ -10,6 +10,7 @@ $_Lang['install_file_artifact_no_version'] = 'Arxivdə Composer paketi %1$s var,
 $_Lang['install_file_artifact_failed'] = 'Composer paketi %1$s növbəyə əlavə edilə bilmədi: %2$s';
 $_Lang['install_file_artifact_invalid'] = 'Arxiv Composer paketinə bənzəyir, lakin %1$s paket adı "name" olan düzgün JSON deyil. Heç nə quraşdırılmadı.';
 
+$_Lang['more'] = 'Ətraflı';
 $_Lang['check_updates'] = 'Yeniləmələri yoxla';
 $_Lang['check_updates_title'] = 'Evolution CMS və əlavələrin yeni versiyalarını gündəlik yoxlamanı gözləmədən indi axtarın';
 $_Lang['check_updates_done'] = 'Yeniləmə məlumatı yeniləndi: paket siyahısı ən yeni versiyaları göstərir. Sistem versiyasını və köhnəlmiş əlavələri görmək üçün idarəetmə panelini açın:';
