@@ -717,7 +717,7 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'updater-system-task-modal';
-            modal.innerHTML = '<div class="updater-system-task-backdrop"></div><div class="updater-system-task-dialog" role="dialog" aria-modal="true"><button type="button" class="updater-system-task-close" data-role="close">&times;</button><div data-role="content"></div></div>';
+            modal.innerHTML = '<div class="updater-system-task-backdrop"></div><div class="updater-system-task-dialog" role="dialog" aria-modal="true"><button type="button" class="updater-system-task-close" data-role="close" aria-label="' + esc(t('close', 'Close')) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div data-role="content"></div></div>';
             document.body.appendChild(modal);
             modal.addEventListener('click', function (event) {
                 if (event.target && event.target.getAttribute('data-role') === 'close') {
@@ -735,28 +735,37 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         }
 
         var css = [
-            '#updater-system-task-modal{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px}',
-            '.updater-system-task-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.62)}',
-            '.updater-system-task-dialog{position:relative;width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;background:#20242b;color:#f2f4f8;border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.45);padding:24px}',
-            '.updater-system-task-close{position:absolute;top:10px;right:12px;border:0;background:transparent;color:#b9c1ce;font-size:26px;line-height:1;cursor:pointer}',
-            '.updater-system-task-title{margin:0 34px 12px 0;font-size:22px;font-weight:700}',
-            '.updater-system-task-text{margin:0 0 12px 0;color:#c9d0dc;line-height:1.45}',
-            '.updater-system-task-warning{margin:12px 0;padding:12px 14px;border-radius:10px;background:rgba(255,193,7,.14);color:#ffd36a;border:1px solid rgba(255,193,7,.28)}',
-            '.updater-system-task-warning.is-danger{background:rgba(220,53,69,.16);color:#ff7b8a;border-color:rgba(220,53,69,.36)}',
-            '.updater-system-task-warning.is-success{background:rgba(40,167,69,.16);color:#8fe1a4;border-color:rgba(40,167,69,.36)}',
-            '.updater-system-task-check{display:flex;gap:8px;align-items:flex-start;margin:12px 0;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#e6ebf3}',
+            '#updater-system-task-modal{--ust-bg:#fff;--ust-fg:#444;--ust-muted:#666;--ust-line:rgba(0,0,0,.1);--ust-surface:rgba(0,0,0,.035);--ust-head-bg:#2b323a;--ust-head-fg:#e2e5e9;--ust-log-bg:#f7f7f8;--ust-log-fg:#555;--ust-track:rgba(0,0,0,.08);--ust-warn-bg:#fff4d6;--ust-warn-fg:#7a5a00;--ust-warn-line:#f1d68a;--ust-danger-bg:#fdecee;--ust-danger-fg:#a12a37;--ust-danger-line:#f2b8bf;--ust-ok-bg:#e7f5ea;--ust-ok-fg:#1f6f35;--ust-ok-line:#b5dfc0;--ust-log-error:#c0392b;--ust-log-warning:#9a6b00;--ust-log-ok:#2e7d32;position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px}',
+            // the header band follows the manager top bar of each theme mode, the body its content area
+            '.lightness #updater-system-task-modal{--ust-head-bg:#f1f1f1;--ust-head-fg:#464646}',
+            '.light #updater-system-task-modal{--ust-head-bg:#343944;--ust-head-fg:#dcd9e3}',
+            '.dark #updater-system-task-modal{--ust-head-bg:#212328;--ust-head-fg:#bbb}',
+            '.darkness #updater-system-task-modal{--ust-bg:#282c34;--ust-fg:#ddd;--ust-muted:#a9b0bb;--ust-line:rgba(255,255,255,.1);--ust-surface:rgba(255,255,255,.05);--ust-head-bg:#212328;--ust-head-fg:#bbb;--ust-log-bg:rgba(0,0,0,.2);--ust-log-fg:#ccd4df;--ust-track:rgba(255,255,255,.1);--ust-warn-bg:rgba(255,193,7,.14);--ust-warn-fg:#ffd36a;--ust-warn-line:rgba(255,193,7,.28);--ust-danger-bg:rgba(220,53,69,.16);--ust-danger-fg:#ff7b8a;--ust-danger-line:rgba(220,53,69,.36);--ust-ok-bg:rgba(40,167,69,.16);--ust-ok-fg:#8fe1a4;--ust-ok-line:rgba(40,167,69,.36);--ust-log-error:#ff9d9d;--ust-log-warning:#ffd36a;--ust-log-ok:#8fe1a4}',
+            '.updater-system-task-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}',
+            '.updater-system-task-dialog{position:relative;width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;background:var(--ust-bg);color:var(--ust-fg);border:1px solid var(--ust-line);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.35);padding:24px}',
+            // the id outweighs the manager's button:not(.btn) frame
+            '#updater-system-task-modal .updater-system-task-close{position:absolute;top:11px;right:12px;display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--ust-head-fg);opacity:.8;cursor:pointer}',
+            '#updater-system-task-modal .updater-system-task-close:hover,#updater-system-task-modal .updater-system-task-close:focus-visible{opacity:1;background:rgba(127,127,127,.2)}',
+            '#updater-system-task-modal .updater-system-task-close svg{width:20px;height:20px;pointer-events:none}',
+            '.updater-system-task-title{margin:-24px -24px 18px;padding:16px 64px 16px 24px;background:var(--ust-head-bg);color:var(--ust-head-fg);border-bottom:1px solid var(--ust-line);font-size:20px;font-weight:700;line-height:26px}',
+            '.updater-system-task-text{margin:0 0 12px 0;color:var(--ust-muted);line-height:1.45}',
+            '.updater-system-task-warning{margin:12px 0;padding:12px 14px;border-radius:10px;background:var(--ust-warn-bg);color:var(--ust-warn-fg);border:1px solid var(--ust-warn-line)}',
+            '.updater-system-task-warning.is-danger{background:var(--ust-danger-bg);color:var(--ust-danger-fg);border-color:var(--ust-danger-line)}',
+            '.updater-system-task-warning.is-success{background:var(--ust-ok-bg);color:var(--ust-ok-fg);border-color:var(--ust-ok-line)}',
+            '.updater-system-task-check{display:flex;gap:8px;align-items:flex-start;margin:12px 0;padding:10px 12px;border-radius:10px;background:var(--ust-surface);border:1px solid var(--ust-line);color:var(--ust-fg)}',
             '.updater-system-task-check input{margin-top:3px}',
             '.updater-system-task-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}',
-            '.updater-system-task-meta div{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}',
+            '.updater-system-task-meta div{padding:10px 12px;border-radius:10px;background:var(--ust-surface);border:1px solid var(--ust-line)}',
+            '.updater-system-task-meta small{color:var(--ust-muted)}',
             '.updater-system-task-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}',
-            '.updater-system-task-progress{height:10px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin:14px 0}',
+            '.updater-system-task-progress{height:10px;background:var(--ust-track);border-radius:999px;overflow:hidden;margin:14px 0}',
             '.updater-system-task-progress span{display:block;height:100%;width:0;background:#28a745;transition:width .25s}',
-            '.updater-system-task-logs{margin-top:14px;max-height:220px;overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:10px;background:rgba(0,0,0,.18);padding:10px}',
-            '.updater-system-task-log{padding:5px 0;color:#ccd4df;border-bottom:1px solid rgba(255,255,255,.06)}',
+            '.updater-system-task-logs{margin-top:14px;max-height:220px;overflow:auto;border:1px solid var(--ust-line);border-radius:10px;background:var(--ust-log-bg);padding:10px}',
+            '.updater-system-task-log{padding:5px 0;color:var(--ust-log-fg);border-bottom:1px solid var(--ust-line)}',
             '.updater-system-task-log:last-child{border-bottom:0}',
-            '.updater-system-task-log.is-error{color:#ff9d9d}',
-            '.updater-system-task-log.is-warning{color:#ffd36a}',
-            '.updater-system-task-log.is-success{color:#8fe1a4}'
+            '.updater-system-task-log.is-error{color:var(--ust-log-error)}',
+            '.updater-system-task-log.is-warning{color:var(--ust-log-warning)}',
+            '.updater-system-task-log.is-success{color:var(--ust-log-ok)}'
         ].join('');
         var tag = document.createElement('style');
 
@@ -767,7 +776,17 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
 
     function setContent(html) {
         style();
-        shell().innerHTML = html;
+        var content = shell();
+        var logs = content.querySelector('.updater-system-task-logs');
+        // follow new log lines unless the operator scrolled up to read earlier ones
+        var follow = !logs || logs.scrollHeight - logs.scrollTop - logs.clientHeight < 24;
+        var offset = logs ? logs.scrollTop : 0;
+
+        content.innerHTML = html;
+        logs = content.querySelector('.updater-system-task-logs');
+        if (logs) {
+            logs.scrollTop = follow ? logs.scrollHeight : offset;
+        }
     }
 
     function renderConfirm() {
