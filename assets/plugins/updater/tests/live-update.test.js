@@ -21,13 +21,21 @@ function element(tag) {
                 el.content = el.content || element('div');
                 return el.content;
             }
+            // each render replaces the log box, as innerHTML does: 20 px per line in a 100 px window
+            if (selector === '.updater-system-task-logs' && el.innerHTML.includes('updater-system-task-logs')) {
+                if (!el.logs || el.logs.html !== el.innerHTML) {
+                    const lines = el.innerHTML.split('class="updater-system-task-log').length - 2;
+                    el.logs = { html: el.innerHTML, scrollTop: 0, clientHeight: 100, scrollHeight: lines * 20 };
+                }
+                return el.logs;
+            }
             return null;
         },
     };
     return el;
 }
 
-function setup({ activeTask = null, responses = [], refresh = null } = {}) {
+function setup({ activeTask = null, responses = [], refresh = null, managerTheme = 'default' } = {}) {
     const body = element('body');
     const head = element('head');
     const requests = [];
@@ -36,7 +44,7 @@ function setup({ activeTask = null, responses = [], refresh = null } = {}) {
     const clock = { now: 1_000_000 };
     let reloaded = 0;
     const payload = element('script');
-    payload.textContent = JSON.stringify({ config: { token: 't', csrfToken: 'c', activeTask }, labels: {} });
+    payload.textContent = JSON.stringify({ config: { token: 't', csrfToken: 'c', activeTask, managerTheme }, labels: {} });
 
     const document = {
         body, head,
@@ -72,6 +80,9 @@ function setup({ activeTask = null, responses = [], refresh = null } = {}) {
     const modal = () => body.children.find((c) => c.id === 'updater-system-task-modal');
     return {
         context, requests, clock,
+        modal,
+        logBox: () => (modal() && modal().content ? modal().content.querySelector('.updater-system-task-logs') : null),
+        css: () => (head.children.find((c) => c.id === 'updater-system-task-style') || {}).textContent || '',
         reloads: () => reloaded,
         text: () => (modal() && modal().content ? modal().content.innerHTML : ''),
         pending: () => timers.filter((t) => t.fn),
@@ -256,4 +267,67 @@ test('a server that never confirms does not hold the window', async () => {
     await page.tick(15000);
     assert.strictEqual(page.reloads(), 1);
     assert.strictEqual(page.pending().length, 0);
+});
+
+const withLogs = (count) => JSON.stringify({ ok: true, task: task('running', { logs: Array.from({ length: count }, (_, i) => ({ level: 'info', step: 'site_update', message: 'line ' + i })) }) });
+
+test('the log follows new lines so the operator sees the update progress', async () => {
+    const page = setup({ activeTask: task('running'), responses: [withLogs(10), withLogs(14)] });
+    await page.settle();
+    assert.strictEqual(page.logBox().scrollTop, 200, 'starts at the last line');
+
+    await page.tick();
+    assert.match(page.text(), /line 13/);
+    assert.strictEqual(page.logBox().scrollTop, 280, 'moves on to the new last line');
+});
+
+test('the log stays where the operator scrolled up to read', async () => {
+    const page = setup({ activeTask: task('running'), responses: [withLogs(10), withLogs(14), withLogs(16)] });
+    await page.settle();
+
+    page.logBox().scrollTop = 40;
+    await page.tick();
+    assert.strictEqual(page.logBox().scrollTop, 40);
+
+    // back at the bottom, it follows again
+    page.logBox().scrollTop = page.logBox().scrollHeight - page.logBox().clientHeight;
+    await page.tick();
+    assert.strictEqual(page.logBox().scrollTop, 320);
+});
+
+test('the window takes the colours of each manager theme mode', async () => {
+    const page = setup({ activeTask: task('running'), responses: [answer('running')] });
+    await page.settle();
+
+    for (const mode of ['lightness', 'light', 'dark', 'darkness']) {
+        assert.match(page.css(), new RegExp('(^|\\})\\.' + mode + ' #updater-system-task-modal\\{[^}]*--ust-head-bg:'), mode);
+    }
+    assert.match(page.css(), /\.darkness #updater-system-task-modal\{--ust-bg:/, 'only the dark mode darkens the body');
+    // past the variables, only the progress bar keeps a colour of its own
+    const rules = page.css().slice(page.css().indexOf('.updater-system-task-backdrop'));
+    assert.deepStrictEqual(rules.match(/#[0-9a-f]{3,8}\b/gi), ['#28a745'], 'element rules use the theme variables');
+});
+
+test('the close button draws a cross that fills its box and passes clicks to the button', async () => {
+    const page = setup({ activeTask: task('running'), responses: [answer('running')] });
+    await page.settle();
+
+    assert.match(page.modal().innerHTML, /class="updater-system-task-close" data-role="close" aria-label="Close"><svg /);
+    // under the id, so the manager's button:not(.btn) frame does not draw a box around the cross
+    assert.match(page.css(), /#updater-system-task-modal \.updater-system-task-close\{[^}]*width:36px;height:36px;padding:0;border:0;border-radius:8px;background:transparent/);
+    assert.match(page.css(), /#updater-system-task-modal \.updater-system-task-close svg\{width:20px;height:20px;pointer-events:none\}/);
+});
+
+test('under evo-ui the header strip takes the colours of its top bar', async () => {
+    const page = setup({ activeTask: task('running'), responses: [answer('running')], managerTheme: 'evo-ui' });
+    await page.settle();
+
+    assert.strictEqual(page.modal().className, 'is-evo-ui');
+    assert.match(page.css(), /\}#updater-system-task-modal\.is-evo-ui\{--ust-head-bg:#fff;/, 'white in both light modes');
+    assert.match(page.css(), /\.dark #updater-system-task-modal\.is-evo-ui\{--ust-head-bg:oklch\(26\.5%/);
+    assert.match(page.css(), /\.darkness #updater-system-task-modal\.is-evo-ui\{--ust-head-bg:oklch\(18\.5%/);
+
+    const other = setup({ activeTask: task('running'), responses: [answer('running')] });
+    await other.settle();
+    assert.strictEqual(other.modal().className || '', '');
 });
