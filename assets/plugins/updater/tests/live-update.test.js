@@ -35,7 +35,7 @@ function element(tag) {
     return el;
 }
 
-function setup({ activeTask = null, responses = [], refresh = null } = {}) {
+function setup({ activeTask = null, responses = [], refresh = null, managerTheme = 'default' } = {}) {
     const body = element('body');
     const head = element('head');
     const requests = [];
@@ -44,7 +44,7 @@ function setup({ activeTask = null, responses = [], refresh = null } = {}) {
     const clock = { now: 1_000_000 };
     let reloaded = 0;
     const payload = element('script');
-    payload.textContent = JSON.stringify({ config: { token: 't', csrfToken: 'c', activeTask }, labels: {} });
+    payload.textContent = JSON.stringify({ config: { token: 't', csrfToken: 'c', activeTask, managerTheme }, labels: {} });
 
     const document = {
         body, head,
@@ -316,4 +316,18 @@ test('the close button draws a cross that fills its box and passes clicks to the
     // under the id, so the manager's button:not(.btn) frame does not draw a box around the cross
     assert.match(page.css(), /#updater-system-task-modal \.updater-system-task-close\{[^}]*width:36px;height:36px;padding:0;border:0;border-radius:8px;background:transparent/);
     assert.match(page.css(), /#updater-system-task-modal \.updater-system-task-close svg\{width:20px;height:20px;pointer-events:none\}/);
+});
+
+test('under evo-ui the header strip takes the colours of its top bar', async () => {
+    const page = setup({ activeTask: task('running'), responses: [answer('running')], managerTheme: 'evo-ui' });
+    await page.settle();
+
+    assert.strictEqual(page.modal().className, 'is-evo-ui');
+    assert.match(page.css(), /\}#updater-system-task-modal\.is-evo-ui\{--ust-head-bg:#fff;/, 'white in both light modes');
+    assert.match(page.css(), /\.dark #updater-system-task-modal\.is-evo-ui\{--ust-head-bg:oklch\(26\.5%/);
+    assert.match(page.css(), /\.darkness #updater-system-task-modal\.is-evo-ui\{--ust-head-bg:oklch\(18\.5%/);
+
+    const other = setup({ activeTask: task('running'), responses: [answer('running')] });
+    await other.settle();
+    assert.strictEqual(other.modal().className || '', '');
 });

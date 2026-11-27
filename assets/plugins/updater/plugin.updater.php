@@ -717,6 +717,9 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
         if (!modal) {
             modal = document.createElement('div');
             modal.id = 'updater-system-task-modal';
+            if (config.managerTheme === 'evo-ui') {
+                modal.className = 'is-evo-ui';
+            }
             modal.innerHTML = '<div class="updater-system-task-backdrop"></div><div class="updater-system-task-dialog" role="dialog" aria-modal="true"><button type="button" class="updater-system-task-close" data-role="close" aria-label="' + esc(t('close', 'Close')) + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div data-role="content"></div></div>';
             document.body.appendChild(modal);
             modal.addEventListener('click', function (event) {
@@ -741,6 +744,10 @@ if (!function_exists('updaterBuildSystemTaskScript')) {
             '.light #updater-system-task-modal{--ust-head-bg:#343944;--ust-head-fg:#dcd9e3}',
             '.dark #updater-system-task-modal{--ust-head-bg:#212328;--ust-head-fg:#bbb}',
             '.darkness #updater-system-task-modal{--ust-bg:#282c34;--ust-fg:#ddd;--ust-muted:#a9b0bb;--ust-line:rgba(255,255,255,.1);--ust-surface:rgba(255,255,255,.05);--ust-head-bg:#212328;--ust-head-fg:#bbb;--ust-log-bg:rgba(0,0,0,.2);--ust-log-fg:#ccd4df;--ust-track:rgba(255,255,255,.1);--ust-warn-bg:rgba(255,193,7,.14);--ust-warn-fg:#ffd36a;--ust-warn-line:rgba(255,193,7,.28);--ust-danger-bg:rgba(220,53,69,.16);--ust-danger-fg:#ff7b8a;--ust-danger-line:rgba(220,53,69,.36);--ust-ok-bg:rgba(40,167,69,.16);--ust-ok-fg:#8fe1a4;--ust-ok-line:rgba(40,167,69,.36);--ust-log-error:#ff9d9d;--ust-log-warning:#ffd36a;--ust-log-ok:#8fe1a4}',
+            // evo-ui draws its top bar in the EvoUI base colours: white in both light modes
+            '#updater-system-task-modal.is-evo-ui{--ust-head-bg:#fff;--ust-head-fg:oklch(21% 0.006 286)}',
+            '.dark #updater-system-task-modal.is-evo-ui{--ust-head-bg:oklch(26.5% 0.011 265);--ust-head-fg:oklch(92% 0.004 286.32)}',
+            '.darkness #updater-system-task-modal.is-evo-ui{--ust-head-bg:oklch(18.5% 0.012 265);--ust-head-fg:#fff}',
             '.updater-system-task-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.5)}',
             '.updater-system-task-dialog{position:relative;width:min(720px,calc(100vw - 32px));max-height:calc(100vh - 48px);overflow:auto;background:var(--ust-bg);color:var(--ust-fg);border:1px solid var(--ust-line);border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.35);padding:24px}',
             // the id outweighs the manager's button:not(.btn) frame
@@ -1510,6 +1517,7 @@ if ($role != 1 && $wdgVisibility == 'AdminOnly') {
                                 'schedulerStatus' => $schedulerStatus,
                                 'workerStatus' => $workerStatus,
                                 'activeTask' => $activeUpdateTask,
+                                'managerTheme' => class_exists(\EvolutionCMS\Facades\ManagerTheme::class) ? (string)\EvolutionCMS\Facades\ManagerTheme::getTheme() : '',
                             ], [
                                 'title' => updaterLang($_lang, 'updater_live_update_title', 'System update'),
                                 'intro' => updaterLang($_lang, 'updater_live_update_intro', 'Scheduler is available. The update can be queued and monitored from the manager.'),
