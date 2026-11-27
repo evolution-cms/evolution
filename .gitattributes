@@ -3,6 +3,7 @@
 .tx export-ignore
 ng.inx export-ignore
 README.md export-ignore
+.github/assets export-ignore
 LICENSE export-ignore
 
 # Store every text file with LF; the working tree matches on every platform.
